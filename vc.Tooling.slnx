@@ -16,4 +16,33 @@
   <Folder Name="/docs/">
     <File Path="docs/roadmap.md" />
   </Folder>
+  <Project Path="src/vc.Analyzers.Design.Extensibility/vc.Analyzers.Design.Extensibility.csproj" />
+  <Project Path="src/vc.Analyzers.Design.Vbd/vc.Analyzers.Design.Vbd.csproj" />
+  <Project Path="src/vc.Analyzers.Resilience/vc.Analyzers.Resilience.csproj" />
+  <Project Path="src/vc.Architecture.Extensibility/vc.Architecture.Extensibility.csproj" />
+  <Project Path="src/vc.Architecture.Vbd/vc.Architecture.Vbd.csproj" />
+  <Project Path="src/vc.Architecture/vc.Architecture.csproj" />
+  <Project Path="src/vc.CodeFixes.Design.Vbd/vc.CodeFixes.Design.Vbd.csproj" />
+  <Project Path="src/vc.CodeFixes.Design/vc.CodeFixes.Design.csproj" />
+  <Project Path="src/vc.CodeFixes.Security/vc.CodeFixes.Security.csproj" />
+  <Project Path="src/vc.Generators.Common/vc.Generators.Common.csproj" />
+  <Project Path="src/vc.Generators.Design.Extensibility/vc.Generators.Design.Extensibility.csproj" />
+  <Project Path="src/vc.Generators.Design.Vbd/vc.Generators.Design.Vbd.csproj" />
+  <Project Path="src/vc.Ifx/vc.Ifx.csproj" />
+  <Project Path="src/vc.Runtime.Vbd/vc.Runtime.Vbd.csproj" />
+  <Project Path="src/vc.Tooling.Abstractions/vc.Tooling.Abstractions.csproj" />
+  <Project Path="src/vc.Tooling.Diagnostics/vc.Tooling.Diagnostics.csproj" />
+  <Project Path="src/vc.Utility/vc.Utility.csproj" />
+  <Project Path="tests/vc.Analyzers.Design.Extensibility.Tests/vc.Analyzers.Design.Extensibility.Tests.csproj" />
+  <Project Path="tests/vc.Analyzers.Design.Tests/vc.Analyzers.Design.Tests.csproj" />
+  <Project Path="tests/vc.Analyzers.Design.Vbd.Tests/vc.Analyzers.Design.Vbd.Tests.csproj" />
+  <Project Path="tests/vc.Architecture.Extensibility.Tests/vc.Architecture.Extensibility.Tests.csproj" />
+  <Project Path="tests/vc.Architecture.Tests/vc.Architecture.Tests.csproj" />
+  <Project Path="tests/vc.Architecture.Vbd.Tests/vc.Architecture.Vbd.Tests.csproj" />
+  <Project Path="tests/vc.CodeFixes.Design.Vbd.Tests/vc.CodeFixes.Design.Vbd.Tests.csproj" />
+  <Project Path="tests/vc.Generators.Design.Extensibility.Tests/vc.Generators.Design.Extensibility.Tests.csproj" />
+  <Project Path="tests/vc.Generators.Design.Vbd.Tests/vc.Generators.Design.Vbd.Tests.csproj" />
+  <Project Path="tests/vc.Ifx.Tests/vc.Ifx.Tests.csproj" />
+  <Project Path="tests/vc.Runtime.Vbd.Tests/vc.Runtime.Vbd.Tests.csproj" />
+  <Project Path="tests/vc.Utility.Tests/vc.Utility.Tests.csproj" />
 </Solution>
