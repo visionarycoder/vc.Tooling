@@ -1,6 +1,6 @@
 ﻿namespace VisionaryCoder.Architecture
 {
-    public class ComponentAttribute
+    public class ComponentAttribute : Attribute
     {
     }
 }

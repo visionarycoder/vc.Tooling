@@ -1,6 +1,6 @@
 ﻿namespace VisionaryCoder.Analyzers_Design_Vbd
 {
-    public class VbdEngineAnalyzer
+    public class VbdEngineAnalyzer: DiagnosticAnalyzer
     {
     }
 }

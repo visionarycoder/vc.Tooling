@@ -1,6 +1,6 @@
 ﻿namespace VisionaryCoder.Architecture_Vbd
 {
-    public class VbdVolatility
+    public class VbdVolatility : Attribute
     {
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace VisionaryCoder.Architecture
 {
-    public class BoundaryAttribute
+    public class BoundaryAttribute : Attribute
     {
     }
 }

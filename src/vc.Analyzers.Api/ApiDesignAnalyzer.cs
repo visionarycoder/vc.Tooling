@@ -36,3 +36,39 @@ public sealed class ApiDesignAnalyzer : DiagnosticAnalyzer
         // - Inspect public action methods for naming patterns (e.g., Get*, Post*, Put*, Delete*).
     }
 }
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class ApiValidationAnalyzer : DiagnosticAnalyzer
+{
+    // ToDo: Define rules for validating API design, such as ensuring consistent use of validation attributes, checking for missing model validation, etc.
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => throw new NotImplementedException();
+
+    public override void Initialize(AnalysisContext context)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class ApiVersioningAnalyzer : DiagnosticAnalyzer
+{
+    // ToDo: Define rules for API versioning, such as ensuring controllers are properly versioned, checking for deprecated API usage, etc.
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => throw new NotImplementedException();
+
+    public override void Initialize(AnalysisContext context)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class ApiResponseTypeAnalyzer : DiagnosticAnalyzer
+{
+    // ToDo: Define rules for API response types, such as ensuring consistent use of IActionResult, checking for proper status code returns, etc.
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => throw new NotImplementedException();
+
+    public override void Initialize(AnalysisContext context)
+    {
+        throw new NotImplementedException();
+    }
+}

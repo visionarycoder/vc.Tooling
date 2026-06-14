@@ -1,12 +1,14 @@
 <Project>
   <PropertyGroup Label="Global Build Defaults">
-    <LangVersion>latestMajor</LangVersion>
+    <LangVersion>preview</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <AnalysisLevel>latest</AnalysisLevel>
     <ContinuousIntegrationBuild Condition="'$(CI)' != ''">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 

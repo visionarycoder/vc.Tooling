@@ -1,9 +1,25 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/vc.Analyzers.Architecture/vc.Analyzers.Architecture.csproj" />
+    <Project Path="src/vc.Generators.Abstractions/vc.Generators.Abstractions.csproj" />
+    <Project Path="src/vc.Generators.Api/vc.Generators.Api.csproj" />
+    <Project Path="src/vc.Generators.Data/vc.Generators.Data.csproj" />
+    <Project Path="src/vc.Generators.Design/vc.Generators.Design.csproj" />
+    <Project Path="src/vc.Generators.Distributed/vc.Generators.Distributed.csproj" />
+    <Project Path="src/vc.Generators.Domain/vc.Generators.Domain.csproj" />
+    <Project Path="src/vc.Generators.Observabilty/vc.Generators.Observabilty.csproj" />
+    <Project Path="src/vc.Generators.Performance/vc.Generators.Performance.csproj" />
+    <Project Path="src/vc.Generators.Proxy/vc.Generators.Proxy.csproj" />
+    <Project Path="src/vc.Generators.Resilience/vc.Generators.Resilience.csproj" />
+    <Project Path="src/vc.Generators.Security/vc.Generators.Security.csproj" />
+    <Project Path="src/vc.Generators.TestData/vc.Generators.TestData.csproj" />
+    <Project Path="src/vc.Tooling.Core/vc.Tooling.Core.csproj" />
+    <Project Path="src/vc.Tooling.Metadata/vc.Tooling.Metadata.csproj" />
+    <Project Path="src/vc.Tooling.Shared/vc.Tooling.Shared.csproj" />
+  </Folder>
   <Folder Name="/src/analyzers/">
     <Project Path="src/vc.Analyzers.Api/vc.Analyzers.Api.csproj" />
     <Project Path="src/vc.Analyzers.Core/vc.Analyzers.Core.csproj" />
-    <Project Path="src/vc.Analyzers.Design.Architecure/vc.Analyzers.Design.Architecure.csproj" />
     <Project Path="src/vc.Analyzers.Design/vc.Analyzers.Design.csproj" />
     <Project Path="src/vc.Analyzers.Distributed/vc.Analyzers.Distributed.csproj" />
     <Project Path="src/vc.Analyzers.Domain/vc.Analyzers.Domain.csproj" Id="6131af3f-4f78-44d2-85a1-edd621826df7" />

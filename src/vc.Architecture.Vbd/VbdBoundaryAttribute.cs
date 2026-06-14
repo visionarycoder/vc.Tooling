@@ -1,6 +1,6 @@
 ﻿namespace VisionaryCoder.Architecture_Vbd
 {
-    public class VbdBoundaryAttribute
+    public class VbdBoundaryAttribute : Attribute
     {
     }
 }
