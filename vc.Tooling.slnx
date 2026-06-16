@@ -1,18 +1,124 @@
 <Solution>
-  <Folder Name="/src/" />
-  <Folder Name="/src/analyzers/" />
-  <Folder Name="/src/codefixes/" />
+  <!-- Source Projects -->
+  <Folder Name="/src/">
+    <Folder Name="Analyzer & CodeFix">
+      <Project Path="src/vc.Analyzers/vc.Analyzers.csproj" />
+      <Project Path="src/vc.CodeFixes/vc.CodeFixes.csproj" />
+    </Folder>
+    <Folder Name="Code Generation">
+      <Project Path="src/vc.Generators/vc.Generators.csproj" />
+    </Folder>
+    <Folder Name="Architecture & Design">
+      <Project Path="src/vc.Architecture/vc.Architecture.csproj" />
+    </Folder>
+    <Folder Name="Runtime & Infrastructure">
+      <Project Path="src/vc.Runtime/vc.Runtime.csproj" />
+      <Project Path="src/vc.Ifx/vc.Ifx.csproj" />
+      <Project Path="src/vc.Tooling/vc.Tooling.csproj" />
+    </Folder>
+    <Folder Name="Utilities">
+      <Project Path="src/vc.Utility/vc.Utility.csproj" />
+    </Folder>
+  </Folder>
+
+  <!-- Test Projects -->
+  <Folder Name="/tests/">
+    <Project Path="tests/vc.Analyzers.Tests/vc.Analyzers.Tests.csproj" />
+    <Project Path="tests/vc.Architecture.Tests/vc.Architecture.Tests.csproj" />
+    <Project Path="tests/vc.CodeFixes.Tests/vc.CodeFixes.Tests.csproj" />
+    <Project Path="tests/vc.Generators.Tests/vc.Generators.Tests.csproj" />
+    <Project Path="tests/vc.Ifx.Tests/vc.Ifx.Tests.csproj" />
+    <Project Path="tests/vc.Runtime.Tests/vc.Runtime.Tests.csproj" />
+    <Project Path="tests/vc.Utility.Tests/vc.Utility.Tests.csproj" />
+  </Folder>
+
+  <!-- Documentation -->
   <Folder Name="/docs/">
     <File Path="docs/roadmap.md" />
+    <File Path="docs/architecture.md" />
+    <File Path="docs/arch.md" />
+    <File Path="docs/analyzers-plan.md" />
+    <Folder Name="ADR (Architecture Decision Records)">
+      <File Path="docs/adr/README.md" />
+      <File Path="docs/adr/INDEX.md" />
+      <File Path="docs/adr/TOC.md" />
+      <File Path="docs/adr/TEMPLATE.md" />
+      <File Path="docs/adr/0001-use-volatility-based-decomposition.md" />
+      <File Path="docs/adr/0002-dependency-injection-best-practices.md" />
+      <File Path="docs/adr/0003-incremental-generators-only.md" />
+    </Folder>
+    <Folder Name="Generator Instructions">
+      <File Path="docs/instructions/strong-id-generator.md" />
+      <File Path="docs/instructions/state-machine-generator.md" />
+      <File Path="docs/instructions/command-handler-generator.md" />
+      <File Path="docs/instructions/query-handler-generator.md" />
+      <File Path="docs/instructions/event-generator.md" />
+      <File Path="docs/instructions/validation-generator.md" />
+      <File Path="docs/instructions/builder-pattern-generator.md" />
+      <File Path="docs/instructions/union-generator.md" />
+      <File Path="docs/instructions/mapping-generator.md" />
+      <File Path="docs/instructions/http-endpoint-generator.md" />
+      <File Path="docs/instructions/api-client-generator.md" />
+      <File Path="docs/instructions/dto-generator.md" />
+      <File Path="docs/instructions/repository-generator.md" />
+      <File Path="docs/instructions/openapi-generator.md" />
+      <File Path="docs/instructions/message-contract-generator.md" />
+      <File Path="docs/instructions/graphql-type-generator.md" />
+      <File Path="docs/instructions/telemetry-generator.md" />
+      <File Path="docs/instructions/feature-flag-generator.md" />
+      <File Path="docs/instructions/configuration-generator.md" />
+      <File Path="docs/instructions/permissions-generator.md" />
+    </Folder>
+    <Folder Name="Analyzer Instructions">
+      <File Path="docs/instructions/unified-diagnostic-ids.md" />
+      <File Path="docs/instructions/analyzer-rule-composition.md" />
+    </Folder>
   </Folder>
-  <Project Path="src/vc.Architecture/vc.Architecture.csproj" />
-  <Project Path="src/vc.Ifx/vc.Ifx.csproj" />
-  <Project Path="src/vc.Utility/vc.Utility.csproj" />
-  <Project Path="tests/vc.Analyzers.Tests/vc.Analyzers.Tests.csproj" />
-  <Project Path="tests/vc.Architecture.Tests/vc.Architecture.Tests.csproj" />
-  <Project Path="tests/vc.CodeFixes.Tests/vc.CodeFixes.Tests.csproj" />
-  <Project Path="tests/vc.Generators.Tests/vc.Generators.Tests.csproj" />
-  <Project Path="tests/vc.Ifx.Tests/vc.Ifx.Tests.csproj" />
-  <Project Path="tests/vc.Runtime.Tests/vc.Runtime.Tests.csproj" />
-  <Project Path="tests/vc.Utility.Tests/vc.Utility.Tests.csproj" />
+
+  <!-- Configuration & Workspace -->
+  <Folder Name="/.github/">
+    <File Path=".github/copilot-instructions.md" />
+    <Folder Name="prompts">
+      <File Path=".github/prompts/generator-prompt.md" />
+      <File Path=".github/prompts/analyzer-prompt.md" />
+      <File Path=".github/prompts/codefix-prompt.md" />
+      <File Path=".github/prompts/architecture-validation-prompt.md" />
+      <File Path=".github/prompts/implementation-test-suite-prompt.md" />
+      <File Path=".github/prompts/expand-shared-library-prompt.md" />
+      <File Path=".github/prompts/integrate-all-components.md" />
+    </Folder>
+  </Folder>
+
+  <!-- Agent Skills & Configuration -->
+  <Folder Name="/.agents/">
+    <Folder Name="skills">
+      <Folder Name="vbd-rules">
+        <File Path=".agents/skills/vbd-rules/SKILL.md" />
+      </Folder>
+      <Folder Name="vbd-manager-vault">
+        <File Path=".agents/skills/vbd-manager-vault/SKILL.md" />
+      </Folder>
+      <Folder Name="vbd-engine-vault">
+        <File Path=".agents/skills/vbd-engine-vault/SKILL.md" />
+      </Folder>
+      <Folder Name="vbd-access-vault">
+        <File Path=".agents/skills/vbd-access-vault/SKILL.md" />
+      </Folder>
+      <Folder Name="dependency-injection">
+        <File Path=".agents/skills/dependency-injection/SKILL.md" />
+      </Folder>
+      <Folder Name="class-file-conventions">
+        <File Path=".agents/skills/class-file-conventions/SKILL.md" />
+      </Folder>
+      <Folder Name="adr">
+        <File Path=".agents/skills/adr/SKILL.md" />
+      </Folder>
+      <Folder Name="unified-diagnostic-ids">
+        <File Path=".agents/skills/unified-diagnostic-ids/SKILL.md" />
+      </Folder>
+      <Folder Name="analyzer-rule-composition">
+        <File Path=".agents/skills/analyzer-rule-composition/SKILL.md" />
+      </Folder>
+    </Folder>
+  </Folder>
 </Solution>

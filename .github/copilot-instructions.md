@@ -45,6 +45,20 @@ Skills in `.agents/skills/` contain reusable rules and best practices. Load them
   - Rule IDs: CFC0001–CFC0002
   - Applies to: all C# source files
 
+- **[Unified Diagnostic IDs](.agents/skills/unified-diagnostic-ids/SKILL.md)** — Centralized system for semantic diagnostic ID definitions across all analyzers. Eliminates magic strings and ensures consistency.
+  - Format: `VC{Category}{Number:0000}` (e.g., `VCARCH0001`, `VCAPI0003`)
+  - Rule IDs: VDI0001–VDI0005
+  - Key files: `DiagnosticIds.cs`, `DIAGNOSTIC_IDS_REFERENCE.md`
+
+- **[Analyzer Rule Composition](.agents/skills/analyzer-rule-composition/SKILL.md)** — Build analyzers as composition roots and move each rule into a dedicated class under a rules subfolder.
+  - Rule IDs: ARC0001–ARC0005
+  - Core model: one analyzer can compose one or more rule classes
+  - Example: `ExceptionSafetyAnalyzer` + `ExceptionSafetyRules/*Rule.cs`
+
+- **[Token-Efficient Implementation](.agents/skills/token-efficient-implementation/SKILL.md)** — Execute implementation in minimal-token slices with mandatory shared-project reuse, sample alignment, and complete test coverage.
+  - Rule IDs: TEI0001–TEI0006
+  - Core model: one slice at a time with code + tests + validation
+
 ### Architecture Decisions
 
 - **[Architecture Decision Records (ADRs)](.agents/skills/adr/SKILL.md)** — Document significant architectural decisions and their rationale using the ADR framework.
@@ -80,11 +94,33 @@ Prompts in `.github/prompts/` provide task-specific guidance. Use them when work
 7. **[Integrate All Components Prompt](.github/prompts/integrate-all-components.md)** — End-to-end integration workflow.
    - Use when: wiring analyzer + code fix + generator together
 
+8. **[Token-Efficient Implementation Prompt](.github/prompts/token-efficient-implementation-prompt.md)** — Compact execution prompt for one implementation slice with full quality gates.
+  - Use when: implementing roadmap slices with minimal prompt overhead
+
 ---
 
 ## Generator Instructions
 
 Generator specifications are in `docs/instructions/`. Each describes input attributes, output contracts, project location, and diagnostics.
+
+## Analyzer Instructions
+
+Analyzer specifications are in `docs/instructions/`. Each describes diagnostic rules, implementation patterns, and integration requirements.
+
+- **[Unified Diagnostic IDs](docs/instructions/unified-diagnostic-ids.md)** — Centralized semantic diagnostic ID management system for all analyzers. Step-by-step implementation guide with examples.
+  - Format: `VC{Category}{Number:0000}` (e.g., `VCARCH0001`)
+  - Use when: Creating new analyzers, adding diagnostic rules, or migrating legacy analyzers
+  - Related skill: [Unified Diagnostic IDs](.agents/skills/unified-diagnostic-ids/SKILL.md)
+
+- **[Analyzer Rule Composition](docs/instructions/analyzer-rule-composition.md)** — Enforces analyzer composition where each rule is a separate class in a rules subfolder.
+  - Use when: Creating analyzers with one or more rules, or refactoring monolithic analyzers
+  - Related skill: [Analyzer Rule Composition](.agents/skills/analyzer-rule-composition/SKILL.md)
+
+- **[Token-Efficient Implementation](docs/instructions/token-efficient-implementation.md)** — Slice-based implementation workflow optimized for low token usage.
+  - Use when: Implementing roadmap milestones in compact, testable increments
+  - Related skill: [Token-Efficient Implementation](.agents/skills/token-efficient-implementation/SKILL.md)
+
+---
 
 ### By Category
 
@@ -136,6 +172,11 @@ Generator specifications are in `docs/instructions/`. Each describes input attri
 - **[Architecture Notes](docs/architecture.md)** — High-level architecture (currently empty; expand as needed).
 - **[Architecture Summary](docs/arch.md)** — Quick reference (currently empty; expand as needed).
 - **[Analyzers Plan](docs/analyzers-plan.md)** — Analyzer design notes (currently empty; expand as needed).
+- **[CodeFixes Plan](docs/codefixes-plan.md)** — Code-fix delivery roadmap aligned to analyzer rules.
+- **[Generators Plan](docs/generators-plan.md)** — Large-scale generator platform roadmap and execution waves.
+- **[Full Sample Implementation](docs/sample-full-implementation.md)** — End-to-end sample blueprint spanning architecture/runtime/integration/tooling/utility.
+- **[Test Coverage Plan](docs/test-coverage-plan.md)** — Required happy-path, edge-case, bad-input, and failure-path coverage matrix.
+- **[Implementation Slices](docs/implementation-slices.md)** — Practical execution checklist for token-efficient implementation slices.
 
 ### Key Principles
 
