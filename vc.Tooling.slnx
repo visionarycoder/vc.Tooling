@@ -1,17 +1,17 @@
 <Solution>
   <!-- Source Projects -->
   <Folder Name="/src/">
-    <Folder Name="Analyzer & CodeFix">
+    <Folder Name="Analyzer &amp; CodeFix">
       <Project Path="src/vc.Analyzers/vc.Analyzers.csproj" />
       <Project Path="src/vc.CodeFixes/vc.CodeFixes.csproj" />
     </Folder>
     <Folder Name="Code Generation">
       <Project Path="src/vc.Generators/vc.Generators.csproj" />
     </Folder>
-    <Folder Name="Architecture & Design">
+    <Folder Name="Architecture &amp; Design">
       <Project Path="src/vc.Architecture/vc.Architecture.csproj" />
     </Folder>
-    <Folder Name="Runtime & Infrastructure">
+    <Folder Name="Runtime &amp; Infrastructure">
       <Project Path="src/vc.Runtime/vc.Runtime.csproj" />
       <Project Path="src/vc.Ifx/vc.Ifx.csproj" />
       <Project Path="src/vc.Tooling/vc.Tooling.csproj" />
@@ -75,7 +75,7 @@
     </Folder>
   </Folder>
 
-  <!-- Configuration & Workspace -->
+  <!-- Configuration &amp; Workspace -->
   <Folder Name="/.github/">
     <File Path=".github/copilot-instructions.md" />
     <Folder Name="prompts">
@@ -89,7 +89,7 @@
     </Folder>
   </Folder>
 
-  <!-- Agent Skills & Configuration -->
+  <!-- Agent Skills &amp; Configuration -->
   <Folder Name="/.agents/">
     <Folder Name="skills">
       <Folder Name="vbd-rules">

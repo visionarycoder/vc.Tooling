@@ -1,6 +1,9 @@
-﻿namespace VisionaryCoder.Architecture_Vbd
+﻿namespace VisionaryCoder.Architecture.Vbd;
+
+public enum VbdVolatility
 {
-    public class VbdVolatility : Attribute
-    {
-    }
+    Unknown = 0,
+    PolicyOrchestration = 1,
+    Algorithm = 2,
+    InfrastructureIntegration = 3,
 }

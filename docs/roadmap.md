@@ -8,6 +8,8 @@ Execution model:
 - Reuse shared patterns and contracts before writing new code.
 - Keep each implementation prompt scoped to one slice and one acceptance checklist.
 - Use referenced plan documents instead of repeating long context in each request.
+- **Check in all changes after each phase completes before starting the next phase.**
+- **Pause between phases to avoid exhausting token budget within one context window.**
 
 ## Linked Plans
 
@@ -31,14 +33,18 @@ All implementation slices must leverage these projects intentionally:
 
 ## Phase 1: Baseline and Contract Freeze
 
-- [ ] Validate solution and project structure in [vc.Tooling.slnx](vc.Tooling.slnx).
-- [ ] Freeze shared coding contracts and naming conventions.
-- [ ] Finalize reusable utility/helper boundaries in [src/vc.Utility](src/vc.Utility).
-- [ ] Finalize architecture and boundary contracts in [src/vc.Architecture](src/vc.Architecture).
+- [x] Validate solution and project structure in [vc.Tooling.slnx](vc.Tooling.slnx).
+- [x] Freeze shared coding contracts and naming conventions.
+- [x] Finalize reusable utility/helper boundaries in [src/vc.Utility](src/vc.Utility).
+- [x] Finalize architecture and boundary contracts in [src/vc.Architecture](src/vc.Architecture).
 
 Exit criteria:
 
 - Contract drift is minimized before feature implementation starts.
+
+**Phase 1 gate:** Commit all changes. Run `dotnet build` to confirm baseline compiles. Start a new context window before Phase 2.
+
+---
 
 ## Phase 2: Shared Platform First
 
@@ -51,6 +57,10 @@ Exit criteria:
 
 - New slices can reference shared components instead of regenerating context and code.
 
+**Phase 2 gate:** Commit all changes. Verify shared projects compile and have no unresolved references. Start a new context window before Phase 3.
+
+---
+
 ## Phase 3: Analyzer and Code-Fix Slices
 
 - [ ] Execute analyzer slices from [docs/analyzers-plan.md](docs/analyzers-plan.md).
@@ -61,6 +71,11 @@ Exit criteria:
 Exit criteria:
 
 - Analyzer and code-fix parity achieved for implemented rule bundles.
+- All analyzer tests pass.
+
+**Phase 3 gate:** Commit all analyzer, code-fix, and test files. Run `dotnet build src/vc.Analyzers/vc.Analyzers.csproj` and `dotnet test tests/vc.Analyzers.Tests` and `dotnet test tests/vc.CodeFixes.Tests`. Start a new context window before Phase 4.
+
+---
 
 ## Phase 4: Generator Slices
 
@@ -72,6 +87,11 @@ Exit criteria:
 Exit criteria:
 
 - Generator slices pass deterministic output and performance baselines.
+- All generator tests pass.
+
+**Phase 4 gate:** Commit all generator source and test files. Run `dotnet build src/vc.Generators/vc.Generators.csproj` and `dotnet test tests/vc.Generators.Tests`. Start a new context window before Phase 5.
+
+---
 
 ## Phase 5: Full Sample Implementation
 
@@ -87,6 +107,11 @@ Exit criteria:
 Exit criteria:
 
 - Sample demonstrates end-to-end architecture, runtime, integration, tooling, and utility usage.
+- Sample builds and all four scenarios execute successfully.
+
+**Phase 5 gate:** Commit all sample files. Run `dotnet build` from root. Start a new context window before Phase 6.
+
+---
 
 ## Phase 6: Detailed Coverage and Quality Gates
 
@@ -104,13 +129,40 @@ Exit criteria:
 Exit criteria:
 
 - Coverage goals achieved and critical risk scenarios tested.
+- All test projects pass.
+
+**Phase 6 gate:** Commit all test files. Run `dotnet test` from repo root to confirm full suite is green. Start a new context window before Phase 7.
+
+---
 
 ## Phase 7: Release Hardening
 
-- [ ] Run full build and test matrix.
-- [ ] Validate deterministic generation across clean builds.
-- [ ] Validate diagnostics and code-fix behavior on sample and test fixtures.
-- [ ] Publish release readiness artifacts.
+- [ ] Run `dotnet build` from repo root on a clean checkout.
+- [ ] Run `dotnet test` from repo root; confirm zero failures.
+- [ ] Validate deterministic generation: run `dotnet build` twice and confirm generator outputs are byte-stable.
+- [ ] Validate diagnostics fire correctly on sample source.
+- [ ] Validate code fixes apply cleanly on sample source.
+- [ ] Confirm no magic string diagnostic IDs remain in `src/vc.Analyzers`.
+- [ ] Confirm all public APIs in generated output have XML documentation.
+- [ ] Confirm `samples/FullImplementation` builds and runs successfully.
+- [ ] Confirm all linked plan milestones are checked off:
+  - [ ] [docs/analyzers-plan.md](docs/analyzers-plan.md)
+  - [ ] [docs/codefixes-plan.md](docs/codefixes-plan.md)
+  - [ ] [docs/generators-plan.md](docs/generators-plan.md)
+  - [ ] [docs/sample-full-implementation.md](docs/sample-full-implementation.md)
+  - [ ] [docs/test-coverage-plan.md](docs/test-coverage-plan.md)
+- [ ] Update `README.md` with final feature list and usage examples.
+- [ ] Add `CHANGELOG.md` entry for release.
+- [ ] Add packaging steps to `release.yml` for NuGet publishing.
+- [ ] Tag a release commit and push.
+
+Exit criteria:
+
+- Full build and test suite are green on a clean checkout.
+- All linked plan milestones are complete.
+- Release artifacts are packaged and tagged.
+
+**Phase 7 gate:** Commit all remaining changes. Create release tag. Done.
 
 ## Token-Minimized Execution Rules
 
@@ -121,6 +173,8 @@ Use these rules for every implementation task:
 3. Reuse shared helpers; avoid duplicated local implementations.
 4. Keep prompts short: goal, target files, acceptance checks.
 5. Update progress with deltas only.
+6. **Commit and push all changes at each phase gate before continuing.**
+7. **Start a fresh context window at each phase gate to avoid token exhaustion.**
 
 ## Recommended Slice Order
 
