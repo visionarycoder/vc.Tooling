@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,36 +11,7 @@ namespace Vc.Analyzers.Tests;
 public sealed partial class ExceptionSafetyAnalyzerTests
 {
     [Fact]
-    public async Task ExceptionSafetyAnalyzer_ShouldReportDiagnostic_WhenCatchBlockIsEmpty()
-    {
-        var source = """
-            namespace Sample.Design
-            {
-                using System;
-
-                public sealed class ErrorHandler
-                {
-                    public void Handle()
-                    {
-                        try
-                        {
-                            var x = 1 / int.Parse("0");
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    }
-                }
-            }
-            """;
-
-        var diagnostics = await GetDiagnosticsAsync(source);
-
-        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DesignExceptionSafetyEmptyCatch);
-    }
-
-    [Fact]
-    public async Task ExceptionSafetyAnalyzer_ShouldNotReportDiagnostic_WhenCatchBlockHasCode()
+    public async Task ExceptionSafetyAnalyzer_ShouldReportDiagnostic_WhenCatchBlockCatchesException()
     {
         var source = """
             namespace Sample.Design
@@ -57,7 +28,7 @@ public sealed partial class ExceptionSafetyAnalyzerTests
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Error: " + ex.Message);
+                            // Broad catch
                         }
                     }
                 }
@@ -66,22 +37,36 @@ public sealed partial class ExceptionSafetyAnalyzerTests
 
         var diagnostics = await GetDiagnosticsAsync(source);
 
-        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DesignExceptionSafetyEmptyCatch);
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DesignExceptionSafetyBroadCatch);
     }
 
-    private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
+    [Fact]
+    public async Task ExceptionSafetyAnalyzer_ShouldNotReportDiagnostic_WhenCatchBlockCatchesSpecificException()
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
-        var compilation = CSharpCompilation.Create(
-            "AnalyzerTests",
-            [tree],
-            [
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
-            ],
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var source = """
+            namespace Sample.Design
+            {
+                using System;
 
-        return await compilation.WithAnalyzers([new ExceptionSafetyAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+                public sealed class ErrorHandler
+                {
+                    public void Handle()
+                    {
+                        try
+                        {
+                            var x = 1 / int.Parse("0");
+                        }
+                        catch (FormatException ex)
+                        {
+                            // Specific catch
+                        }
+                    }
+                }
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DesignExceptionSafetyBroadCatch);
     }
 }
