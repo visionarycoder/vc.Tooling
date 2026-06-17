@@ -10,6 +10,9 @@ public sealed class VcCommandHandlerAttribute : Attribute {}
 public sealed class VcQueryHandlerAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
+public sealed class VcDtoAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class VcProjectionAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
