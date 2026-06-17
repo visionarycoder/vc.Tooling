@@ -99,6 +99,11 @@ public static class DiagnosticIds
     public const string ResilienceBulkheadMissing = "VCRES0011";
     public const string ResilienceBackpressureMissing = "VCRES0012";
 
+    // Observability Category (VCOBS)
+    public const string ObservabilityTelemetryMissing = "VCOBS0001";
+    public const string ObservabilityTracingMissing = "VCOBS0002";
+    public const string ObservabilityMetricsMissing = "VCOBS0003";
+
     // Security Category (VCSEC)
     public const string SecurityHardcodedSecret = "VCSEC0001";
     public const string SecuritySqlInjection = "VCSEC0002";
