@@ -101,6 +101,66 @@ public sealed class RepositoryAnalyzerTests
         Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedRepositoryQueryableLeakage);
     }
 
+    [Fact]
+    public async Task RepositoryAnalyzer_ShouldReportDiagnostic_WhenRepositoryReturnsDomainEntity()
+    {
+        var source = """
+            using System.Threading.Tasks;
+
+            namespace Sample.Domain
+            {
+                public sealed class OrderEntity
+                {
+                }
+            }
+
+            namespace Sample.Data
+            {
+                public sealed class OrderRepository
+                {
+                    public Sample.Domain.OrderEntity GetEntity()
+                    {
+                        return new Sample.Domain.OrderEntity();
+                    }
+                }
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedRepositoryContractViolation);
+    }
+
+    [Fact]
+    public async Task RepositoryAnalyzer_ShouldNotReportDomainReturnDiagnostic_WhenRepositoryReturnsDto()
+    {
+        var source = """
+            using System.Threading.Tasks;
+
+            namespace Sample.Contracts
+            {
+                public sealed class OrderDto
+                {
+                }
+            }
+
+            namespace Sample.Data
+            {
+                public sealed class OrderRepository
+                {
+                    public Task<Sample.Contracts.OrderDto> GetDtoAsync()
+                    {
+                        return Task.FromResult(new Sample.Contracts.OrderDto());
+                    }
+                }
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedRepositoryContractViolation);
+    }
+
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source);
