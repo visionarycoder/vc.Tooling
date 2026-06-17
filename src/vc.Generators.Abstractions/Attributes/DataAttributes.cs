@@ -25,4 +25,7 @@ public sealed class VcMessageContractAttribute : Attribute {}
 public sealed class VcCacheableAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
+public sealed class VcAuditableAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class VcAuditAttribute : Attribute {}
