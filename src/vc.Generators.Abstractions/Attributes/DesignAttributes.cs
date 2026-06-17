@@ -1,4 +1,4 @@
-namespace Vc.Generators.Abstractions.Attributes;
+namespace Vc.Generators.Abstractions.Design;
 
 [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
 public sealed class VcLayeringManifestAttribute : System.Attribute { }
@@ -36,3 +36,6 @@ public sealed class VcVolatilityAttribute : Attribute
     public string Level { get; }
     public VcVolatilityAttribute(string level) => Level = level;
 }
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcValidatorAttribute : Attribute { }
