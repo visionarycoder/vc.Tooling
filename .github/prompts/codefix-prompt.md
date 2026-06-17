@@ -1,6 +1,9 @@
+# Construct CodeFix Prompt
+
 Implement the full CodeFixProvider for category <CATEGORY> in the VisionaryCoder.Tooling suite.
 
 Requirements:
+
 - Namespace: `Vc.CodeFixes.<CATEGORY>` or the namespace implied by the target folder path when `<CATEGORY>` is nested
 - Provider class: `<Concern>CodeFixProvider`
 - Provider must be a composition root only

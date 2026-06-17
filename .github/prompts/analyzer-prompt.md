@@ -1,6 +1,9 @@
+# Construct Analyzer Prompt
+
 Implement the full Roslyn analyzer for category <CATEGORY> in the VisionaryCoder.Tooling suite.
 
 Requirements:
+
 - Namespace: `Vc.Analyzers.<CATEGORY>` or the namespace implied by the target folder path when `<CATEGORY>` is nested
 - Analyzer class: <Concern>Analyzer
 - Analyzer must be a composition root only (no inline rule logic)
