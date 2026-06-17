@@ -1,8 +1,8 @@
 # Construct CodeFix Prompt
 
-Implement the full CodeFixProvider for category <CATEGORY> in the VisionaryCoder.Tooling suite.
+Implement the full CodeFixProvider for category `<CATEGORY>` in the solution.
 
-Requirements:
+## Requirements
 
 - Namespace: `Vc.CodeFixes.<CATEGORY>` or the namespace implied by the target folder path when `<CATEGORY>` is nested
 - Provider class: `<Concern>CodeFixProvider`
