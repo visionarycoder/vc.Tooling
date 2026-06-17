@@ -45,6 +45,40 @@ public sealed class VbdEngineAnalyzerTests
         Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultInfrastructureAccess);
     }
 
+    [Fact]
+    public async Task VbdEngineAnalyzer_ShouldReportNondeterminismDiagnostic_WhenEngineUsesGuidNewGuid()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class RiskEngine
+            {
+                public string ComputeId() => System.Guid.NewGuid().ToString();
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
+    }
+
+    [Fact]
+    public async Task VbdEngineAnalyzer_ShouldNotReportNondeterminismDiagnostic_WhenMethodIsDeterministic()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class RiskEngine
+            {
+                public int ComputeFixedValue() => 42;
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
+    }
+
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source);

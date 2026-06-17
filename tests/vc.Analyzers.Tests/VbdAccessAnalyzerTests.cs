@@ -83,6 +83,53 @@ public sealed class VbdAccessAnalyzerTests
         Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdAccessVaultBoundaryViolation);
     }
 
+    [Fact]
+    public async Task VbdAccessAnalyzer_ShouldReportSchemaMappingMissing_WhenEntityIsReturnedWithoutMappingMethod()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class OrderRepository
+            {
+                public OrderEntity GetEntity() => new();
+            }
+
+            public sealed class OrderEntity
+            {
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdAccessVaultSchemaMappingMissing);
+    }
+
+    [Fact]
+    public async Task VbdAccessAnalyzer_ShouldNotReportSchemaMappingMissing_WhenMappingMethodExists()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class OrderRepository
+            {
+                public OrderEntity GetEntity() => new();
+                public Order ToDomain(OrderEntity entity) => new();
+            }
+
+            public sealed class OrderEntity
+            {
+            }
+
+            public sealed class Order
+            {
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdAccessVaultSchemaMappingMissing);
+    }
+
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source);

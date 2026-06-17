@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Vc.Analyzers.Design.Vbd;
 using Vc.CodeFixes.Design.Vbd;
@@ -61,6 +62,53 @@ public sealed class VbdEngineCodeFixTests
         Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
         Assert.Contains("SuppressMessage", updatedText.ToString());
         Assert.Contains(DiagnosticIds.VbdEngineVaultInfrastructureAccess, updatedText.ToString());
+    }
+
+    [Fact]
+    public async Task RegisterCodeFixesAsync_ShouldAddSuppressMessageAttributeForNondeterminism()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class RiskEngine
+            {
+                public string ComputeId() => System.Guid.NewGuid().ToString();
+            }
+            """;
+
+        var document = await CreateDocumentAsync(source);
+        var root = await document.GetSyntaxRootAsync();
+        var methodNode = root!
+            .DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .Single();
+
+        var diagnostic = Diagnostic.Create(
+            new DiagnosticDescriptor(
+                DiagnosticIds.VbdEngineVaultNondeterminism,
+                "Engine contains nondeterministic operation",
+                "Engine method '{0}' uses nondeterministic API '{1}'.",
+                "VbdEngine",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true),
+            methodNode.Identifier.GetLocation(),
+            methodNode.Identifier.Text,
+            "NewGuid");
+
+        var provider = new VbdEngineNondeterminismCodeFix();
+        CodeAction? codeAction = null;
+
+        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context);
+
+        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var updatedText = await updatedDocument.GetTextAsync();
+
+        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
+        Assert.Contains("SuppressMessage", updatedText.ToString());
+        Assert.Contains(DiagnosticIds.VbdEngineVaultNondeterminism, updatedText.ToString());
     }
 
     private static async Task<Document> CreateDocumentAsync(string source)

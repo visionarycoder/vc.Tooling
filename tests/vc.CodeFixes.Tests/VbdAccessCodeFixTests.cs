@@ -113,6 +113,56 @@ public sealed class VbdAccessCodeFixTests
         Assert.Contains(DiagnosticIds.VbdAccessVaultBoundaryViolation, updatedText.ToString());
     }
 
+    [Fact]
+    public async Task RegisterCodeFixesAsync_ShouldAddSuppressMessageAttributeForSchemaMappingMissing()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class OrderRepository
+            {
+                public OrderEntity GetEntity() => new();
+            }
+
+            public sealed class OrderEntity
+            {
+            }
+            """;
+
+        var document = await CreateDocumentAsync(source);
+        var root = await document.GetSyntaxRootAsync();
+        var classNode = root!
+            .DescendantNodes()
+            .OfType<ClassDeclarationSyntax>()
+            .First(node => node.Identifier.Text == "OrderRepository");
+
+        var diagnostic = Diagnostic.Create(
+            new DiagnosticDescriptor(
+                DiagnosticIds.VbdAccessVaultSchemaMappingMissing,
+                "Schema mapping missing",
+                "Access component '{0}' returns persistence models but exposes no map/transform method.",
+                "VbdAccess",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true),
+            classNode.Identifier.GetLocation(),
+            classNode.Identifier.Text);
+
+        var provider = new VbdAccessSchemaCodeFix();
+        CodeAction? codeAction = null;
+
+        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context);
+
+        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var updatedText = await updatedDocument.GetTextAsync();
+
+        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
+        Assert.Contains("SuppressMessage", updatedText.ToString());
+        Assert.Contains(DiagnosticIds.VbdAccessVaultSchemaMappingMissing, updatedText.ToString());
+    }
+
     private static async Task<Document> CreateDocumentAsync(string source)
     {
         var workspace = new AdhocWorkspace();
