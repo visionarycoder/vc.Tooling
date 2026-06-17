@@ -1,21 +1,19 @@
 namespace Vc.Generators.Abstractions.Performance;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed partial class VcHotPathAttribute : Attribute {}
+public sealed class VcHotPathAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed partial class VcPoolAttribute : Attribute {}
+public sealed class VcPoolAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed partial class VcNoAllocAttribute : Attribute {}
+public sealed class VcNoAllocAttribute : Attribute {}
 
-namespace Vc.Generators.Abstractions.Attributes;
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+public sealed class VcSpanOptimizationAttribute : Attribute { }
 
-[System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
-public sealed class VcSpanOptimizationAttribute : System.Attribute { }
-
-[System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
-public sealed class VcPoolingAttribute : System.Attribute { }
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+public sealed class VcPoolingAttribute : Attribute { }
 
 [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
 public sealed class VcFastPathAttribute : System.Attribute { }

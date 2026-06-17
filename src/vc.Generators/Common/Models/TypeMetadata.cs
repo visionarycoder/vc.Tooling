@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Vc.Generators.Common.Models;
 
 public sealed class TypeMetadata(

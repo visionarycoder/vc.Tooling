@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace Vc.Generators.Common.Diagnostics;
 
 public static class VcGeneratorDiagnostics

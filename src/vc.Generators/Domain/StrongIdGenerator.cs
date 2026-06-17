@@ -8,7 +8,7 @@ namespace VisionaryCoder.Tooling.Generators;
 [Generator(LanguageNames.CSharp)]
 public sealed class StrongIdGenerator : IIncrementalGenerator
 {
-    private const string AttributeFullName = "VisionaryCoder.Tooling.Shared.Attributes.VcStrongIdAttribute";
+    private const string AttributeFullName = "Vc.Generators.Abstractions.Domain.VcStrongIdAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

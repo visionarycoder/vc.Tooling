@@ -28,7 +28,7 @@ file sealed class IndentedStringBuilder
     }
 }
 
-file sealed class SourceBuilder(StringBuilder sb)
+sealed class SourceBuilder(StringBuilder sb)
 {
     public void Line(string text = "")
     {

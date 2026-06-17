@@ -16,18 +16,17 @@ public sealed class VcInputSanitizationAttribute : System.Attribute { }
 public sealed class VcJwtValidationAttribute : System.Attribute { }
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public sealed partial class VcAuthorizeAttribute : Attribute
+public sealed class VcAuthorizeAttribute : Attribute
 {
     public string? Policy { get; }
     public VcAuthorizeAttribute(string? policy = null) => Policy = policy;
 }
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed partial class VcSanitizeInputAttribute : Attribute {}
+public sealed class VcSanitizeInputAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed partial class VcJwtRequiredAttribute : Attribute {}
+public sealed class VcJwtRequiredAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
-public sealed partial class VcSecretAttribute : Attribute {}
-
+public sealed class VcSecretAttribute : Attribute {}
