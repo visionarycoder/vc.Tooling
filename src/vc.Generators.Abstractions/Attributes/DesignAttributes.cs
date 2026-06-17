@@ -39,3 +39,6 @@ public sealed class VcVolatilityAttribute : Attribute
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcValidatorAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcSpecificationAttribute : Attribute { }
