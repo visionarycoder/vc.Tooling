@@ -23,3 +23,12 @@ public sealed class VcAggregateRootAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcEventSourcingAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcCommandHandlerAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcQueryHandlerAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcEventProjectionAttribute : Attribute {}

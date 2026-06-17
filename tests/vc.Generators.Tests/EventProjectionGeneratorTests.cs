@@ -5,7 +5,7 @@ using Xunit;
 
 namespace VisionaryCoder.Tooling.Generators.Tests;
 
-public sealed class CommandHandlerGeneratorTests
+public sealed class EventProjectionGeneratorTests
 {
     private static ImmutableArray<SyntaxTree> GetCompilation(string source, string attributeSource)
     {
@@ -33,34 +33,32 @@ public sealed class CommandHandlerGeneratorTests
         var defaultAttribute = """
             namespace Vc.Generators.Abstractions.Domain;
             [AttributeUsage(AttributeTargets.Class)]
-            public sealed class VcCommandHandlerAttribute : Attribute {}
+            public sealed class VcEventProjectionAttribute : Attribute {}
             """;
-
+        
         var attr = string.IsNullOrEmpty(attributeSource) ? defaultAttribute : attributeSource;
         var trees = GetCompilation(source, attr);
         var compilation = CreateCompilation(trees);
-
-        var generator = new CommandHandlerGenerator();
+        var generator = new EventProjectionGenerator();
         var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out _);
-
-        var sources = updatedCompilation.SyntaxTrees
+        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        var sources = outputCompilation.SyntaxTrees
+            .Skip(compilation.SyntaxTrees.Count())
             .Select(st => st.GetText().ToString())
-            .Where(s => s.Contains("Handler") && s.Contains("ICommandHandler"))
             .ToList();
-
-        return (updatedCompilation, sources);
+        return (outputCompilation, sources);
     }
+
     [Fact]
     public void GeneratorExecutes_WithoutExceptions()
     {
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, _) = RunGenerator(source);
@@ -73,10 +71,10 @@ public sealed class CommandHandlerGeneratorTests
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
@@ -84,71 +82,122 @@ public sealed class CommandHandlerGeneratorTests
     }
 
     [Fact]
-    public void GeneratedOutput_ContainsCommandHandlerInterface()
+    public void GeneratedOutput_ContainsEventProjectionClass()
     {
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
         var output = sources.First();
-        Assert.Contains("public interface ICommandHandler<in TCommand>", output);
+        Assert.Contains("public abstract partial class EventProjection", output);
     }
 
     [Fact]
-    public void GeneratedOutput_ContainsHandleAsyncMethod()
+    public void GeneratedOutput_ContainsConcreteProjection()
     {
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
         var output = sources.First();
-        Assert.Contains("Task HandleAsync(TCommand command", output);
+        Assert.Contains("public sealed partial class OrderProjectionProjection", output);
     }
 
     [Fact]
-    public void GeneratedOutput_ContainsConcreteHandler()
+    public void GeneratedOutput_ContainsIdProperty()
     {
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
         var output = sources.First();
-        Assert.Contains("public abstract partial class CreateOrderHandler", output);
+        Assert.Contains("public Guid Id { get; protected set; }", output);
     }
 
     [Fact]
-    public void GeneratedOutput_ContainsExecuteAsyncMethod()
+    public void GeneratedOutput_ContainsVersionProperty()
     {
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
         var output = sources.First();
-        Assert.Contains("protected abstract Task ExecuteAsync(CreateOrder command", output);
+        Assert.Contains("public long Version { get; protected set; }", output);
+    }
+
+    [Fact]
+    public void GeneratedOutput_ContainsLastUpdatedProperty()
+    {
+        var source = """
+            using Vc.Generators.Abstractions.Domain;
+
+            namespace Application.ReadModels;
+
+            [VcEventProjection]
+            public partial class OrderProjection {}
+            """;
+
+        var (_, sources) = RunGenerator(source);
+        var output = sources.First();
+        Assert.Contains("public DateTime LastUpdated { get; protected set; }", output);
+    }
+
+    [Fact]
+    public void GeneratedOutput_ContainsApplyEventMethod()
+    {
+        var source = """
+            using Vc.Generators.Abstractions.Domain;
+
+            namespace Application.ReadModels;
+
+            [VcEventProjection]
+            public partial class OrderProjection {}
+            """;
+
+        var (_, sources) = RunGenerator(source);
+        var output = sources.First();
+        Assert.Contains("protected abstract void ApplyEvent(object @event);", output);
+    }
+
+    [Fact]
+    public void GeneratedOutput_ContainsHandleMethod()
+    {
+        var source = """
+            using Vc.Generators.Abstractions.Domain;
+
+            namespace Application.ReadModels;
+
+            [VcEventProjection]
+            public partial class OrderProjection {}
+            """;
+
+        var (_, sources) = RunGenerator(source);
+        var output = sources.First();
+        Assert.Contains("public void Handle(object @event", output);
     }
 
     [Fact]
@@ -157,32 +206,15 @@ public sealed class CommandHandlerGeneratorTests
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
         var output = sources.First();
-        Assert.Contains("if (command == null)", output);
-    }
-
-    [Fact]
-    public void GeneratedOutput_ContainsConfigureAwait()
-    {
-        var source = """
-            using Vc.Generators.Abstractions.Domain;
-
-            namespace Application.Commands;
-
-            [VcCommandHandler]
-            public partial class CreateOrder {}
-            """;
-
-        var (_, sources) = RunGenerator(source);
-        var output = sources.First();
-        Assert.Contains(".ConfigureAwait(false);", output);
+        Assert.Contains("if (@event == null)", output);
     }
 
     [Fact]
@@ -191,15 +223,15 @@ public sealed class CommandHandlerGeneratorTests
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands.Orders;
+            namespace Application.ReadModels.Orders;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
         var output = sources.First();
-        Assert.Contains("namespace Application.Commands.Orders;", output);
+        Assert.Contains("namespace Application.ReadModels.Orders;", output);
     }
 
     [Fact]
@@ -208,10 +240,10 @@ public sealed class CommandHandlerGeneratorTests
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
@@ -225,10 +257,10 @@ public sealed class CommandHandlerGeneratorTests
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources1) = RunGenerator(source);
@@ -244,10 +276,10 @@ public sealed class CommandHandlerGeneratorTests
         var source = """
             using Vc.Generators.Abstractions.Domain;
 
-            namespace Application.Commands;
+            namespace Application.ReadModels;
 
-            [VcCommandHandler]
-            public partial class CreateOrder {}
+            [VcEventProjection]
+            public partial class OrderProjection {}
             """;
 
         var (_, sources) = RunGenerator(source);
