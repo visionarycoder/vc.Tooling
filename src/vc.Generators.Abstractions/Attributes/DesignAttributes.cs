@@ -42,3 +42,6 @@ public sealed class VcValidatorAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcSpecificationAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcBuilderAttribute : Attribute { }
