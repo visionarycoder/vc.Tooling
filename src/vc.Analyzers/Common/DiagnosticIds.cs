@@ -27,6 +27,10 @@ public static class DiagnosticIds
     public const string DtoMutableState = "VCDTO0001";
     public const string DtoCircularReference = "VCDTO0002";
 
+    // Data Design Category (VCDATA)
+    public const string DataDesignDtoMissing = "VCDATA0001";
+    public const string DataDesignRepositoryMissing = "VCDATA0002";
+
     // Mapping Category (VCMAP)
     public const string MappingUnmappedProperties = "VCMAP0001";
     public const string MappingConfigurationIssue = "VCMAP0002";
@@ -231,5 +235,6 @@ public static class DiagnosticIds
 
         yield return NamingConventionViolation;
         yield return NamingInconsistency;
+
     }
 }
