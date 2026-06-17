@@ -62,6 +62,57 @@ public sealed class VbdAccessCodeFixTests
         Assert.Contains(DiagnosticIds.VbdAccessVaultBusinessLogicLeakage, updatedText.ToString());
     }
 
+    [Fact]
+    public async Task RegisterCodeFixesAsync_ShouldAddSuppressMessageAttributeForBoundaryViolation()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class OrderRepository
+            {
+                private readonly OrderManager _manager = new();
+            }
+
+            public sealed class OrderManager
+            {
+            }
+            """;
+
+        var document = await CreateDocumentAsync(source);
+        var root = await document.GetSyntaxRootAsync();
+        var classNode = root!
+            .DescendantNodes()
+            .OfType<ClassDeclarationSyntax>()
+            .First(node => node.Identifier.Text == "OrderRepository");
+
+        var diagnostic = Diagnostic.Create(
+            new DiagnosticDescriptor(
+                DiagnosticIds.VbdAccessVaultBoundaryViolation,
+                "Access boundary violation",
+                "Access component '{0}' depends on manager/engine type '{1}'.",
+                "VbdAccess",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true),
+            classNode.Identifier.GetLocation(),
+            classNode.Identifier.Text,
+            "OrderManager");
+
+        var provider = new VbdAccessBoundaryCodeFix();
+        CodeAction? codeAction = null;
+
+        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context);
+
+        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var updatedText = await updatedDocument.GetTextAsync();
+
+        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
+        Assert.Contains("SuppressMessage", updatedText.ToString());
+        Assert.Contains(DiagnosticIds.VbdAccessVaultBoundaryViolation, updatedText.ToString());
+    }
+
     private static async Task<Document> CreateDocumentAsync(string source)
     {
         var workspace = new AdhocWorkspace();
