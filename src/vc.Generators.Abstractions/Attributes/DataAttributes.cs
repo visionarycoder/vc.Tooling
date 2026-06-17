@@ -22,4 +22,7 @@ public sealed class VcProjectionAttribute : Attribute {}
 public sealed class VcMessageContractAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
+public sealed class VcCacheableAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class VcAuditAttribute : Attribute {}
