@@ -1,9 +1,9 @@
-﻿using System;
+﻿namespace VisionaryCoder.Tooling.Diagnostics;
 
-namespace vc.Tooling.Diagnostics
+internal static class DiagnosticCategory
 {
-    public class Class1
-    {
-
-    }
+    internal const string Architecture = "VBDArchitecture";
+    internal const string DependencyInjection = "DependencyInjection";
+    internal const string ClassFileConventions = "ClassFileConventions";
+    internal const string Generator = "Generator";
 }

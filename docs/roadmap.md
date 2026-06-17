@@ -48,10 +48,10 @@ Exit criteria:
 
 ## Phase 2: Shared Platform First
 
-- [ ] Implement shared abstractions once, reuse everywhere.
-- [ ] Implement diagnostics and metadata contracts in one place.
-- [ ] Implement reusable runtime and integration seams in [src/vc.Runtime](src/vc.Runtime) and [src/vc.Ifx](src/vc.Ifx).
-- [ ] Ensure [src/vc.Tooling](src/vc.Tooling) composes these seams without duplicate logic.
+- [x] Implement shared abstractions once, reuse everywhere.
+- [x] Implement diagnostics and metadata contracts in one place.
+- [x] Implement reusable runtime and integration seams in [src/vc.Runtime](src/vc.Runtime) and [src/vc.Ifx](src/vc.Ifx).
+- [x] Ensure [src/vc.Tooling](src/vc.Tooling) composes these seams without duplicate logic.
 
 Exit criteria:
 
