@@ -13,30 +13,30 @@ Execution model:
 
 ## Linked Plans
 
-- [Analyzer roadmap](docs/analyzers-plan.md)
-- [Code-fix roadmap](docs/codefixes-plan.md)
-- [Generator roadmap](docs/generators-plan.md)
-- [Full sample implementation](docs/sample-full-implementation.md)
-- [Detailed test coverage plan](docs/test-coverage-plan.md)
-- [Token-efficient implementation instruction](docs/instructions/token-efficient-implementation.md)
-- [Implementation slices checklist](docs/implementation-slices.md)
+- [Analyzer roadmap](analyzers-plan.md)
+- [Code-fix roadmap](codefixes-plan.md)
+- [Generator roadmap](generators-plan.md)
+- [Full sample implementation](sample-full-implementation.md)
+- [Detailed test coverage plan](test-coverage-plan.md)
+- [Token-efficient implementation instruction](./instructions/token-efficient-implementation.md)
+- [Implementation slices checklist](implementation-slices.md)
 
 ## Project Responsibility Map
 
 All implementation slices must leverage these projects intentionally:
 
-- [src/vc.Architecture](src/vc.Architecture): contracts, boundaries, and architecture composition rules.
-- [src/vc.Ifx](src/vc.Ifx): integration-facing adapters, external contracts, and extension points.
-- [src/vc.Runtime](src/vc.Runtime): runtime execution components and hosting behaviors.
-- [src/vc.Tooling](src/vc.Tooling): composition root, orchestration, and packaging surface.
-- [src/vc.Utility](src/vc.Utility): shared utilities and reusable helpers.
+- [../src/vc.Architecture](../src/vc.Architecture): contracts, boundaries, and architecture composition rules.
+- [../src/vc.Ifx](../src/vc.Ifx): integration-facing adapters, external contracts, and extension points.
+- [../src/vc.Runtime](../src/vc.Runtime): runtime execution components and hosting behaviors.
+- [../src/vc.Tooling](../src/vc.Tooling): composition root, orchestration, and packaging surface.
+- [../src/vc.Utility](../src/vc.Utility): shared utilities and reusable helpers.
 
 ## Phase 1: Baseline and Contract Freeze
 
-- [x] Validate solution and project structure in [vc.Tooling.slnx](vc.Tooling.slnx).
+- [x] Validate solution and project structure in [../vc.Tooling.slnx](../vc.Tooling.slnx).
 - [x] Freeze shared coding contracts and naming conventions.
-- [x] Finalize reusable utility/helper boundaries in [src/vc.Utility](src/vc.Utility).
-- [x] Finalize architecture and boundary contracts in [src/vc.Architecture](src/vc.Architecture).
+- [x] Finalize reusable utility/helper boundaries in [../src/vc.Utility](../src/vc.Utility).
+- [x] Finalize architecture and boundary contracts in [../src/vc.Architecture](../src/vc.Architecture).
 
 Exit criteria:
 
@@ -50,8 +50,8 @@ Exit criteria:
 
 - [x] Implement shared abstractions once, reuse everywhere.
 - [x] Implement diagnostics and metadata contracts in one place.
-- [x] Implement reusable runtime and integration seams in [src/vc.Runtime](src/vc.Runtime) and [src/vc.Ifx](src/vc.Ifx).
-- [x] Ensure [src/vc.Tooling](src/vc.Tooling) composes these seams without duplicate logic.
+- [x] Implement reusable runtime and integration seams in [../src/vc.Runtime](../src/vc.Runtime) and [../src/vc.Ifx](../src/vc.Ifx).
+- [x] Ensure [../src/vc.Tooling](../src/vc.Tooling) composes these seams without duplicate logic.
 
 Exit criteria:
 
@@ -63,8 +63,8 @@ Exit criteria:
 
 ## Phase 3: Analyzer and Code-Fix Slices
 
-- [ ] Execute analyzer slices from [docs/analyzers-plan.md](docs/analyzers-plan.md).
-- [ ] Execute matching code-fix slices from [docs/codefixes-plan.md](docs/codefixes-plan.md).
+- [ ] Execute analyzer slices from [docs/analyzers-plan.md](analyzers-plan.md).
+- [ ] Execute matching code-fix slices from [docs/codefixes-plan.md](codefixes-plan.md).
 - [ ] Ship in rule bundles: analyzer rule + code fix + tests in one completion unit.
 - [ ] Keep each prompt limited to one bundle and one category.
 
@@ -79,7 +79,7 @@ Exit criteria:
 
 ## Phase 4: Generator Slices
 
-- [ ] Execute generator waves from [docs/generators-plan.md](docs/generators-plan.md).
+- [ ] Execute generator waves from [docs/generators-plan.md](generators-plan.md).
 - [ ] Prioritize high-value deterministic generators first.
 - [ ] Reuse shared metadata/emission helpers before writing category-specific logic.
 - [ ] Validate generated output against deterministic and incremental gates.
@@ -95,13 +95,13 @@ Exit criteria:
 
 ## Phase 5: Full Sample Implementation
 
-- [ ] Build the complete sample from [docs/sample-full-implementation.md](docs/sample-full-implementation.md).
+- [ ] Build the complete sample from [docs/sample-full-implementation.md](sample-full-implementation.md).
 - [ ] Ensure all required projects are exercised:
-	- [src/vc.Architecture](src/vc.Architecture)
-	- [src/vc.Ifx](src/vc.Ifx)
-	- [src/vc.Runtime](src/vc.Runtime)
-	- [src/vc.Tooling](src/vc.Tooling)
-	- [src/vc.Utility](src/vc.Utility)
+  - [src/vc.Architecture](../src/vc.Architecture)
+  - [src/vc.Ifx](../src/vc.Ifx)
+  - [src/vc.Runtime](../src/vc.Runtime)
+  - [src/vc.Tooling](../src/vc.Tooling)
+  - [src/vc.Utility](../src/vc.Utility)
 - [ ] Validate sample build, runtime path, and generated source integration.
 
 Exit criteria:
@@ -115,16 +115,17 @@ Exit criteria:
 
 ## Phase 6: Detailed Coverage and Quality Gates
 
-- [ ] Implement full coverage matrix from [docs/test-coverage-plan.md](docs/test-coverage-plan.md).
+- [ ] Implement full coverage matrix from [docs/test-coverage-plan.md](test-coverage-plan.md).
 - [ ] Add tests for happy path, edge cases, invalid/bad input, and failure modes.
 - [ ] Add category-level coverage in all test projects:
-	- [tests/vc.Architecture.Tests](tests/vc.Architecture.Tests)
-	- [tests/vc.Ifx.Tests](tests/vc.Ifx.Tests)
-	- [tests/vc.Runtime.Tests](tests/vc.Runtime.Tests)
-	- [tests/vc.Utility.Tests](tests/vc.Utility.Tests)
-	- [tests/vc.Analyzers.Tests](tests/vc.Analyzers.Tests)
-	- [tests/vc.CodeFixes.Tests](tests/vc.CodeFixes.Tests)
-	- [tests/vc.Generators.Tests](tests/vc.Generators.Tests)
+
+  - [../tests/vc.Architecture.Tests](../tests/vc.Architecture.Tests)
+  - [../tests/vc.Ifx.Tests](../tests/vc.Ifx.Tests)
+  - [../tests/vc.Runtime.Tests](../tests/vc.Runtime.Tests)
+  - [../tests/vc.Utility.Tests](../tests/vc.Utility.Tests)
+  - [../tests/vc.Analyzers.Tests](../tests/vc.Analyzers.Tests)
+  - [../tests/vc.CodeFixes.Tests](../tests/vc.CodeFixes.Tests)
+  - [../tests/vc.Generators.Tests](../tests/vc.Generators.Tests)
 
 Exit criteria:
 
@@ -146,11 +147,11 @@ Exit criteria:
 - [ ] Confirm all public APIs in generated output have XML documentation.
 - [ ] Confirm `samples/FullImplementation` builds and runs successfully.
 - [ ] Confirm all linked plan milestones are checked off:
-  - [ ] [docs/analyzers-plan.md](docs/analyzers-plan.md)
-  - [ ] [docs/codefixes-plan.md](docs/codefixes-plan.md)
-  - [ ] [docs/generators-plan.md](docs/generators-plan.md)
-  - [ ] [docs/sample-full-implementation.md](docs/sample-full-implementation.md)
-  - [ ] [docs/test-coverage-plan.md](docs/test-coverage-plan.md)
+  - [ ] [analyzers-plan.md](analyzers-plan.md)
+  - [ ] [codefixes-plan.md](codefixes-plan.md)
+  - [ ] [generators-plan.md](generators-plan.md)
+  - [ ] [sample-full-implementation.md](sample-full-implementation.md)
+  - [ ] [test-coverage-plan.md](test-coverage-plan.md)
 - [ ] Update `README.md` with final feature list and usage examples.
 - [ ] Add `CHANGELOG.md` entry for release.
 - [ ] Add packaging steps to `release.yml` for NuGet publishing.
