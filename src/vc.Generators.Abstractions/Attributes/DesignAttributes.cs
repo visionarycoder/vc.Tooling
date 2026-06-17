@@ -51,3 +51,6 @@ public sealed class VcFactoryAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcPolymorphicAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcStatePatternAttribute : Attribute { }
