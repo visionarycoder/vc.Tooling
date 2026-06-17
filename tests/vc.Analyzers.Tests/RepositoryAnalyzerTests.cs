@@ -54,6 +54,53 @@ public sealed class RepositoryAnalyzerTests
         Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedRepositoryAsyncMissing);
     }
 
+    [Fact]
+    public async Task RepositoryAnalyzer_ShouldReportDiagnostic_WhenRepositoryExposesIQueryable()
+    {
+        var source = """
+            using System.Linq;
+
+            namespace Sample.Data
+            {
+                public sealed class OrderRepository
+                {
+                    public IQueryable<int> GetQuery()
+                    {
+                        return Enumerable.Empty<int>().AsQueryable();
+                    }
+                }
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedRepositoryQueryableLeakage);
+    }
+
+    [Fact]
+    public async Task RepositoryAnalyzer_ShouldNotReportQueryableDiagnostic_WhenRepositoryReturnsTaskList()
+    {
+        var source = """
+            using System.Collections.Generic;
+            using System.Threading.Tasks;
+
+            namespace Sample.Data
+            {
+                public sealed class OrderRepository
+                {
+                    public Task<List<int>> GetItemsAsync()
+                    {
+                        return Task.FromResult(new List<int>());
+                    }
+                }
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedRepositoryQueryableLeakage);
+    }
+
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source);
