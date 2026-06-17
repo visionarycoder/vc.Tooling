@@ -14,3 +14,6 @@ public sealed class VcResultAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcDomainEventAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Interface)]
+public sealed class VcEventPublisherAttribute : Attribute {}
