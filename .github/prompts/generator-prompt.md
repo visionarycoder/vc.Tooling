@@ -1,8 +1,11 @@
-Implement the full source generator for the VisionaryCoder.Tooling project in the category <CATEGORY>. 
+
+# Generator Prompts
+
+Implement the full source generator for the VisionaryCoder.Tooling project in the category `<CATEGORY>`.
 Use the existing project structure and naming conventions:
 
-- Namespace: Vc.Generators.<CATEGORY>
-- Generator class: Vc<CATEGORY>Generator
+- Namespace: `Vc.Generators.<CATEGORY>`
+- Generator class: Vc`<CATEGORY>Generator
 - Use Incremental Generators only
 - Use Vc.Generators.Common for:
   - IndentedStringBuilder
@@ -12,6 +15,7 @@ Use the existing project structure and naming conventions:
   - Diagnostics
 
 The generator must:
+
 1. Scan the compilation for attributed types.
 2. Extract attribute metadata into TypeMetadata.
 3. Generate deterministic, formatted C# output.
