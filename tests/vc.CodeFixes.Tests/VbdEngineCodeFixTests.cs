@@ -111,6 +111,53 @@ public sealed class VbdEngineCodeFixTests
         Assert.Contains(DiagnosticIds.VbdEngineVaultNondeterminism, updatedText.ToString());
     }
 
+    [Fact]
+    public async Task RegisterCodeFixesAsync_ShouldAddSuppressMessageAttributeForStateViolation()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class RiskEngine
+            {
+                private int _count = 0;
+            }
+            """;
+
+        var document = await CreateDocumentAsync(source);
+        var root = await document.GetSyntaxRootAsync();
+        var fieldNode = root!
+            .DescendantNodes()
+            .OfType<FieldDeclarationSyntax>()
+            .Single();
+
+        var diagnostic = Diagnostic.Create(
+            new DiagnosticDescriptor(
+                DiagnosticIds.VbdEngineVaultStateViolation,
+                "Engine has mutable state",
+                "Engine type '{0}' contains mutable field '{1}'.",
+                "VbdEngine",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true),
+            fieldNode.Declaration.Variables[0].Identifier.GetLocation(),
+            "RiskEngine",
+            fieldNode.Declaration.Variables[0].Identifier.Text);
+
+        var provider = new VbdEngineStateCodeFix();
+        CodeAction? codeAction = null;
+
+        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context);
+
+        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var updatedText = await updatedDocument.GetTextAsync();
+
+        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
+        Assert.Contains("SuppressMessage", updatedText.ToString());
+        Assert.Contains(DiagnosticIds.VbdEngineVaultStateViolation, updatedText.ToString());
+    }
+
     private static async Task<Document> CreateDocumentAsync(string source)
     {
         var workspace = new AdhocWorkspace();

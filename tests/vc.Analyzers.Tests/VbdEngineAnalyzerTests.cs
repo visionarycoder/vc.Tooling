@@ -79,6 +79,40 @@ public sealed class VbdEngineAnalyzerTests
         Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
     }
 
+    [Fact]
+    public async Task VbdEngineAnalyzer_ShouldReportStateViolationDiagnostic_WhenEngineContainsMutableField()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class RiskEngine
+            {
+                private int _count = 0;
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultStateViolation);
+    }
+
+    [Fact]
+    public async Task VbdEngineAnalyzer_ShouldNotReportStateViolationDiagnostic_WhenFieldIsReadonly()
+    {
+        var source = """
+            namespace SampleApp;
+
+            public sealed class RiskEngine
+            {
+                private readonly int _count = 0;
+            }
+            """;
+
+        var diagnostics = await GetDiagnosticsAsync(source);
+
+        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultStateViolation);
+    }
+
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
         var tree = CSharpSyntaxTree.ParseText(source);
