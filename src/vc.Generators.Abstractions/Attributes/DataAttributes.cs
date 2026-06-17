@@ -19,4 +19,7 @@ public sealed class VcMapperAttribute : Attribute {}
 public sealed class VcProjectionAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
+public sealed class VcMessageContractAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class VcAuditAttribute : Attribute {}
