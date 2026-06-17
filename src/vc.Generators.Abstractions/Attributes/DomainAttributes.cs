@@ -17,3 +17,6 @@ public sealed class VcDomainEventAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Interface)]
 public sealed class VcEventPublisherAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcAggregateRootAttribute : Attribute {}
