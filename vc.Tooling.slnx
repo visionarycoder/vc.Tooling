@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/FullImplementation/FullImplementation.csproj" />
+  </Folder>
   <!-- Source Projects -->
   <Folder Name="/src/">
     <Folder Name="Analyzer &amp; CodeFix">
@@ -19,6 +22,11 @@
     <Folder Name="Utilities">
       <Project Path="src/vc.Utility/vc.Utility.csproj" />
     </Folder>
+    <Project Path="src/vc.Architecture/vc.Architecture.csproj" />
+    <Project Path="src/vc.Ifx/vc.Ifx.csproj" />
+    <Project Path="src/vc.Runtime/vc.Runtime.csproj" />
+    <Project Path="src/vc.Tooling/vc.Tooling.csproj" />
+    <Project Path="src/vc.Utility/vc.Utility.csproj" />
   </Folder>
 
   <!-- Test Projects -->
