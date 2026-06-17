@@ -13,6 +13,9 @@ public sealed class VcQueryHandlerAttribute : Attribute {}
 public sealed class VcDtoAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
+public sealed class VcMapperAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class VcProjectionAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
