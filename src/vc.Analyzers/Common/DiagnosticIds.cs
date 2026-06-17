@@ -31,6 +31,11 @@ public static class DiagnosticIds
     public const string DataDesignDtoMissing = "VCDATA0001";
     public const string DataDesignRepositoryMissing = "VCDATA0002";
 
+    // Core Category (VCCORE)
+    public const string CoreImmutableMissing = "VCCORE0001";
+    public const string CoreValueObjectMissing = "VCCORE0002";
+    public const string CoreAggregateRootMissing = "VCCORE0003";
+
     // Mapping Category (VCMAP)
     public const string MappingUnmappedProperties = "VCMAP0001";
     public const string MappingConfigurationIssue = "VCMAP0002";
