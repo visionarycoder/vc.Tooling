@@ -1,5 +1,6 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -7,17 +8,16 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 using VisionaryCoder.Tooling.Analyzers.Common;
 
 namespace Vc.CodeFixes.Api;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ApiDesignCodeFixProvider))]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ApiVersioningCodeFixProvider))]
 [Shared]
-public sealed class ApiDesignCodeFixProvider : CodeFixProvider
+public sealed class ApiVersioningCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        ImmutableArray.Create(DiagnosticIds.ApiDesignControllerMissing);
+        ImmutableArray.Create(DiagnosticIds.ApiVersioningMissing);
 
     public override FixAllProvider GetFixAllProvider() =>
         WellKnownFixAllProviders.BatchFixer;
@@ -25,7 +25,7 @@ public sealed class ApiDesignCodeFixProvider : CodeFixProvider
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var diagnostic = context.Diagnostics[0];
-        var title = "Add [ApiController] attribute";
+        const string title = "Add [ApiVersion(\"1.0\")] attribute";
 
         context.RegisterCodeFix(
             CodeAction.Create(
@@ -49,42 +49,40 @@ public sealed class ApiDesignCodeFixProvider : CodeFixProvider
             return document;
         }
 
-        var node = parent
-            .AncestorsAndSelf()
-            .OfType<ClassDeclarationSyntax>()
-            .FirstOrDefault();
-
+        var node = parent.AncestorsAndSelf().OfType<ClassDeclarationSyntax>().FirstOrDefault();
         if (node is null)
         {
             return document;
         }
 
-        var updatedRoot = root;
-
-        if (!HasApiControllerAttribute(node))
+        if (!HasApiVersionAttribute(node))
         {
-            var attribute = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName("ApiController"));
-            var attributeList = SyntaxFactory.AttributeList(
-                SyntaxFactory.SingletonSeparatedList(attribute))
-                .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed);
+            var attribute = SyntaxFactory.Attribute(
+                SyntaxFactory.IdentifierName("ApiVersion"),
+                SyntaxFactory.AttributeArgumentList(
+                    SyntaxFactory.SingletonSeparatedList(
+                        SyntaxFactory.AttributeArgument(
+                            SyntaxFactory.LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                SyntaxFactory.Literal("1.0"))))));
 
-            updatedRoot = updatedRoot.ReplaceNode(
+            root = root.ReplaceNode(
                 node,
-                node.WithAttributeLists(node.AttributeLists.Insert(0, attributeList)));
+                node.WithAttributeLists(node.AttributeLists.Insert(0, SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(attribute)))));
         }
 
-        if (!HasUsingDirective(updatedRoot, "Microsoft.AspNetCore.Mvc"))
+        if (!HasUsingDirective(root, "Microsoft.AspNetCore.Mvc"))
         {
-            updatedRoot = AddUsingDirective(updatedRoot, "Microsoft.AspNetCore.Mvc");
+            root = AddUsingDirective(root, "Microsoft.AspNetCore.Mvc");
         }
 
-        return document.WithSyntaxRoot(updatedRoot.NormalizeWhitespace());
+        return document.WithSyntaxRoot(root.NormalizeWhitespace());
     }
 
-    private static bool HasApiControllerAttribute(ClassDeclarationSyntax node) =>
+    private static bool HasApiVersionAttribute(ClassDeclarationSyntax node) =>
         node.AttributeLists
             .SelectMany(attributeList => attributeList.Attributes)
-            .Any(attribute => attribute.Name.ToString() is "ApiController" or "Microsoft.AspNetCore.Mvc.ApiController");
+            .Any(attribute => attribute.Name.ToString() is "ApiVersion" or "Microsoft.AspNetCore.Mvc.ApiVersion");
 
     private static bool HasUsingDirective(SyntaxNode root, string namespaceName) =>
         root.DescendantNodes()
@@ -93,10 +91,7 @@ public sealed class ApiDesignCodeFixProvider : CodeFixProvider
 
     private static SyntaxNode AddUsingDirective(SyntaxNode root, string namespaceName)
     {
-        var usingDirective = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(namespaceName))
-            .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed);
-
-        var compilationUnit = (CompilationUnitSyntax)root;
-        return compilationUnit.AddUsings(usingDirective);
+        var usingDirective = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(namespaceName));
+        return ((CompilationUnitSyntax)root).AddUsings(usingDirective);
     }
 }
