@@ -54,3 +54,6 @@ public sealed class VcPolymorphicAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcStatePatternAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcRelayCommandAttribute : Attribute { }
