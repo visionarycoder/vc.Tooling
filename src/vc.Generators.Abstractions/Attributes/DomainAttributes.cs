@@ -20,3 +20,6 @@ public sealed class VcEventPublisherAttribute : Attribute {}
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcAggregateRootAttribute : Attribute {}
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class VcEventSourcingAttribute : Attribute {}
