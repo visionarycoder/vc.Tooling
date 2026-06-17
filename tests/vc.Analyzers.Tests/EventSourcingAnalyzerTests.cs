@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Vc.Analyzers.Tests;
 
-public sealed class EventSourcingAnalyzerTests
+public sealed partial class EventSourcingAnalyzerTests
 {
     [Fact]
     public async Task EventSourcingAnalyzer_ShouldReportDiagnostic_WhenAggregateHasNoApplyForRaisedEvent()
