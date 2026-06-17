@@ -45,3 +45,6 @@ public sealed class VcSpecificationAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class VcBuilderAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Interface)]
+public sealed class VcFactoryAttribute : Attribute { }
