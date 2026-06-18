@@ -37,6 +37,7 @@ public sealed class StrongIdGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace};");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated strongly-typed identifier for <see cref=\"{{model.TypeName}}\"/>.</summary>");
         sb.AppendLine($"public partial readonly struct {model.TypeName} : IEquatable<{model.TypeName}>");
         sb.AppendLine("{");
         sb.AppendLine("    public Guid Value { get; }");

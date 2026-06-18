@@ -9,7 +9,7 @@ internal sealed class InteropRule : IAnalyzerRule
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VC0006",
+        DiagnosticIds.LegacyInterop,
         "Missing interop configuration",
         "The {0} is missing required interop configuration.",
         "Interop",

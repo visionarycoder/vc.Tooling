@@ -9,7 +9,7 @@ internal sealed class ConfigurationRule : IAnalyzerRule
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VC0001",
+        DiagnosticIds.LegacyConfiguration,
         "Missing configuration",
         "The {0} is missing required configuration.",
         "Configuration",

@@ -45,8 +45,10 @@ public sealed class ValidatorGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace}.Validators;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated validator for <see cref=\"{model.EntityName}\"/>.</summary>");
         sb.AppendLine($"public sealed class {model.EntityName}{model.Suffix}");
         sb.AppendLine("{");
+        sb.AppendLine($"    /// <summary>Validates the provided instance and returns a result indicating success or failure.</summary>");
         sb.AppendLine($"    public ValidationResult Validate({model.EntityName} instance)");
         sb.AppendLine("    {");
         sb.AppendLine("        var errors = new List<string>();");

@@ -29,12 +29,16 @@ public sealed class JwtSecurityGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine("namespace VisionaryCoder.Tooling.Security;");
         sb.AppendLine();
+        sb.AppendLine("/// <summary>Service interface for JWT token generation and validation.</summary>");
         sb.AppendLine("public interface IJwtTokenService");
         sb.AppendLine("{");
+        sb.AppendLine("    /// <summary>Generates a JWT token with the specified claims.</summary>");
         sb.AppendLine("    string GenerateToken(string userId, string email, IEnumerable<string>? roles = null, int expiryMinutes = 60);");
+        sb.AppendLine("    /// <summary>Validates a JWT token and returns the claims principal if valid.</summary>");
         sb.AppendLine("    ClaimsPrincipal? ValidateToken(string token);");
         sb.AppendLine("}");
         sb.AppendLine();
+        sb.AppendLine("/// <summary>Auto-generated JWT token service implementation.</summary>");
         sb.AppendLine("public sealed class JwtTokenService : IJwtTokenService");
         sb.AppendLine("{");
         sb.AppendLine("    private readonly IConfiguration _config;");

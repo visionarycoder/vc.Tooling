@@ -132,6 +132,15 @@ public static class DiagnosticIds
     public const string NamingConventionViolation = "VCNAMING0001";
     public const string NamingInconsistency = "VCNAMING0002";
 
+    // Legacy/Stub Category (VC)
+    // These are stub analyzer implementations pending full implementation
+    public const string LegacyConfiguration = "VC0001";
+    public const string LegacyMissingConfiguration = "VC0002";
+    public const string LegacyDependencyInjection = "VC0003";
+    public const string LegacySerialization = "VC0004";
+    public const string LegacyReflection = "VC0005";
+    public const string LegacyInterop = "VC0006";
+
     /// <summary>
     /// Gets the category prefix from a diagnostic ID (e.g., "ARCH" from "VCARCH0001").
     /// </summary>

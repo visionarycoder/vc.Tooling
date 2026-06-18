@@ -37,6 +37,7 @@ public sealed class UnionGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace}.Generated;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated discriminated union type for <see cref=\"{{model.UnionName}}\"/>.</summary>");
         sb.AppendLine($"public partial class {model.UnionName}");
         sb.AppendLine("{");
         sb.AppendLine("    // Union case factory methods");

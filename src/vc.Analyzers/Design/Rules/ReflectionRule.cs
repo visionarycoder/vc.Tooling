@@ -9,7 +9,7 @@ internal sealed class ReflectionRule : IAnalyzerRule
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VC0005",
+        DiagnosticIds.LegacyReflection,
         "Missing reflection configuration",
         "The {0} is missing required reflection configuration.",
         "Reflection",

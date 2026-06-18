@@ -40,6 +40,7 @@ public sealed class GraphQLTypeGenerator : IIncrementalGenerator
         sb.AppendLine("// Note: Requires HotChocolate NuGet package");
         sb.AppendLine("// using HotChocolate.Types;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated GraphQL type configuration for <see cref=\"{{model.TypeName}}\"/>.</summary>");
         sb.AppendLine($"public sealed class {model.TypeName}Type // : ObjectType<{model.TypeName}>");
         sb.AppendLine("{");
         sb.AppendLine("    // TODO: Add field configurations");

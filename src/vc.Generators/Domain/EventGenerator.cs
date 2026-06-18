@@ -37,6 +37,7 @@ public sealed class EventGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace}.Generated;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated event envelope for <see cref=\"{{model.EventName}}\"/> domain events.</summary>");
         sb.AppendLine($"public sealed record {model.EventName}Envelope<TEvent>");
         sb.AppendLine("{");
         sb.AppendLine("    public required TEvent Event { get; init; }");

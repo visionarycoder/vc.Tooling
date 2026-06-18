@@ -39,6 +39,7 @@ public sealed class FeatureFlagGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace}.Generated;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated feature flag configuration for {model.FlagName}.</summary>");
         sb.AppendLine($"public sealed class {model.FlagName}FeatureFlags");
         sb.AppendLine("{");
         sb.AppendLine($"    public const string FlagName = \"{model.FlagName}\";");

@@ -39,6 +39,7 @@ public sealed class ApiClientGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace}.Generated;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated API client implementation for <see cref=\"I{model.InterfaceName}\"/>.</summary>");
         sb.AppendLine($"public sealed class {model.ClientName}Client : I{model.InterfaceName}");
         sb.AppendLine("{");
         sb.AppendLine("    private readonly HttpClient _httpClient;");

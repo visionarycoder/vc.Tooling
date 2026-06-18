@@ -9,7 +9,7 @@ internal sealed class SerializationRule : IAnalyzerRule
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VC0004",
+        DiagnosticIds.LegacySerialization,
         "Missing serialization configuration",
         "The {0} is missing required serialization configuration.",
         "Serialization",

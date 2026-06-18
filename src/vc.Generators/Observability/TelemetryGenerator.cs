@@ -37,6 +37,7 @@ public sealed class TelemetryGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {model.Namespace}.Generated;");
         sb.AppendLine();
+        sb.AppendLine($"/// <summary>Auto-generated telemetry instrumentation hooks for <see cref=\"{{model.TypeName}}\"/>.</summary>");
         sb.AppendLine($"public partial class {model.TypeName}");
         sb.AppendLine("{");
         sb.AppendLine("    // Telemetry wrapper for: " + model.MethodName);

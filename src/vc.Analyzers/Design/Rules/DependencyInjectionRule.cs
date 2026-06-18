@@ -9,7 +9,7 @@ internal sealed class DependencyInjectionRule : IAnalyzerRule
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VC0003",
+        DiagnosticIds.LegacyDependencyInjection,
         "Missing dependency injection configuration",
         "The {0} is missing required dependency injection configuration.",
         "DependencyInjection",
