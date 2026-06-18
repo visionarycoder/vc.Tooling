@@ -1,13 +1,8 @@
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Vc.Analyzers.Api;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Api;
 using Xunit;
 
-namespace Vc.Analyzers.Tests;
+namespace vc.Analyzers.Tests;
 
 public sealed class DtoAnalyzerTests
 {
@@ -15,7 +10,7 @@ public sealed class DtoAnalyzerTests
     public void SupportedDiagnostics_ShouldContainDtoMutableStateRule()
     {
         var analyzer = new DtoAnalyzer();
-        Assert.Contains(analyzer.SupportedDiagnostics, d => d.Id == DiagnosticIds.DtoMutableState);
+        Assert.Contains(collection: analyzer.SupportedDiagnostics, filter: d => d.Id == DiagnosticIds.DtoMutableState);
     }
 
     [Fact]
@@ -31,8 +26,8 @@ public sealed class DtoAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
-        Assert.Contains(diagnostics, d => d.Id == DiagnosticIds.DtoMutableState);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
+        Assert.Contains(collection: diagnostics, filter: d => d.Id == DiagnosticIds.DtoMutableState);
     }
 
     [Fact]
@@ -49,21 +44,21 @@ public sealed class DtoAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
-        Assert.DoesNotContain(diagnostics, d => d.Id == DiagnosticIds.DtoMutableState);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
+        Assert.DoesNotContain(collection: diagnostics, filter: d => d.Id == DiagnosticIds.DtoMutableState);
     }
 
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
+        var tree = CSharpSyntaxTree.ParseText(text: source);
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
         };
-        var compilation = CSharpCompilation.Create("AnalyzerTests", [tree], references,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        return await compilation.WithAnalyzers([new DtoAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+        var compilation = CSharpCompilation.Create(assemblyName: "AnalyzerTests", syntaxTrees: [tree], references: references,
+            options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
+        return await compilation.WithAnalyzers(analyzers: [new DtoAnalyzer()]).GetAnalyzerDiagnosticsAsync();
     }
 }

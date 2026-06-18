@@ -14,39 +14,39 @@ public static class ScenarioD
 {
     public static async Task RunAsync()
     {
-        Console.WriteLine("=== Scenario D: Integration Failure Handling ===");
+        Console.WriteLine(value: "=== Scenario D: Integration Failure Handling ===");
 
         var errors = new List<string>();
         var invoker = DefaultPipelineFactory.Create(
             log: _ => { },
-            logException: ex => errors.Add(ex.Message));
+            logException: ex => errors.Add(item: ex.Message));
 
         // Gateway configured to always fail
         var failingGateway = new StubOrderGateway(shouldFail: true);
-        var manager = new OrderManager(failingGateway);
+        var manager = new OrderManager(gateway: failingGateway);
         var eventBus = new OrderEventBus();
 
-        eventBus.OnOrderFailed(envelope =>
+        eventBus.OnOrderFailed(handler: envelope =>
         {
-            Console.WriteLine($"  [Event] Order failed (orderId may be null): {envelope.Payload?.OrderId ?? "N/A"}");
+            Console.WriteLine(value: $"  [Event] Order failed (orderId may be null): {envelope.Payload?.OrderId ?? "N/A"}");
             return Task.CompletedTask;
         });
 
         try
         {
-            await invoker.InvokeAsync("PlaceOrder-Failure", request: "ORD-FAIL",
-                () => manager.PlaceOrderAsync("CUST-ERR", 49.99m));
+            await invoker.InvokeAsync(operationName: "PlaceOrder-Failure", request: "ORD-FAIL",
+                operation: () => manager.PlaceOrderAsync(customerId: "CUST-ERR", amount: 49.99m));
         }
         catch (InvalidOperationException ex)
         {
-            errors.Add(ex.Message);
-            await eventBus.PublishOrderFailedAsync(null);
-            Console.WriteLine($"  [D1] Gateway failure caught: {ex.Message}");
+            errors.Add(item: ex.Message);
+            await eventBus.PublishOrderFailedAsync(order: null);
+            Console.WriteLine(value: $"  [D1] Gateway failure caught: {ex.Message}");
         }
 
-        Console.WriteLine($"  Errors captured: {errors.Count}");
-        Console.WriteLine($"  EventBus has failure subscribers: {eventBus.HasOrderPlacedSubscribers}");
-        Console.WriteLine("  Status: PASS");
+        Console.WriteLine(value: $"  Errors captured: {errors.Count}");
+        Console.WriteLine(value: $"  EventBus has failure subscribers: {eventBus.HasOrderPlacedSubscribers}");
+        Console.WriteLine(value: "  Status: PASS");
         Console.WriteLine();
     }
 }

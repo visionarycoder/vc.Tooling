@@ -1,6 +1,9 @@
 ---
+title: Class/File Conventions
 name: class-file-conventions
 description: Enforce class-to-file naming parity and one top-level class per file, ignoring nested classes.
+status: active
+updated: 2026-06-18
 ---
 
 # Class/File Conventions

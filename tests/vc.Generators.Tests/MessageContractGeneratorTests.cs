@@ -1,8 +1,8 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using vc.Generators.Abstractions.Attributes;
+using VisionaryCoder.Generators.Data;
 using Xunit;
 
-namespace Vc.Generators.Tests;
+namespace vc.Generators.Tests;
 
 /// <summary>
 /// Tests for MessageContractGenerator Phase 4 Bundle 10.
@@ -15,14 +15,14 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
 
         // Act & Assert
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out _, diagnostics: out var diagnostics);
         
-        Assert.NotNull(diagnostics);
+        Assert.False(condition: diagnostics.IsDefault);
     }
 
     [Fact]
@@ -30,18 +30,18 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var inputTreeCount = compilation.SyntaxTrees.Count();
         var outputTreeCount = outputCompilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.True(outputTreeCount >= inputTreeCount, 
-            $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
+        Assert.True(condition: outputTreeCount >= inputTreeCount, 
+            userMessage: $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
     }
 
     [Fact]
@@ -49,23 +49,23 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var inputTreeCount = compilation.SyntaxTrees.Count();
         var outputTreeCount = outputCompilation.SyntaxTrees.Count();
         var allTrees = outputCompilation.SyntaxTrees.ToList();
         
         // Get all generated trees
-        var generatedTrees = allTrees.Skip(inputTreeCount).ToList();
-        var generatedText = generatedTrees.Count > 0 ? generatedTrees[0].GetText().ToString() : "";
+        var generatedTrees = allTrees.Skip(count: inputTreeCount).ToList();
+        var generatedText = generatedTrees.Count > 0 ? generatedTrees[index: 0].GetText().ToString() : "";
 
         // Assert
-        Assert.True(generatedText.Length > 0, $"Generator should produce output. Input trees: {inputTreeCount}, Output trees: {outputTreeCount}, Generated trees: {generatedTrees.Count}");
-        Assert.Contains("public sealed partial class OrderContract", generatedText);
+        Assert.True(condition: generatedText.Length > 0, userMessage: $"Generator should produce output. Input trees: {inputTreeCount}, Output trees: {outputTreeCount}, Generated trees: {generatedTrees.Count}");
+        Assert.Contains(expectedSubstring: "public sealed partial class OrderContract", actualString: generatedText);
     }
 
     [Fact]
@@ -73,21 +73,21 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public Guid MessageId { get; private set; }", generatedText);
-        Assert.Contains("public Guid CorrelationId { get; private set; }", generatedText);
-        Assert.Contains("public DateTime CreatedAt { get; private set; }", generatedText);
-        Assert.Contains("public string MessageType { get; private set; }", generatedText);
-        Assert.Contains("public int Version { get; private set; }", generatedText);
-        Assert.Contains("public string Payload { get; private set; }", generatedText);
+        Assert.Contains(expectedSubstring: "public Guid MessageId { get; private set; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public Guid CorrelationId { get; private set; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public DateTime CreatedAt { get; private set; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public string MessageType { get; private set; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public int Version { get; private set; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public string Payload { get; private set; }", actualString: generatedText);
     }
 
     [Fact]
@@ -95,18 +95,18 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public OrderContract()", generatedText);
-        Assert.Contains("MessageId = Guid.NewGuid();", generatedText);
-        Assert.Contains("CorrelationId = Guid.NewGuid();", generatedText);
+        Assert.Contains(expectedSubstring: "public OrderContract()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "MessageId = Guid.NewGuid();", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "CorrelationId = Guid.NewGuid();", actualString: generatedText);
     }
 
     [Fact]
@@ -114,17 +114,17 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public static OrderContract Create(string payload)", generatedText);
-        Assert.Contains("Payload cannot be null or empty", generatedText);
+        Assert.Contains(expectedSubstring: "public static OrderContract Create(string payload)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Payload cannot be null or empty", actualString: generatedText);
     }
 
     [Fact]
@@ -132,17 +132,17 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public OrderContract WithNewCorrelation()", generatedText);
-        Assert.Contains("Creates a copy of this message with a new correlation identifier", generatedText);
+        Assert.Contains(expectedSubstring: "public OrderContract WithNewCorrelation()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Creates a copy of this message with a new correlation identifier", actualString: generatedText);
     }
 
     [Fact]
@@ -150,16 +150,16 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("namespace Sample.Messaging;", generatedText);
+        Assert.Contains(expectedSubstring: "namespace Sample.Messaging;", actualString: generatedText);
     }
 
     [Fact]
@@ -167,16 +167,16 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("// <auto-generated by VisionaryCoder.Tooling.Generators />", generatedText);
+        Assert.Contains(expectedSubstring: "// <auto-generated by VisionaryCoder.Tooling.Generators />", actualString: generatedText);
     }
 
     [Fact]
@@ -184,16 +184,16 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("#nullable enable", generatedText);
+        Assert.Contains(expectedSubstring: "#nullable enable", actualString: generatedText);
     }
 
     [Fact]
@@ -219,16 +219,16 @@ public sealed class MessageContractGeneratorTests
                 public class Notification { }
             }
             """;
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var generatedCount = outputCompilation.SyntaxTrees.Count() - compilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.Equal(3, generatedCount);
+        Assert.Equal(expected: 3, actual: generatedCount);
     }
 
     [Fact]
@@ -236,24 +236,24 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation1 = CreateCompilation(source);
-        var compilation2 = CreateCompilation(source);
+        var compilation1 = CreateCompilation(source: source);
+        var compilation2 = CreateCompilation(source: source);
         
-        var generator1 = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var generator2 = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
+        var generator1 = new MessageContractGenerator();
+        var generator2 = new MessageContractGenerator();
         
-        var driver1 = CSharpGeneratorDriver.Create(generator1);
-        var driver2 = CSharpGeneratorDriver.Create(generator2);
+        var driver1 = CSharpGeneratorDriver.Create(incrementalGenerators: generator1);
+        var driver2 = CSharpGeneratorDriver.Create(incrementalGenerators: generator2);
 
         // Act
-        driver1.RunGeneratorsAndUpdateCompilation(compilation1, out var outputCompilation1, out _);
-        driver2.RunGeneratorsAndUpdateCompilation(compilation2, out var outputCompilation2, out _);
+        driver1.RunGeneratorsAndUpdateCompilation(compilation: compilation1, outputCompilation: out var outputCompilation1, diagnostics: out _);
+        driver2.RunGeneratorsAndUpdateCompilation(compilation: compilation2, outputCompilation: out var outputCompilation2, diagnostics: out _);
         
-        var generatedText1 = GetGeneratedSourceText(outputCompilation1, compilation1.SyntaxTrees.Count());
-        var generatedText2 = GetGeneratedSourceText(outputCompilation2, compilation2.SyntaxTrees.Count());
+        var generatedText1 = GetGeneratedSourceText(outputCompilation: outputCompilation1, inputTreeCount: compilation1.SyntaxTrees.Count());
+        var generatedText2 = GetGeneratedSourceText(outputCompilation: outputCompilation2, inputTreeCount: compilation2.SyntaxTrees.Count());
 
         // Assert
-        Assert.Equal(generatedText1, generatedText2);
+        Assert.Equal(expected: generatedText1, actual: generatedText2);
     }
 
     [Fact]
@@ -261,19 +261,19 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("/// <summary>", generatedText);
-        Assert.Contains("Gets the unique message identifier", generatedText);
-        Assert.Contains("Gets the message correlation identifier", generatedText);
-        Assert.Contains("Gets the message creation timestamp", generatedText);
+        Assert.Contains(expectedSubstring: "/// <summary>", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Gets the unique message identifier", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Gets the message correlation identifier", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Gets the message creation timestamp", actualString: generatedText);
     }
 
     [Fact]
@@ -281,18 +281,18 @@ public sealed class MessageContractGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MessageContractGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MessageContractGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("CreatedAt = DateTime.UtcNow;", generatedText);
-        Assert.Contains("MessageType = \"Order\";", generatedText);
-        Assert.Contains("Version = 1;", generatedText);
+        Assert.Contains(expectedSubstring: "CreatedAt = DateTime.UtcNow;", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "MessageType = \"Order\";", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Version = 1;", actualString: generatedText);
     }
 
     private string CreateSourceWithAttribute()
@@ -314,28 +314,28 @@ public sealed class MessageContractGeneratorTests
 
     private Compilation CreateCompilation(string source)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(text: source);
         
-        var vcAbstractionsAssemblyPath = typeof(Vc.Generators.Abstractions.Data.VcMessageContractAttribute).Assembly.Location;
+        var vcAbstractionsAssemblyPath = typeof(VcMessageContractAttribute).Assembly.Location;
         
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
-            MetadataReference.CreateFromFile(vcAbstractionsAssemblyPath),
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Attribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: vcAbstractionsAssemblyPath),
         };
 
-        return CSharpCompilation.Create("TestCompilation")
-            .AddSyntaxTrees(syntaxTree)
-            .AddReferences(references)
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        return CSharpCompilation.Create(assemblyName: "TestCompilation")
+            .AddSyntaxTrees(trees: syntaxTree)
+            .AddReferences(references: references)
+            .WithOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
     }
 
     private string GetGeneratedSourceText(Compilation outputCompilation, int inputTreeCount)
     {
-        var generatedTrees = outputCompilation.SyntaxTrees.Skip(inputTreeCount);
+        var generatedTrees = outputCompilation.SyntaxTrees.Skip(count: inputTreeCount);
         return generatedTrees.FirstOrDefault()?.GetText().ToString() ?? "";
     }
 }

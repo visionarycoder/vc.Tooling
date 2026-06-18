@@ -1,12 +1,14 @@
 ﻿namespace VisionaryCoder.Architecture.Vbd;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
-public sealed class VbdBoundaryAttribute : Attribute
+/// <summary>
+/// Marks a type with its VBD boundary classification.
+/// </summary>
+/// <param name="boundaryType">The boundary type applied to the target component.</param>
+[AttributeUsage(validOn: AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+public sealed class VbdBoundaryAttribute(BoundaryType boundaryType) : Attribute
 {
-    public VbdBoundaryAttribute(BoundaryType boundaryType)
-    {
-        BoundaryType = boundaryType;
-    }
-
-    public BoundaryType BoundaryType { get; }
+    /// <summary>
+    /// Gets the declared boundary type for the annotated component.
+    /// </summary>
+    public BoundaryType BoundaryType { get; } = boundaryType;
 }

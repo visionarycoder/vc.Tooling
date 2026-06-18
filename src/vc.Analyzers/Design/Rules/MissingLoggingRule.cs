@@ -1,30 +1,25 @@
-using System;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Rules;
+namespace VisionaryCoder.Analyzers.Design.Rules;
 
 internal sealed class MissingLoggingRule : IAnalyzerRule
 {
-    private static readonly string[] LoggingMethodHints = { "Log", "Trace", "Error", "Warn", "Critical", "TrackException" };
+    private static readonly string[] LoggingMethodHints = ["Log", "Trace", "Error", "Warn", "Critical", "TrackException"
+    ];
 
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VCDESIGN002",
-        "Missing logging in catch block",
-        "Exception caught but not logged. Catch blocks should log, wrap, or rethrow exceptions.",
-        "Design",
-        DiagnosticSeverity.Warning,
+        id: "VCDESIGN002",
+        title: "Missing logging in catch block",
+        messageFormat: "Exception caught but not logged. Catch blocks should log, wrap, or rethrow exceptions.",
+        category: "Design",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeCatchClause, SyntaxKind.CatchClause);
+        context.RegisterSyntaxNodeAction(action: AnalyzeCatchClause, syntaxKinds: SyntaxKind.CatchClause);
     }
 
     private static void AnalyzeCatchClause(SyntaxNodeAnalysisContext context)
@@ -34,36 +29,36 @@ internal sealed class MissingLoggingRule : IAnalyzerRule
             return;
         }
 
-        if (ContainsRethrow(catchClause.Block) || ContainsLogging(context.SemanticModel, catchClause.Block, context.CancellationToken))
+        if (ContainsRethrow(block: catchClause.Block) || ContainsLogging(semanticModel: context.SemanticModel, block: catchClause.Block, cancellationToken: context.CancellationToken))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, catchClause.CatchKeyword.GetLocation()));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: catchClause.CatchKeyword.GetLocation()));
     }
 
     private static bool ContainsRethrow(BlockSyntax block)
     {
-        return block.DescendantNodes().OfType<ThrowStatementSyntax>().Any(throwStatement => throwStatement.Expression is null);
+        return block.DescendantNodes().OfType<ThrowStatementSyntax>().Any(predicate: throwStatement => throwStatement.Expression is null);
     }
 
     private static bool ContainsLogging(SemanticModel semanticModel, BlockSyntax block, System.Threading.CancellationToken cancellationToken)
     {
         foreach (var invocation in block.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
-            var symbol = semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol as IMethodSymbol;
+            var symbol = semanticModel.GetSymbolInfo(expression: invocation, cancellationToken: cancellationToken).Symbol as IMethodSymbol;
             if (symbol is null)
             {
                 continue;
             }
 
-            if (LoggingMethodHints.Any(hint => symbol.Name.Contains(hint, StringComparison.OrdinalIgnoreCase)))
+            if (LoggingMethodHints.Any(predicate: hint => symbol.Name.Contains(value: hint, comparisonType: StringComparison.OrdinalIgnoreCase)))
             {
                 return true;
             }
 
             var containingType = symbol.ContainingType?.Name;
-            if (containingType is not null && (containingType.Contains("Logger", StringComparison.OrdinalIgnoreCase) || containingType.Contains("Telemetry", StringComparison.OrdinalIgnoreCase)))
+            if (containingType is not null && (containingType.Contains(value: "Logger", comparisonType: StringComparison.OrdinalIgnoreCase) || containingType.Contains(value: "Telemetry", comparisonType: StringComparison.OrdinalIgnoreCase)))
             {
                 return true;
             }

@@ -1,3 +1,9 @@
+---
+title: ADR-0002: Apply Dependency Injection Best Practices
+description: Project documentation for ADR-0002: Apply Dependency Injection Best Practices.
+status: active
+updated: 2026-06-18
+---
 # ADR-0002: Apply Dependency Injection Best Practices
 
 **Status:** Accepted

@@ -1,62 +1,56 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Distributed.Rules;
+namespace VisionaryCoder.Analyzers.Distributed.Rules;
 
 internal sealed class UnusedEventRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.DistributedEventSourcingUnusedEvent,
-        "Event is never applied",
-        "Event '{0}' is created or raised but never applied in the aggregate.",
-        "Distributed",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.DistributedEventSourcingUnusedEvent,
+        title: "Event is never applied",
+        messageFormat: "Event '{0}' is created or raised but never applied in the aggregate.",
+        category: "Distributed",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeAggregate, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeAggregate, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeAggregate(SymbolAnalysisContext context)
     {
-        if (context.Symbol is not INamedTypeSymbol typeSymbol || !IsAggregate(typeSymbol))
+        if (context.Symbol is not INamedTypeSymbol typeSymbol || !IsAggregate(typeSymbol: typeSymbol))
         {
             return;
         }
 
         var applyMethods = typeSymbol.GetMembers().OfType<IMethodSymbol>()
-            .Where(method => method.Name == "Apply" && method.Parameters.Length == 1)
+            .Where(predicate: method => method.Name == "Apply" && method.Parameters.Length == 1)
             .ToList();
 
-        var eventsRaised = FindRaisedEvents(context.Compilation, typeSymbol);
-        var eventsApplied = new HashSet<ITypeSymbol>(applyMethods.Select(method => method.Parameters[0].Type), SymbolEqualityComparer.Default);
+        var eventsRaised = FindRaisedEvents(compilation: context.Compilation, typeSymbol: typeSymbol);
+        var eventsApplied = new HashSet<ITypeSymbol>(collection: applyMethods.Select(selector: method => method.Parameters[index: 0].Type), comparer: SymbolEqualityComparer.Default);
 
         foreach (var eventType in eventsRaised)
         {
-            if (!eventsApplied.Contains(eventType))
+            if (!eventsApplied.Contains(item: eventType))
             {
-                context.ReportDiagnostic(Diagnostic.Create(descriptor, typeSymbol.Locations.FirstOrDefault(), eventType.Name));
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: typeSymbol.Locations.FirstOrDefault(), messageArgs: eventType.Name));
             }
         }
     }
 
     private static bool IsAggregate(INamedTypeSymbol typeSymbol)
     {
-        return typeSymbol.Name.EndsWith("Aggregate", System.StringComparison.Ordinal) ||
-               typeSymbol.Interfaces.Any(interfaceSymbol => interfaceSymbol.Name == "IAggregate");
+        return typeSymbol.Name.EndsWith(value: "Aggregate", comparisonType: System.StringComparison.Ordinal) ||
+               typeSymbol.Interfaces.Any(predicate: interfaceSymbol => interfaceSymbol.Name == "IAggregate");
     }
 
     private static ImmutableHashSet<INamedTypeSymbol> FindRaisedEvents(Compilation compilation, INamedTypeSymbol typeSymbol)
     {
-        var builder = ImmutableHashSet.CreateBuilder<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        var builder = ImmutableHashSet.CreateBuilder<INamedTypeSymbol>(equalityComparer: SymbolEqualityComparer.Default);
 
         foreach (var method in typeSymbol.GetMembers().OfType<IMethodSymbol>())
         {
@@ -65,18 +59,18 @@ internal sealed class UnusedEventRule : IAnalyzerRule
                 continue;
             }
 
-            var syntax = method.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
+            var syntax = method.DeclaringSyntaxReferences[index: 0].GetSyntax() as MethodDeclarationSyntax;
             if (syntax is null)
             {
                 continue;
             }
 
-            var model = compilation.GetSemanticModel(syntax.SyntaxTree);
+            var model = compilation.GetSemanticModel(syntaxTree: syntax.SyntaxTree);
             foreach (var creation in syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
             {
-                if (model.GetTypeInfo(creation).Type is INamedTypeSymbol eventType && eventType.Name.EndsWith("Event", System.StringComparison.Ordinal))
+                if (model.GetTypeInfo(expression: creation).Type is INamedTypeSymbol eventType && eventType.Name.EndsWith(value: "Event", comparisonType: System.StringComparison.Ordinal))
                 {
-                    builder.Add(eventType);
+                    builder.Add(item: eventType);
                 }
             }
         }

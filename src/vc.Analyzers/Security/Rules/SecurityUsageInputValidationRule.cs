@@ -1,21 +1,19 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Security.Rules;
+namespace VisionaryCoder.Analyzers.Security.Rules;
 
 internal sealed class SecurityUsageInputValidationRule : IAnalyzerRule
 {
-    private static readonly string[] HttpAttributes = { "HttpGet", "HttpPost", "HttpPut", "HttpPatch", "HttpDelete" };
-    private static readonly string[] ValidationAttributes = { "Required", "Range", "StringLength", "MinLength", "MaxLength", "RegularExpression" };
+    private static readonly string[] HttpAttributes = ["HttpGet", "HttpPost", "HttpPut", "HttpPatch", "HttpDelete"];
+    private static readonly string[] ValidationAttributes = ["Required", "Range", "StringLength", "MinLength", "MaxLength", "RegularExpression"
+    ];
 
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
         id: DiagnosticIds.SecurityInputValidationMissing,
         title: "Endpoint missing input validation",
-        messageFormat: "Endpoint '{0}' accepts complex input without validation attributes.",
+        messageFormat: "Endpoint '{0}' accepts complex input without validation attributes",
         category: "Security",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);

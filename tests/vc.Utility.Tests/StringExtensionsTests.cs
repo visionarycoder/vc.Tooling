@@ -1,10 +1,16 @@
 using VisionaryCoder.Utility;
 using Xunit;
 
-namespace VisionaryCoder.Utility.Tests;
+namespace vc.Utility.Tests;
 
+/// <summary>
+/// Tests for <see cref="StringExtensions"/> helpers.
+/// </summary>
 public sealed class StringExtensionsTests
 {
+    /// <summary>
+    /// Verifies IsNullOrWhiteSpace returns true for null values.
+    /// </summary>
     [Fact]
     public void IsNullOrWhiteSpace_ShouldReturnTrue_WhenValueIsNull()
     {
@@ -15,6 +21,10 @@ public sealed class StringExtensionsTests
         Assert.True(result);
     }
 
+    /// <summary>
+    /// Verifies IsNullOrWhiteSpace returns true for whitespace values.
+    /// </summary>
+    /// <param name="value">Input value under test.</param>
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -25,6 +35,9 @@ public sealed class StringExtensionsTests
         Assert.True(result);
     }
 
+    /// <summary>
+    /// Verifies IsNullOrWhiteSpace returns false when text exists.
+    /// </summary>
     [Fact]
     public void IsNullOrWhiteSpace_ShouldReturnFalse_WhenValueHasText()
     {
@@ -33,6 +46,9 @@ public sealed class StringExtensionsTests
         Assert.False(result);
     }
 
+    /// <summary>
+    /// Verifies OrEmpty returns empty string for null values.
+    /// </summary>
     [Fact]
     public void OrEmpty_ShouldReturnEmpty_WhenValueIsNull()
     {
@@ -43,6 +59,9 @@ public sealed class StringExtensionsTests
         Assert.Equal(string.Empty, result);
     }
 
+    /// <summary>
+    /// Verifies OrEmpty returns the original value when non-null.
+    /// </summary>
     [Fact]
     public void OrEmpty_ShouldReturnOriginalValue_WhenValueIsNotNull()
     {

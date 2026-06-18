@@ -1,38 +1,31 @@
-namespace VisionaryCoder.Tooling.Core
+namespace VisionaryCoder.Tooling.Core.Behaviors
 {
-    public sealed class BehaviorContext
+    public sealed class BehaviorContext(
+        string operationName,
+        object? request,
+        IDictionary<string, object>? metadata = null)
     {
-        public BehaviorContext(
-            string operationName,
-            object? request,
-            IDictionary<string, object>? metadata = null)
-        {
-            OperationName = operationName;
-            Request = request;
-            Metadata = metadata ?? new Dictionary<string, object>();
-        }
-
         /// <summary>
         /// The name of the tooling operation being executed.
         /// </summary>
-        public string OperationName { get; }
+        public string OperationName { get; } = operationName;
 
         /// <summary>
         /// The request payload for the operation (may be null).
         /// </summary>
-        public object? Request { get; }
+        public object? Request { get; } = request;
 
         /// <summary>
         /// Arbitrary metadata for behaviors to read/write.
         /// </summary>
-        public IDictionary<string, object> Metadata { get; }
+        public IDictionary<string, object> Metadata { get; } = metadata ?? new Dictionary<string, object>();
 
         /// <summary>
         /// Adds or updates a metadata value.
         /// </summary>
         public void Set(string key, object value)
         {
-            Metadata[key] = value;
+            Metadata[key: key] = value;
         }
 
         /// <summary>
@@ -40,7 +33,7 @@ namespace VisionaryCoder.Tooling.Core
         /// </summary>
         public bool TryGet<T>(string key, out T? value)
         {
-            if (Metadata.TryGetValue(key, out var raw) && raw is T typed)
+            if (Metadata.TryGetValue(key: key, value: out var raw) && raw is T typed)
             {
                 value = typed;
                 return true;

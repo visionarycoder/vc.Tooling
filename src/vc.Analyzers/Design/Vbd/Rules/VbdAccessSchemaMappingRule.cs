@@ -1,9 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdAccessSchemaMappingRule : IAnalyzerRule
 {
@@ -19,7 +16,7 @@ internal sealed class VbdAccessSchemaMappingRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeType, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeType(SymbolAnalysisContext context)
@@ -30,7 +27,7 @@ internal sealed class VbdAccessSchemaMappingRule : IAnalyzerRule
         }
 
         var returnsEntity = type.GetMembers().OfType<IMethodSymbol>()
-            .Any(m => m.MethodKind == MethodKind.Ordinary && m.ReturnType.Name.EndsWith("Entity"));
+            .Any(predicate: m => m.MethodKind == MethodKind.Ordinary && m.ReturnType.Name.EndsWith(value: "Entity"));
 
         if (!returnsEntity)
         {
@@ -38,12 +35,12 @@ internal sealed class VbdAccessSchemaMappingRule : IAnalyzerRule
         }
 
         var hasMappingMethod = type.GetMembers().OfType<IMethodSymbol>()
-            .Any(m => m.MethodKind == MethodKind.Ordinary &&
-                      (m.Name.StartsWith("Map") || m.Name.StartsWith("Transform") || m.Name.StartsWith("ToDomain")));
+            .Any(predicate: m => m.MethodKind == MethodKind.Ordinary &&
+                                 (m.Name.StartsWith(value: "Map") || m.Name.StartsWith(value: "Transform") || m.Name.StartsWith(value: "ToDomain")));
 
         if (!hasMappingMethod)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, type.Locations.FirstOrDefault(), type.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: type.Locations.FirstOrDefault(), messageArgs: type.Name));
         }
     }
 }

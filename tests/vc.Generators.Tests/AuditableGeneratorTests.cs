@@ -1,8 +1,8 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using vc.Generators.Abstractions.Attributes;
+using VisionaryCoder.Generators.Data;
 using Xunit;
 
-namespace Vc.Generators.Tests;
+namespace vc.Generators.Tests;
 
 /// <summary>
 /// Tests for AuditableGenerator Phase 4 Bundle 15.
@@ -15,14 +15,14 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
 
         // Act & Assert
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out _, diagnostics: out var diagnostics);
         
-        Assert.NotNull(diagnostics);
+        Assert.False(condition: diagnostics.IsDefault);
     }
 
     [Fact]
@@ -30,18 +30,18 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var inputTreeCount = compilation.SyntaxTrees.Count();
         var outputTreeCount = outputCompilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.True(outputTreeCount >= inputTreeCount, 
-            $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
+        Assert.True(condition: outputTreeCount >= inputTreeCount, 
+            userMessage: $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
     }
 
     [Fact]
@@ -49,17 +49,17 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.True(generatedText.Length > 0, "Generator should produce output");
-        Assert.Contains("public sealed partial class OrderAudit", generatedText);
+        Assert.True(condition: generatedText.Length > 0, userMessage: "Generator should produce output");
+        Assert.Contains(expectedSubstring: "public sealed partial class OrderAudit", actualString: generatedText);
     }
 
     [Fact]
@@ -67,16 +67,16 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("private readonly List<AuditEntry> _auditTrail = new();", generatedText);
+        Assert.Contains(expectedSubstring: "private readonly List<AuditEntry> _auditTrail = new();", actualString: generatedText);
     }
 
     [Fact]
@@ -84,17 +84,17 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public IReadOnlyList<AuditEntry> AuditTrail", generatedText);
-        Assert.Contains("_auditTrail.AsReadOnly();", generatedText);
+        Assert.Contains(expectedSubstring: "public IReadOnlyList<AuditEntry> AuditTrail", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_auditTrail.AsReadOnly();", actualString: generatedText);
     }
 
     [Fact]
@@ -102,18 +102,18 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public void RecordChange(string propertyName, object? oldValue, object? newValue)", generatedText);
-        Assert.Contains("Property name cannot be null or empty", generatedText);
-        Assert.Contains("new AuditEntry(propertyName, oldValue, newValue, DateTime.UtcNow);", generatedText);
+        Assert.Contains(expectedSubstring: "public void RecordChange(string propertyName, object? oldValue, object? newValue)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Property name cannot be null or empty", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "new AuditEntry(propertyName, oldValue, newValue, DateTime.UtcNow);", actualString: generatedText);
     }
 
     [Fact]
@@ -121,17 +121,17 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public void ClearAuditTrail()", generatedText);
-        Assert.Contains("_auditTrail.Clear();", generatedText);
+        Assert.Contains(expectedSubstring: "public void ClearAuditTrail()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_auditTrail.Clear();", actualString: generatedText);
     }
 
     [Fact]
@@ -139,17 +139,17 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public IReadOnlyList<AuditEntry> GetPropertyHistory(string propertyName)", generatedText);
-        Assert.Contains("_auditTrail.Where(e => e.PropertyName == propertyName)", generatedText);
+        Assert.Contains(expectedSubstring: "public IReadOnlyList<AuditEntry> GetPropertyHistory(string propertyName)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_auditTrail.Where(e => e.PropertyName == propertyName)", actualString: generatedText);
     }
 
     [Fact]
@@ -157,16 +157,16 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public sealed class AuditEntry", generatedText);
+        Assert.Contains(expectedSubstring: "public sealed class AuditEntry", actualString: generatedText);
     }
 
     [Fact]
@@ -174,19 +174,19 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public string PropertyName { get; }", generatedText);
-        Assert.Contains("public object? OldValue { get; }", generatedText);
-        Assert.Contains("public object? NewValue { get; }", generatedText);
-        Assert.Contains("public DateTime ChangedAt { get; }", generatedText);
+        Assert.Contains(expectedSubstring: "public string PropertyName { get; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public object? OldValue { get; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public object? NewValue { get; }", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "public DateTime ChangedAt { get; }", actualString: generatedText);
     }
 
     [Fact]
@@ -194,16 +194,16 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("namespace Sample.Domain.Auditing;", generatedText);
+        Assert.Contains(expectedSubstring: "namespace Sample.Domain.Auditing;", actualString: generatedText);
     }
 
     [Fact]
@@ -211,16 +211,16 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AuditableGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("// <auto-generated by VisionaryCoder.Tooling.Generators />", generatedText);
+        Assert.Contains(expectedSubstring: "// <auto-generated by VisionaryCoder.Tooling.Generators />", actualString: generatedText);
     }
 
     [Fact]
@@ -228,24 +228,24 @@ public sealed class AuditableGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation1 = CreateCompilation(source);
-        var compilation2 = CreateCompilation(source);
+        var compilation1 = CreateCompilation(source: source);
+        var compilation2 = CreateCompilation(source: source);
         
-        var generator1 = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
-        var generator2 = new VisionaryCoder.Tooling.Generators.AuditableGenerator();
+        var generator1 = new AuditableGenerator();
+        var generator2 = new AuditableGenerator();
         
-        var driver1 = CSharpGeneratorDriver.Create(generator1);
-        var driver2 = CSharpGeneratorDriver.Create(generator2);
+        var driver1 = CSharpGeneratorDriver.Create(incrementalGenerators: generator1);
+        var driver2 = CSharpGeneratorDriver.Create(incrementalGenerators: generator2);
 
         // Act
-        driver1.RunGeneratorsAndUpdateCompilation(compilation1, out var outputCompilation1, out _);
-        driver2.RunGeneratorsAndUpdateCompilation(compilation2, out var outputCompilation2, out _);
+        driver1.RunGeneratorsAndUpdateCompilation(compilation: compilation1, outputCompilation: out var outputCompilation1, diagnostics: out _);
+        driver2.RunGeneratorsAndUpdateCompilation(compilation: compilation2, outputCompilation: out var outputCompilation2, diagnostics: out _);
         
-        var generatedText1 = GetGeneratedSourceText(outputCompilation1, compilation1.SyntaxTrees.Count());
-        var generatedText2 = GetGeneratedSourceText(outputCompilation2, compilation2.SyntaxTrees.Count());
+        var generatedText1 = GetGeneratedSourceText(outputCompilation: outputCompilation1, inputTreeCount: compilation1.SyntaxTrees.Count());
+        var generatedText2 = GetGeneratedSourceText(outputCompilation: outputCompilation2, inputTreeCount: compilation2.SyntaxTrees.Count());
 
         // Assert
-        Assert.Equal(generatedText1, generatedText2);
+        Assert.Equal(expected: generatedText1, actual: generatedText2);
     }
 
     private string CreateSourceWithAttribute()
@@ -267,28 +267,28 @@ public sealed class AuditableGeneratorTests
 
     private Compilation CreateCompilation(string source)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(text: source);
         
-        var vcAbstractionsAssemblyPath = typeof(Vc.Generators.Abstractions.Data.VcAuditableAttribute).Assembly.Location;
+        var vcAbstractionsAssemblyPath = typeof(VcAuditableAttribute).Assembly.Location;
         
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
-            MetadataReference.CreateFromFile(vcAbstractionsAssemblyPath),
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Attribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: vcAbstractionsAssemblyPath),
         };
 
-        return CSharpCompilation.Create("TestCompilation")
-            .AddSyntaxTrees(syntaxTree)
-            .AddReferences(references)
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        return CSharpCompilation.Create(assemblyName: "TestCompilation")
+            .AddSyntaxTrees(trees: syntaxTree)
+            .AddReferences(references: references)
+            .WithOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
     }
 
     private string GetGeneratedSourceText(Compilation outputCompilation, int inputTreeCount)
     {
-        var generatedTrees = outputCompilation.SyntaxTrees.Skip(inputTreeCount);
+        var generatedTrees = outputCompilation.SyntaxTrees.Skip(count: inputTreeCount);
         return generatedTrees.FirstOrDefault()?.GetText().ToString() ?? "";
     }
 }

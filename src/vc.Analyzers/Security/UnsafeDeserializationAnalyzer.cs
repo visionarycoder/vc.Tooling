@@ -1,31 +1,25 @@
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
-using Vc.Analyzers.Security.Rules;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Security.Rules;
 
-namespace Vc.Analyzers.Security;
+namespace VisionaryCoder.Analyzers.Security;
 
-[DiagnosticAnalyzer(LanguageNames.CSharp)]
+[DiagnosticAnalyzer(firstLanguage: LanguageNames.CSharp)]
 public sealed class UnsafeDeserializationAnalyzer : DiagnosticAnalyzer
 {
     private static readonly ImmutableArray<IAnalyzerRule> Rules =
-        ImmutableArray.Create<IAnalyzerRule>(new UnsafeDeserializationRule());
+        [new UnsafeDeserializationRule()];
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        Rules.Select(rule => rule.Descriptor).ToImmutableArray();
+        [..Rules.Select(selector: rule => rule.Descriptor)];
 
     public override void Initialize(AnalysisContext context)
     {
-        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+        context.ConfigureGeneratedCodeAnalysis(analysisMode: GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
         foreach (var rule in Rules)
         {
-            rule.Register(context);
+            rule.Register(context: context);
         }
     }
 }

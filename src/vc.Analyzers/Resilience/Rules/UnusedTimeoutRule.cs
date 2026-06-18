@@ -1,10 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Resilience.Rules;
+namespace VisionaryCoder.Analyzers.Resilience.Rules;
 
 internal sealed class UnusedTimeoutRule : IAnalyzerRule
 {
@@ -13,7 +9,7 @@ internal sealed class UnusedTimeoutRule : IAnalyzerRule
     private static readonly DiagnosticDescriptor descriptor = new(
         DiagnosticIds.ResilienceTimeoutExcessive,
         "Timeout declared but never used",
-        "Timeout value '{0}' is declared but never applied to any external call.",
+        "Timeout value '{0}' is declared but never applied to any external call",
         "Resilience",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true);

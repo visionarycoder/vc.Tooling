@@ -1,50 +1,16 @@
 using VisionaryCoder.Runtime.Vbd;
 using Xunit;
 
-namespace VisionaryCoder.Runtime.Tests;
+namespace vc.Runtime.Tests;
 
-public sealed class VbdMessageEnvelopeTests
-{
-    [Fact]
-    public void Constructor_ShouldPopulateAllProperties()
-    {
-        const string operationName = "TestOperation";
-        const int payload = 42;
-
-        var envelope = new VbdMessageEnvelope<int>(operationName, payload);
-
-        Assert.Equal(operationName, envelope.OperationName);
-        Assert.Equal(payload, envelope.Payload);
-        Assert.NotEqual(Guid.Empty, envelope.MessageId);
-        Assert.True(envelope.Timestamp <= DateTimeOffset.UtcNow);
-    }
-
-    [Fact]
-    public void Constructor_ShouldThrow_WhenOperationNameIsNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new VbdMessageEnvelope<string>(null!, "payload"));
-    }
-
-    [Fact]
-    public void Constructor_ShouldAcceptNullPayload()
-    {
-        var envelope = new VbdMessageEnvelope<string>("op", null);
-
-        Assert.Null(envelope.Payload);
-    }
-
-    [Fact]
-    public void TwoEnvelopes_ShouldHaveDifferentMessageIds()
-    {
-        var a = new VbdMessageEnvelope<string>("op", "x");
-        var b = new VbdMessageEnvelope<string>("op", "x");
-
-        Assert.NotEqual(a.MessageId, b.MessageId);
-    }
-}
-
+/// <summary>
+/// Tests for <see cref="VbdMessageBus"/> behavior.
+/// </summary>
 public sealed class VbdMessageBusTests
 {
+    /// <summary>
+    /// Verifies publishing invokes the subscribed handler.
+    /// </summary>
     [Fact]
     public async Task PublishAsync_ShouldInvokeSubscribedHandler()
     {
@@ -64,6 +30,9 @@ public sealed class VbdMessageBusTests
         Assert.Equal("order.created", received.OperationName);
     }
 
+    /// <summary>
+    /// Verifies publishing with no subscribers completes without error.
+    /// </summary>
     [Fact]
     public async Task PublishAsync_ShouldNotThrow_WhenNoSubscribersExist()
     {
@@ -73,6 +42,9 @@ public sealed class VbdMessageBusTests
         await bus.PublishAsync("unknown.event", "data");
     }
 
+    /// <summary>
+    /// Verifies publishing invokes all subscribed handlers.
+    /// </summary>
     [Fact]
     public async Task PublishAsync_ShouldInvokeMultipleSubscribers()
     {
@@ -87,6 +59,9 @@ public sealed class VbdMessageBusTests
         Assert.Equal(2, calls);
     }
 
+    /// <summary>
+    /// Verifies subscriber existence check is false when no handlers are registered.
+    /// </summary>
     [Fact]
     public void HasSubscribers_ShouldReturnFalse_WhenNoneRegistered()
     {
@@ -95,6 +70,9 @@ public sealed class VbdMessageBusTests
         Assert.False(bus.HasSubscribers("order.created"));
     }
 
+    /// <summary>
+    /// Verifies subscriber existence check is true after registration.
+    /// </summary>
     [Fact]
     public void HasSubscribers_ShouldReturnTrue_AfterSubscription()
     {
@@ -104,6 +82,9 @@ public sealed class VbdMessageBusTests
         Assert.True(bus.HasSubscribers("order.created"));
     }
 
+    /// <summary>
+    /// Verifies subscribing throws for null operation name.
+    /// </summary>
     [Fact]
     public void Subscribe_ShouldThrow_WhenOperationNameIsNull()
     {
@@ -113,6 +94,9 @@ public sealed class VbdMessageBusTests
             bus.Subscribe<string>(null!, _ => Task.CompletedTask));
     }
 
+    /// <summary>
+    /// Verifies subscribing throws for null handler.
+    /// </summary>
     [Fact]
     public void Subscribe_ShouldThrow_WhenHandlerIsNull()
     {

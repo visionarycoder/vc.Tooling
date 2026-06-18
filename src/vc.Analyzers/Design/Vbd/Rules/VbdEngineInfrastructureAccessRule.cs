@@ -1,9 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdEngineInfrastructureAccessRule : IAnalyzerRule
 {
@@ -19,7 +16,7 @@ internal sealed class VbdEngineInfrastructureAccessRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeType, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeType(SymbolAnalysisContext context)
@@ -29,19 +26,19 @@ internal sealed class VbdEngineInfrastructureAccessRule : IAnalyzerRule
             return;
         }
 
-        if (!type.Name.EndsWith("Engine"))
+        if (!type.Name.EndsWith(value: "Engine"))
         {
             return;
         }
 
         var infraRef = type.GetMembers().OfType<IFieldSymbol>()
-            .Select(f => f.Type.ContainingNamespace?.ToDisplayString() ?? string.Empty)
-            .Concat(type.GetMembers().OfType<IPropertySymbol>().Select(p => p.Type.ContainingNamespace?.ToDisplayString() ?? string.Empty))
-            .FirstOrDefault(ns => ns.Contains("System.Net.Http") || ns.Contains("EntityFramework") || ns.Contains("SqlClient"));
+            .Select(selector: f => f.Type.ContainingNamespace?.ToDisplayString() ?? string.Empty)
+            .Concat(second: type.GetMembers().OfType<IPropertySymbol>().Select(selector: p => p.Type.ContainingNamespace?.ToDisplayString() ?? string.Empty))
+            .FirstOrDefault(predicate: ns => ns.Contains(value: "System.Net.Http") || ns.Contains(value: "EntityFramework") || ns.Contains(value: "SqlClient"));
 
-        if (!string.IsNullOrWhiteSpace(infraRef))
+        if (!string.IsNullOrWhiteSpace(value: infraRef))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, type.Locations.FirstOrDefault(), type.Name, infraRef));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: type.Locations.FirstOrDefault(), messageArgs: [type.Name, infraRef]));
         }
     }
 }

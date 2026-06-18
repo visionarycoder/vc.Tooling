@@ -1,44 +1,39 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Security.Rules;
+namespace VisionaryCoder.Analyzers.Security.Rules;
 
 internal sealed class UnsafeDeserializationRule : IAnalyzerRule
 {
     private static readonly string[] DangerousTypes =
-    {
+    [
         "BinaryFormatter",
         "SoapFormatter",
         "LosFormatter",
         "NetDataContractSerializer",
         "JavaScriptSerializer"
-    };
+    ];
 
     private static readonly string[] DangerousMethods =
-    {
+    [
         "Deserialize",
         "DeserializeAsync",
         "ReadObject",
         "ReadObjectAsync"
-    };
+    ];
 
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
         id: DiagnosticIds.SecurityUnsafeDeserialization,
         title: "Unsafe deserialization",
-        messageFormat: "Deserialization method '{0}' may allow unsafe or untrusted input.",
+        messageFormat: "Deserialization method '{0}' may allow unsafe or untrusted input",
         category: "Security",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(action: AnalyzeInvocation, syntaxKinds: SyntaxKind.InvocationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -48,26 +43,26 @@ internal sealed class UnsafeDeserializationRule : IAnalyzerRule
             return;
         }
 
-        var symbol = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
+        var symbol = context.SemanticModel.GetSymbolInfo(expression: invocation, cancellationToken: context.CancellationToken).Symbol as IMethodSymbol;
         if (symbol is null)
         {
             return;
         }
 
-        if (IsKnownDangerousType(symbol.ContainingType) || IsKnownDangerousMethod(symbol) || IsSuspiciousCustomDeserializer(symbol))
+        if (IsKnownDangerousType(typeSymbol: symbol.ContainingType) || IsKnownDangerousMethod(methodSymbol: symbol) || IsSuspiciousCustomDeserializer(methodSymbol: symbol))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, invocation.GetLocation(), symbol.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: invocation.GetLocation(), messageArgs: symbol.Name));
         }
     }
 
     private static bool IsKnownDangerousType(INamedTypeSymbol typeSymbol)
     {
-        return typeSymbol is not null && DangerousTypes.Contains(typeSymbol.Name);
+        return typeSymbol is not null && DangerousTypes.Contains(value: typeSymbol.Name);
     }
 
     private static bool IsKnownDangerousMethod(IMethodSymbol methodSymbol)
     {
-        if (!DangerousMethods.Contains(methodSymbol.Name))
+        if (!DangerousMethods.Contains(value: methodSymbol.Name))
         {
             return false;
         }
@@ -78,18 +73,18 @@ internal sealed class UnsafeDeserializationRule : IAnalyzerRule
             return false;
         }
 
-        return typeName.Contains("JsonSerializer", System.StringComparison.OrdinalIgnoreCase) ||
-               typeName.Contains("XmlSerializer", System.StringComparison.OrdinalIgnoreCase);
+        return typeName.Contains(value: "JsonSerializer", comparisonType: System.StringComparison.OrdinalIgnoreCase) ||
+               typeName.Contains(value: "XmlSerializer", comparisonType: System.StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsSuspiciousCustomDeserializer(IMethodSymbol methodSymbol)
     {
-        if (!methodSymbol.Name.Contains("Deserialize", System.StringComparison.OrdinalIgnoreCase) || methodSymbol.Parameters.Length == 0)
+        if (!methodSymbol.Name.Contains(value: "Deserialize", comparisonType: System.StringComparison.OrdinalIgnoreCase) || methodSymbol.Parameters.Length == 0)
         {
             return false;
         }
 
-        var firstParameter = methodSymbol.Parameters[0];
+        var firstParameter = methodSymbol.Parameters[index: 0];
         if (firstParameter.Type.SpecialType is SpecialType.System_String or SpecialType.System_Object)
         {
             return true;

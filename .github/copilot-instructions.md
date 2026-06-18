@@ -1,3 +1,9 @@
+---
+title: Copilot Instructions
+description: Project documentation for Copilot Instructions.
+status: active
+updated: 2026-06-18
+---
 You are Copilot assisting with the VisionaryCoder.Tooling solution.
 
 

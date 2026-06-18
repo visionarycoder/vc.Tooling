@@ -1,3 +1,9 @@
+---
+title: Unified Diagnostic IDs Skill
+description: Project documentation for Unified Diagnostic IDs Skill.
+status: active
+updated: 2026-06-18
+---
 # Unified Diagnostic IDs Skill
 
 ## Overview
@@ -11,7 +17,7 @@ This skill documents the canonical approach to managing diagnostic IDs across th
 All diagnostic IDs must be defined as `const string` in a centralized `DiagnosticIds.cs` file:
 
 ```csharp
-namespace VisionaryCoder.Tooling.Analyzers.Common;
+namespace VisionaryCoder.Analyzers.Common;
 
 public static class DiagnosticIds
 {
@@ -55,8 +61,8 @@ VC{Category}{Number:0000}
 ```
 
 Where:
-- **VC** — Prefix (VisionaryCoder.Tooling)
-- **Category** — 2-4 letter category code (ARCH, API, ASYNC, etc.)
+- **VC** — Prefix (VisionaryCoder)
+- **Category** — 3-6 letter category code (ARCH, API, ASYNC, NAMING, etc.)
 - **Number** — Zero-padded 4-digit number (0001-9999)
 
 **Examples:**
@@ -73,6 +79,8 @@ Assign categories to logical concerns. Current categories:
 | VCARCH | Architecture | 0001-0006 | Layering, boundaries, project structure |
 | VCAPI | API Design | 0001-0006 | HTTP/REST conventions, controller design |
 | VCDTO | Data Transfer Objects | 0001-0002 | DTO purity and structure |
+| VCDATA | Data Design | 0001-0002 | DTO/repository design coverage |
+| VCCORE | Core | 0001-0003 | Core domain baseline checks |
 | VCMAP | Mapping | 0001-0002 | Object mapping validation |
 | VCASYNC | Async Correctness | 0001-0005 | Async/await patterns |
 | VCDESIGN | Design Principles | 0001-0006 | Exception safety, immutability |
@@ -82,10 +90,12 @@ Assign categories to logical concerns. Current categories:
 | VCDIST | Distributed Patterns | 0001-0009 | Event sourcing, messaging, repositories |
 | VCPERF | Performance | 0001-0007 | Hot paths, allocations, optimizations |
 | VCRES | Resilience | 0001-0012 | Circuit breakers, retries, timeouts |
+| VCOBS | Observability | 0001-0003 | Telemetry, tracing, and metrics |
 | VCSEC | Security | 0001-0009 | Secrets, injection, authorization |
 | VCNULL | Null Safety | 0001-0002 | Null checks, nullable warnings |
 | VCDOC | Documentation | 0001-0002 | XML comments, documentation |
 | VCNAMING | Naming Conventions | 0001-0002 | Naming consistency |
+| VC | Legacy/Stub | 0001-0006 | Transitional IDs pending full rule migration |
 
 To add a new category, allocate a range (e.g., VCCUSTOM0001-0010) and document in DiagnosticIds.cs.
 
@@ -94,7 +104,7 @@ To add a new category, allocate a range (e.g., VCCUSTOM0001-0010) and document i
 ### Rule VDI0001: Always Use DiagnosticIds Constants
 ✅ **DO:**
 ```csharp
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Common;
 
 public sealed class MyAnalyzer : DiagnosticAnalyzer
 {
@@ -130,12 +140,12 @@ public static class DiagnosticIds
 ```
 
 ### Rule VDI0003: Import the Common Namespace
-Every analyzer must import `VisionaryCoder.Tooling.Analyzers.Common`:
+Every analyzer should reference `VisionaryCoder.Analyzers.Common` (directly or via global usings):
 
 ```csharp
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Common;
 
-namespace Vc.Analyzers.Architecture;
+namespace VisionaryCoder.Analyzers.Architecture;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class LayeringAnalyzer : DiagnosticAnalyzer { }
@@ -157,9 +167,9 @@ public sealed class ExceptionSafetyAnalyzer : DiagnosticAnalyzer
   private static readonly ImmutableArray<IAnalyzerRule> _rules =
     ImmutableArray.Create<IAnalyzerRule>(
       new EmptyCatchRule(),
-      new BroadCatchRule(),
+      new GeneralCatchRule(),
       new SwallowedExceptionRule(),
-      new AsyncVoidExceptionHandlerRule());
+      new AsyncVoidRule());
 
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
     _rules.Select(r => r.Descriptor).ToImmutableArray();
@@ -236,7 +246,7 @@ When implementing a new analyzer:
 2. **Allocate ID number** (increment from existing category max)
 3. **Create semantic constant name** in DiagnosticIds.cs
 4. **Add constant to appropriate section** with XML comment
-5. **Import VisionaryCoder.Tooling.Analyzers.Common** in analyzer
+5. **Reference VisionaryCoder.Analyzers.Common** in analyzer (directly or via global usings)
 6. **Reference constant** in DiagnosticDescriptor: `id: DiagnosticIds.ArchLayeringViolation`
 7. **Update DIAGNOSTIC_IDS_REFERENCE.md** if adding a new category
 

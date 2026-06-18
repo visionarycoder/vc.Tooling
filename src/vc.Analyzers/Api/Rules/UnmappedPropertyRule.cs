@@ -1,28 +1,22 @@
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Api.Rules;
+namespace VisionaryCoder.Analyzers.Api.Rules;
 
 internal sealed class UnmappedPropertyRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.MappingUnmappedProperties,
-        "Unmapped property",
-        "Property '{0}' is not mapped in method '{1}'.",
-        "ApiDesign",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.MappingUnmappedProperties,
+        title: "Unmapped property",
+        messageFormat: "Property '{0}' is not mapped in method '{1}'",
+        category: "ApiDesign",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeMethod, SyntaxKind.MethodDeclaration);
+        context.RegisterSyntaxNodeAction(action: AnalyzeMethod, syntaxKinds: SyntaxKind.MethodDeclaration);
     }
 
     private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)
@@ -32,8 +26,8 @@ internal sealed class UnmappedPropertyRule : IAnalyzerRule
             return;
         }
 
-        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax, context.CancellationToken);
-        if (methodSymbol is null || !IsMappingMethod(methodSymbol) || methodSymbol.ReturnType is not INamedTypeSymbol returnType)
+        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(declarationSyntax: methodSyntax, cancellationToken: context.CancellationToken);
+        if (methodSymbol is null || !IsMappingMethod(methodSymbol: methodSymbol) || methodSymbol.ReturnType is not INamedTypeSymbol returnType)
         {
             return;
         }
@@ -46,17 +40,17 @@ internal sealed class UnmappedPropertyRule : IAnalyzerRule
 
         var mappedProperties = objectCreation.Initializer?.Expressions
             .OfType<AssignmentExpressionSyntax>()
-            .Select(assignment => assignment.Left)
+            .Select(selector: assignment => assignment.Left)
             .OfType<IdentifierNameSyntax>()
-            .Select(identifier => identifier.Identifier.Text);
+            .Select(selector: identifier => identifier.Identifier.Text);
 
-        var mappedPropertySet = mappedProperties is null ? new HashSet<string>() : new HashSet<string>(mappedProperties);
+        var mappedPropertySet = mappedProperties is null ? new HashSet<string>() : new HashSet<string>(collection: mappedProperties);
 
         foreach (var property in returnType.GetMembers().OfType<IPropertySymbol>())
         {
-            if (!property.IsStatic && !mappedPropertySet.Contains(property.Name))
+            if (!property.IsStatic && !mappedPropertySet.Contains(item: property.Name))
             {
-                context.ReportDiagnostic(Diagnostic.Create(descriptor, methodSyntax.Identifier.GetLocation(), property.Name, methodSymbol.Name));
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: methodSyntax.Identifier.GetLocation(), messageArgs: [property.Name, methodSymbol.Name]));
             }
         }
     }
@@ -74,6 +68,6 @@ internal sealed class UnmappedPropertyRule : IAnalyzerRule
         }
 
         return methodSymbol.ContainingType is not null &&
-               !SymbolEqualityComparer.Default.Equals(methodSymbol.ReturnType, methodSymbol.ContainingType);
+               !SymbolEqualityComparer.Default.Equals(x: methodSymbol.ReturnType, y: methodSymbol.ContainingType);
     }
 }

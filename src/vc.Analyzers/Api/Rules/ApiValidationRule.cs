@@ -1,44 +1,41 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Api.Rules;
+namespace VisionaryCoder.Analyzers.Api.Rules;
 
 internal sealed class ApiValidationRule : IAnalyzerRule
 {
     private static readonly string[] ValidationAttributes =
-    {
+    [
         "Required",
         "Range",
         "StringLength",
         "MinLength",
         "MaxLength",
         "RegularExpression"
-    };
+    ];
 
     private static readonly string[] HttpAttributes =
-    {
+    [
         "HttpGet",
         "HttpPost",
         "HttpPut",
         "HttpPatch",
         "HttpDelete"
-    };
+    ];
 
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
         id: DiagnosticIds.ApiValidationMissing,
         title: "API action missing input validation",
-        messageFormat: "Action '{0}' has body-like input but no validation attributes were found.",
+        messageFormat: "Action '{0}' has body-like input but no validation attributes were found",
         category: "ApiDesign",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+        context.RegisterSymbolAction(action: AnalyzeMethod, symbolKinds: SymbolKind.Method);
     }
 
     private static void AnalyzeMethod(SymbolAnalysisContext context)
@@ -48,32 +45,32 @@ internal sealed class ApiValidationRule : IAnalyzerRule
             return;
         }
 
-        if (!HasAnyAttribute(method, HttpAttributes))
+        if (!HasAnyAttribute(symbol: method, names: HttpAttributes))
         {
             return;
         }
 
-        var candidateParameters = method.Parameters.Where(IsComplexInput).ToList();
+        var candidateParameters = method.Parameters.Where(predicate: IsComplexInput).ToList();
         if (!candidateParameters.Any())
         {
             return;
         }
 
-        var hasValidation = candidateParameters.Any(p =>
-            p.GetAttributes().Any(a => ValidationAttributes.Contains(a.AttributeClass?.Name?.Replace("Attribute", string.Empty) ?? string.Empty)));
+        var hasValidation = candidateParameters.Any(predicate: p =>
+            p.GetAttributes().Any(predicate: a => ValidationAttributes.Contains(value: a.AttributeClass?.Name?.Replace(oldValue: "Attribute", newValue: string.Empty) ?? string.Empty)));
 
         if (!hasValidation)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, method.Locations.FirstOrDefault(), method.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: method.Locations.FirstOrDefault(), messageArgs: method.Name));
         }
     }
 
     private static bool HasAnyAttribute(ISymbol symbol, string[] names)
     {
-        return symbol.GetAttributes().Any(a =>
+        return symbol.GetAttributes().Any(predicate: a =>
         {
-            var name = a.AttributeClass?.Name?.Replace("Attribute", string.Empty) ?? string.Empty;
-            return names.Contains(name);
+            var name = a.AttributeClass?.Name?.Replace(oldValue: "Attribute", newValue: string.Empty) ?? string.Empty;
+            return names.Contains(value: name);
         });
     }
 
@@ -90,7 +87,7 @@ internal sealed class ApiValidationRule : IAnalyzerRule
         }
 
         var typeName = parameter.Type.Name;
-        return !string.Equals(typeName, "String", System.StringComparison.Ordinal);
+        return !string.Equals(a: typeName, b: "String", comparisonType: System.StringComparison.Ordinal);
     }
 }
 

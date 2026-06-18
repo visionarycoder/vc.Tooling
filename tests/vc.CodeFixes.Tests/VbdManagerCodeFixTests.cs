@@ -1,19 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Vc.Analyzers.Design.Vbd;
 using Vc.CodeFixes.Design.Vbd;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Design.Vbd;
 using Xunit;
 
-namespace Vc.CodeFixes.Tests;
+namespace vc.CodeFixes.Tests;
 
 public sealed class VbdManagerCodeFixTests
 {
@@ -38,24 +31,24 @@ public sealed class VbdManagerCodeFixTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
-        var diagnostics = await GetAnalyzerDiagnosticsAsync(document);
-        var diagnostic = Assert.Single(diagnostics.Where(d => d.Id == DiagnosticIds.VbdManagerVaultUnstableContract));
+        var document = await CreateDocumentAsync(source: source);
+        var diagnostics = await GetAnalyzerDiagnosticsAsync(document: document);
+        var diagnostic = Assert.Single(collection: diagnostics.Where(predicate: d => d.Id == DiagnosticIds.VbdManagerVaultUnstableContract));
 
         var provider = new VbdManagerCodeFix();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
-        Assert.Contains("SuppressMessage", updatedText.ToString());
-        Assert.Contains(DiagnosticIds.VbdManagerVaultUnstableContract, updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.Diagnostics.CodeAnalysis;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "SuppressMessage", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: DiagnosticIds.VbdManagerVaultUnstableContract, actualString: updatedText.ToString());
     }
 
     [Fact]
@@ -72,7 +65,7 @@ public sealed class VbdManagerCodeFixTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
+        var document = await CreateDocumentAsync(source: source);
         var root = await document.GetSyntaxRootAsync();
         var methodNode = root!
             .DescendantNodes()
@@ -80,30 +73,30 @@ public sealed class VbdManagerCodeFixTests
             .Single();
 
         var diagnostic = Diagnostic.Create(
-            new DiagnosticDescriptor(
-                DiagnosticIds.VbdManagerVaultFeatureSpecificLogic,
-                "Manager contains feature-specific logic",
-                "Manager method '{0}' appears feature-specific; extract to policy/strategy.",
-                "VbdManager",
-                DiagnosticSeverity.Warning,
+            descriptor: new DiagnosticDescriptor(
+                id: DiagnosticIds.VbdManagerVaultFeatureSpecificLogic,
+                title: "Manager contains feature-specific logic",
+                messageFormat: "Manager method '{0}' appears feature-specific; extract to policy/strategy.",
+                category: "VbdManager",
+                defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true),
-            methodNode.Identifier.GetLocation(),
-            methodNode.Identifier.Text);
+            location: methodNode.Identifier.GetLocation(),
+            messageArgs: methodNode.Identifier.Text);
 
         var provider = new VbdManagerFeatureCodeFix();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
-        Assert.Contains("SuppressMessage", updatedText.ToString());
-        Assert.Contains(DiagnosticIds.VbdManagerVaultFeatureSpecificLogic, updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.Diagnostics.CodeAnalysis;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "SuppressMessage", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: DiagnosticIds.VbdManagerVaultFeatureSpecificLogic, actualString: updatedText.ToString());
     }
 
     [Fact]
@@ -120,7 +113,7 @@ public sealed class VbdManagerCodeFixTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
+        var document = await CreateDocumentAsync(source: source);
         var root = await document.GetSyntaxRootAsync();
         var classNode = root!
             .DescendantNodes()
@@ -128,48 +121,48 @@ public sealed class VbdManagerCodeFixTests
             .Single();
 
         var diagnostic = Diagnostic.Create(
-            new DiagnosticDescriptor(
-                DiagnosticIds.VbdManagerVaultMissingOrchestration,
-                "Manager missing orchestration",
-                "Manager type '{0}' has no orchestration-style method calls.",
-                "VbdManager",
-                DiagnosticSeverity.Info,
+            descriptor: new DiagnosticDescriptor(
+                id: DiagnosticIds.VbdManagerVaultMissingOrchestration,
+                title: "Manager missing orchestration",
+                messageFormat: "Manager type '{0}' has no orchestration-style method calls.",
+                category: "VbdManager",
+                defaultSeverity: DiagnosticSeverity.Info,
                 isEnabledByDefault: true),
-            classNode.Identifier.GetLocation(),
-            classNode.Identifier.Text);
+            location: classNode.Identifier.GetLocation(),
+            messageArgs: classNode.Identifier.Text);
 
         var provider = new VbdManagerOrchestrationCodeFix();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
-        Assert.Contains("SuppressMessage", updatedText.ToString());
-        Assert.Contains(DiagnosticIds.VbdManagerVaultMissingOrchestration, updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.Diagnostics.CodeAnalysis;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "SuppressMessage", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: DiagnosticIds.VbdManagerVaultMissingOrchestration, actualString: updatedText.ToString());
     }
 
     private static async Task<Document> CreateDocumentAsync(string source)
     {
         var workspace = new AdhocWorkspace();
-        var project = workspace.AddProject("CodeFixTests", LanguageNames.CSharp)
-            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var project = workspace.AddProject(name: "CodeFixTests", language: LanguageNames.CSharp)
+            .WithCompilationOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
 
-        return workspace.AddDocument(project.Id, "OrderManager.cs", SourceText.From(source));
+        return workspace.AddDocument(projectId: project.Id, name: "OrderManager.cs", text: SourceText.From(text: source));
     }
 
     private static async Task<IReadOnlyList<Diagnostic>> GetAnalyzerDiagnosticsAsync(Document document)
     {
         var compilation = await document.Project.GetCompilationAsync();
-        return await compilation!.WithAnalyzers([new VbdManagerAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+        return await compilation!.WithAnalyzers(analyzers: [new VbdManagerAnalyzer()]).GetAnalyzerDiagnosticsAsync();
     }
 }

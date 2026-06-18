@@ -1,30 +1,27 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Distributed.Rules;
+namespace VisionaryCoder.Analyzers.Distributed.Rules;
 
 internal sealed class MissingAsyncRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.DistributedRepositoryAsyncMissing,
-        "Repository methods should be async",
-        "Repository method '{0}' should be asynchronous.",
-        "Distributed",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.DistributedRepositoryAsyncMissing,
+        title: "Repository methods should be async",
+        messageFormat: "Repository method '{0}' should be asynchronous.",
+        category: "Distributed",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeRepository, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeRepository, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeRepository(SymbolAnalysisContext context)
     {
-        if (context.Symbol is not INamedTypeSymbol typeSymbol || !LooksLikeRepository(typeSymbol))
+        if (context.Symbol is not INamedTypeSymbol typeSymbol || !LooksLikeRepository(typeSymbol: typeSymbol))
         {
             return;
         }
@@ -41,13 +38,13 @@ internal sealed class MissingAsyncRule : IAnalyzerRule
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, method.Locations.FirstOrDefault(), method.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: method.Locations.FirstOrDefault(), messageArgs: method.Name));
         }
     }
 
     private static bool LooksLikeRepository(INamedTypeSymbol typeSymbol)
     {
-        return typeSymbol.Name.EndsWith("Repository", System.StringComparison.Ordinal) ||
-               typeSymbol.Interfaces.Any(interfaceSymbol => interfaceSymbol.Name == "IRepository");
+        return typeSymbol.Name.EndsWith(value: "Repository", comparisonType: System.StringComparison.Ordinal) ||
+               typeSymbol.Interfaces.Any(predicate: interfaceSymbol => interfaceSymbol.Name == "IRepository");
     }
 }

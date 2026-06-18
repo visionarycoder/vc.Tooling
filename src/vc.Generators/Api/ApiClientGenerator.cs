@@ -1,9 +1,6 @@
-using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
+using System.Text;  
 
-namespace VisionaryCoder.Tooling.Generators;
+namespace VisionaryCoder.Generators.Api;
 
 [Generator(LanguageNames.CSharp)]
 public sealed class ApiClientGenerator : IIncrementalGenerator

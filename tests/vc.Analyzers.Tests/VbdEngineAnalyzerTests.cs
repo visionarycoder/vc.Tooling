@@ -1,13 +1,8 @@
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Vc.Analyzers.Design.Vbd;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Design.Vbd;
 using Xunit;
 
-namespace Vc.Analyzers.Tests;
+namespace vc.Analyzers.Tests;
 
 public sealed class VbdEngineAnalyzerTests
 {
@@ -23,9 +18,9 @@ public sealed class VbdEngineAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultInfrastructureAccess);
+        Assert.Contains(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultInfrastructureAccess);
     }
 
     [Fact]
@@ -40,9 +35,9 @@ public sealed class VbdEngineAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultInfrastructureAccess);
+        Assert.DoesNotContain(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultInfrastructureAccess);
     }
 
     [Fact]
@@ -57,9 +52,9 @@ public sealed class VbdEngineAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
+        Assert.Contains(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
     }
 
     [Fact]
@@ -74,9 +69,9 @@ public sealed class VbdEngineAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
+        Assert.DoesNotContain(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultNondeterminism);
     }
 
     [Fact]
@@ -91,9 +86,9 @@ public sealed class VbdEngineAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultStateViolation);
+        Assert.Contains(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultStateViolation);
     }
 
     [Fact]
@@ -108,25 +103,26 @@ public sealed class VbdEngineAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultStateViolation);
+        Assert.DoesNotContain(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.VbdEngineVaultStateViolation);
     }
 
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
+        var tree = CSharpSyntaxTree.ParseText(text: source);
         var compilation = CSharpCompilation.Create(
-            "AnalyzerTests",
-            [tree],
+            assemblyName: "AnalyzerTests",
+            syntaxTrees: [tree],
+            references:
             [
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).Assembly.Location)
+                MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+                MetadataReference.CreateFromFile(path: typeof(System.Net.Http.HttpClient).Assembly.Location)
             ],
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
-        return await compilation.WithAnalyzers([new VbdEngineAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+        return await compilation.WithAnalyzers(analyzers: [new VbdEngineAnalyzer()]).GetAnalyzerDiagnosticsAsync();
     }
 }

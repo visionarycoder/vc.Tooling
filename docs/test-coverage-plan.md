@@ -1,3 +1,9 @@
+---
+title: Detailed Test Coverage Plan
+description: Project documentation for Detailed Test Coverage Plan.
+status: active
+updated: 2026-06-18
+---
 # Detailed Test Coverage Plan
 
 This plan defines required test coverage for implementation completeness.

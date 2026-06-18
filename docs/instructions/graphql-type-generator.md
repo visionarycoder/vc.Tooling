@@ -1,3 +1,9 @@
+---
+title: Graphql Type Generator
+description: Project documentation for Graphql Type Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a GraphQL Type source generator in VisionaryCoder.Tooling.
 
 Project:

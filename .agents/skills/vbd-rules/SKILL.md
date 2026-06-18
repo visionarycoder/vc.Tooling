@@ -1,6 +1,9 @@
 ---
+title: VBD Canonical Rules
 name: vbd-rules
 description: Canonical Juval Lowy volatility-based decomposition rules shared by analyzers, code fixes, generators, and human-authored components.
+status: active
+updated: 2026-06-18
 ---
 
 # VBD Canonical Rules

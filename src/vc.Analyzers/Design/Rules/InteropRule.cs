@@ -1,19 +1,17 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Rules;
+namespace VisionaryCoder.Analyzers.Design.Rules;
 
 internal sealed class InteropRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.LegacyInterop,
-        "Missing interop configuration",
-        "The {0} is missing required interop configuration.",
-        "Interop",
-        DiagnosticSeverity.Error,
+        id: DiagnosticIds.LegacyInterop,
+        title: "Missing interop configuration",
+        messageFormat: "The {0} is missing required interop configuration.",
+        category: "Interop",
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Certain types require specific interop configuration to function correctly. This diagnostic indicates that such configuration is missing.");
 

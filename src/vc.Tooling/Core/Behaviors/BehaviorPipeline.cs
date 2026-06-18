@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace VisionaryCoder.Tooling.Core
+namespace VisionaryCoder.Tooling.Core.Behaviors
 {
     /// <summary>
     /// Executes a sequence of behaviors around a tooling operation.
@@ -15,7 +11,7 @@ namespace VisionaryCoder.Tooling.Core
         {
             _behaviors = behaviors is IReadOnlyList<IProxyBehavior> list
                 ? list
-                : new List<IProxyBehavior>(behaviors);
+                : new List<IProxyBehavior>(collection: behaviors);
         }
 
         /// <summary>
@@ -24,12 +20,12 @@ namespace VisionaryCoder.Tooling.Core
         public Task ExecuteAsync(BehaviorContext context, Func<Task> terminal)
         {
             if (context is null)
-                throw new ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(paramName: nameof(context));
 
             if (terminal is null)
-                throw new ArgumentNullException(nameof(terminal));
+                throw new ArgumentNullException(paramName: nameof(terminal));
 
-            return InvokeNextAsync(0, context, terminal);
+            return InvokeNextAsync(index: 0, context: context, terminal: terminal);
         }
 
         private Task InvokeNextAsync(int index, BehaviorContext context, Func<Task> terminal)
@@ -37,11 +33,11 @@ namespace VisionaryCoder.Tooling.Core
             if (index >= _behaviors.Count)
                 return terminal();
 
-            var behavior = _behaviors[index];
+            var behavior = _behaviors[index: index];
 
             return behavior.InvokeAsync(
-                context,
-                () => InvokeNextAsync(index + 1, context, terminal)
+                context: context,
+                next: () => InvokeNextAsync(index: index + 1, context: context, terminal: terminal)
             );
         }
     }

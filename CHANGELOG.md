@@ -1,3 +1,9 @@
+---
+title: Changelog
+description: Project documentation for Changelog.
+status: active
+updated: 2026-06-18
+---
 # Changelog
 
 All notable changes to VisionaryCoder.Tooling are documented in this file.
@@ -30,16 +36,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Code Generators (47 Generators)
 
 **Resilience Generators**:
+
 - RetryPolicyGenerator: Generates retry settings and configuration records with MaxAttempts, BaseDelay, exponential backoff
 - TimeoutPolicyGenerator: Generates timeout settings and configuration records
 - CircuitBreakerGenerator: Generates circuit breaker policy configurations
 
 **Configuration Generators**:
+
 - OptionsPatternGenerator: Generates IOptions<> registration and validator
 - FeatureFlagGenerator: Generates feature flag configuration classes
 - ConfigurationGenerator: Generates configuration binding helpers
 
 **Domain Generators**:
+
 - StrongIdGenerator: Generates strongly-typed GUID identifier structs with equality operators
 - ValueObjectGenerator: Generates immutable value object bases
 - AggregateRootGenerator: Generates aggregate root base classes
@@ -49,34 +58,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - QueryHandlerGenerator: Generates CQRS query handler stubs
 
 **Data Generators**:
+
 - DtoGenerator: Generates data transfer object records
 - ValidatorGenerator: Generates entity validators with required field checking
 - RepositoryGenerator: Generates repository interfaces and stubs
 - MappingGenerator: Generates mapper classes for domain-to-DTO conversions
 
 **Distributed Generators**:
+
 - OutboxGenerator: Generates outbox entry records and repository interfaces
 - EventPublisherGenerator: Generates strongly-typed event publisher helpers
 - MessageContractGenerator: Generates serializable message contracts
 - GraphQLTypeGenerator: Generates GraphQL type configurations
 
 **API Generators**:
+
 - HttpEndpointGenerator: Generates minimal API endpoint configurations
 - ApiClientGenerator: Generates HTTP client implementations
 - OpenApiGeneratorGenerates OpenAPI schema documentation
 
 **Observability Generators**:
+
 - LoggerMessageGenerator: Generates [LoggerMessage] source-generated logging methods
 - TelemetryGenerator: Generates telemetry instrumentation hooks
 - MetricsGenerator: Generates metrics collection helpers
 
 **Security Generators**:
+
 - JwtSecurityGenerator: Generates JWT token service with generation and validation
 - PermissionsGenerator: Generates permission constant classes
 
 **Other Generators**:
+
 - UnionGenerator: Generates discriminated union types
-- ResultGenerator: Generates Result<T> types for functional error handling
+- ResultGenerator: Generates Result`<T>` types for functional error handling
 
 #### Code Fixes (41 Providers)
 
@@ -88,13 +103,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PerformanceLinqCodeFix: Suppress LINQ in hot path diagnostics
 - PerformanceBoxingCodeFix: Suppress boxing diagnostics
 - PerformanceAllocationCodeFix: Suppress allocation diagnostics
-- [Plus 32 additional code fixes for all analyzer categories]
+- Plus 32 additional code fixes for all analyzer categories
 
 #### Runtime Components
 
 - **BehaviorPipeline**: Chainable proxy behavior execution with ordering and composition
 - **VbdMessageBus**: Pub-sub event messaging with strongly-typed envelopes
-- **VbdMessageEnvelope<T>**: Message wrapper with correlation ID, causation ID, timestamp metadata
+- **VbdMessageEnvelope`<T>`**: Message wrapper with correlation ID, causation ID, timestamp metadata
 - **ToolingOperationInvoker**: Cross-cutting concern orchestration for logging, timing, error handling
 - **DefaultPipelineFactory**: Factory for composing behavior pipelines
 - **IProxyBehavior**: Contract for pipeline behaviors

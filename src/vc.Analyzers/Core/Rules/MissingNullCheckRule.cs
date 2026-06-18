@@ -1,19 +1,17 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Core.Rules;
+namespace VisionaryCoder.Analyzers.Core.Rules;
 
 internal sealed class MissingNullCheckRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.NullSafetyMissingCheck,
-        "Parameter should be null-checked",
-        "Parameter '{0}' should be validated for null.",
-        "NullSafety",
-        DiagnosticSeverity.Info,
+        id: DiagnosticIds.NullSafetyMissingCheck,
+        title: "Parameter should be null-checked",
+        messageFormat: "Parameter '{0}' should be validated for null.",
+        category: "NullSafety",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)

@@ -1,13 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <IsPackable>false</IsPackable>
-    <RootNamespace>VisionaryCoder.Architecture</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>VisionaryCoder.Architecture</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="$(MSBuildThisFileDirectory)../../GlobalUsings.cs" Link="GlobalUsings.cs" />
+    </ItemGroup>
 </Project>

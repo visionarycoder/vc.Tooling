@@ -1,3 +1,9 @@
+---
+title: vc.Tooling
+description: Project documentation for vc.Tooling.
+status: active
+updated: 2026-06-18
+---
 # vc.Tooling
 
 A comprehensive .NET 10 + C# 14 analysis, code generation, and runtime composition framework for production-grade applications.

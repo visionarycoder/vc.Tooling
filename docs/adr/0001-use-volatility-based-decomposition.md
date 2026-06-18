@@ -1,3 +1,9 @@
+---
+title: ADR-0001: Use Volatility-Based Decomposition for Architecture
+description: Project documentation for ADR-0001: Use Volatility-Based Decomposition for Architecture.
+status: active
+updated: 2026-06-18
+---
 # ADR-0001: Use Volatility-Based Decomposition for Architecture
 
 **Status:** Accepted

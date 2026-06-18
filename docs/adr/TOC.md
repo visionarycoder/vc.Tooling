@@ -1,3 +1,9 @@
+---
+title: ADR Table of Contents
+description: Project documentation for ADR Table of Contents.
+status: active
+updated: 2026-06-18
+---
 # ADR Table of Contents
 
 Architecture Decision Records organized by category for easy discovery.

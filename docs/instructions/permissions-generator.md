@@ -1,3 +1,9 @@
+---
+title: Permissions Generator
+description: Project documentation for Permissions Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a Permissions / RBAC source generator in VisionaryCoder.Tooling.
 
 Project:

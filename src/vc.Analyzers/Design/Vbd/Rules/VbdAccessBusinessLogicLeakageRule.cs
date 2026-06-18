@@ -1,9 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdAccessBusinessLogicLeakageRule : IAnalyzerRule
 {
@@ -19,7 +16,7 @@ internal sealed class VbdAccessBusinessLogicLeakageRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeType, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeType(SymbolAnalysisContext context)
@@ -29,24 +26,24 @@ internal sealed class VbdAccessBusinessLogicLeakageRule : IAnalyzerRule
             return;
         }
 
-        if (!LooksLikeAccessComponent(type.Name))
+        if (!LooksLikeAccessComponent(typeName: type.Name))
         {
             return;
         }
 
         var suspiciousMethod = type.GetMembers().OfType<IMethodSymbol>()
-            .FirstOrDefault(m => m.MethodKind == MethodKind.Ordinary &&
-                                 (m.Name.StartsWith("Calculate") || m.Name.StartsWith("Compute") || m.Name.StartsWith("Decide")));
+            .FirstOrDefault(predicate: m => m.MethodKind == MethodKind.Ordinary &&
+                                            (m.Name.StartsWith(value: "Calculate") || m.Name.StartsWith(value: "Compute") || m.Name.StartsWith(value: "Decide")));
 
         if (suspiciousMethod != null)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, suspiciousMethod.Locations.FirstOrDefault(), type.Name, suspiciousMethod.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: suspiciousMethod.Locations.FirstOrDefault(), messageArgs: [type.Name, suspiciousMethod.Name]));
         }
     }
 
     private static bool LooksLikeAccessComponent(string typeName)
     {
-        return typeName.EndsWith("Repository") || typeName.EndsWith("Store") || typeName.EndsWith("Gateway") || typeName.EndsWith("Accessor");
+        return typeName.EndsWith(value: "Repository") || typeName.EndsWith(value: "Store") || typeName.EndsWith(value: "Gateway") || typeName.EndsWith(value: "Accessor");
     }
 }
 

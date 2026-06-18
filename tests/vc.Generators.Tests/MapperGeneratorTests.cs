@@ -1,8 +1,7 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using VisionaryCoder.Generators.Data;
 using Xunit;
 
-namespace Vc.Generators.Tests;
+namespace vc.Generators.Tests;
 
 /// <summary>
 /// Tests for MapperGenerator Phase 4 Bundle 7.
@@ -15,14 +14,14 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
 
         // Act & Assert
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out _, diagnostics: out var diagnostics);
         
-        Assert.NotNull(diagnostics);
+        Assert.False(condition: diagnostics.IsDefault);
     }
 
     [Fact]
@@ -30,18 +29,18 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var inputTreeCount = compilation.SyntaxTrees.Count();
         var outputTreeCount = outputCompilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.True(outputTreeCount >= inputTreeCount, 
-            $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
+        Assert.True(condition: outputTreeCount >= inputTreeCount, 
+            userMessage: $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
     }
 
     [Fact]
@@ -49,17 +48,17 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.True(generatedText.Length > 0, "Generator should produce output");
-        Assert.Contains("public sealed partial class OrderMapper", generatedText);
+        Assert.True(condition: generatedText.Length > 0, userMessage: "Generator should produce output");
+        Assert.Contains(expectedSubstring: "public sealed partial class OrderMapper", actualString: generatedText);
     }
 
     [Fact]
@@ -67,17 +66,17 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public static Order DtoToEntity(OrderDto dto)", generatedText);
-        Assert.Contains("Maps OrderDto to Order entity", generatedText);
+        Assert.Contains(expectedSubstring: "public static Order DtoToEntity(OrderDto dto)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Maps OrderDto to Order entity", actualString: generatedText);
     }
 
     [Fact]
@@ -85,17 +84,17 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public static OrderDto EntityToDto(Order entity)", generatedText);
-        Assert.Contains("Maps Order entity to OrderDto", generatedText);
+        Assert.Contains(expectedSubstring: "public static OrderDto EntityToDto(Order entity)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Maps Order entity to OrderDto", actualString: generatedText);
     }
 
     [Fact]
@@ -103,17 +102,17 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public static IEnumerable<Order> DtosToEntities(IEnumerable<OrderDto> dtos)", generatedText);
-        Assert.Contains("Maps a collection of OrderDto to Order entities", generatedText);
+        Assert.Contains(expectedSubstring: "public static IEnumerable<Order> DtosToEntities(IEnumerable<OrderDto> dtos)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Maps a collection of OrderDto to Order entities", actualString: generatedText);
     }
 
     [Fact]
@@ -121,17 +120,17 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public static IEnumerable<OrderDto> EntitiesToDtos(IEnumerable<Order> entities)", generatedText);
-        Assert.Contains("Maps a collection of Order entities to OrderDto", generatedText);
+        Assert.Contains(expectedSubstring: "public static IEnumerable<OrderDto> EntitiesToDtos(IEnumerable<Order> entities)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Maps a collection of Order entities to OrderDto", actualString: generatedText);
     }
 
     [Fact]
@@ -139,19 +138,19 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("if (dto == null) throw new ArgumentNullException(nameof(dto));", generatedText);
-        Assert.Contains("if (entity == null) throw new ArgumentNullException(nameof(entity));", generatedText);
-        Assert.Contains("if (dtos == null) throw new ArgumentNullException(nameof(dtos));", generatedText);
-        Assert.Contains("if (entities == null) throw new ArgumentNullException(nameof(entities));", generatedText);
+        Assert.Contains(expectedSubstring: "if (dto == null) throw new ArgumentNullException(nameof(dto));", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "if (entity == null) throw new ArgumentNullException(nameof(entity));", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "if (dtos == null) throw new ArgumentNullException(nameof(dtos));", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "if (entities == null) throw new ArgumentNullException(nameof(entities));", actualString: generatedText);
     }
 
     [Fact]
@@ -159,19 +158,19 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("Id = dto.Id,", generatedText);
-        Assert.Contains("CreatedAt = dto.CreatedAt,", generatedText);
-        Assert.Contains("UpdatedAt = dto.UpdatedAt,", generatedText);
-        Assert.Contains("Version = dto.Version", generatedText);
+        Assert.Contains(expectedSubstring: "Id = dto.Id,", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "CreatedAt = dto.CreatedAt,", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "UpdatedAt = dto.UpdatedAt,", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Version = dto.Version", actualString: generatedText);
     }
 
     [Fact]
@@ -179,16 +178,16 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("namespace Sample.Domain.Entities;", generatedText);
+        Assert.Contains(expectedSubstring: "namespace Sample.Domain.Entities;", actualString: generatedText);
     }
 
     [Fact]
@@ -196,16 +195,16 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("// <auto-generated by VisionaryCoder.Tooling.Generators />", generatedText);
+        Assert.Contains(expectedSubstring: "// <auto-generated by VisionaryCoder.Tooling.Generators />", actualString: generatedText);
     }
 
     [Fact]
@@ -213,16 +212,16 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("#nullable enable", generatedText);
+        Assert.Contains(expectedSubstring: "#nullable enable", actualString: generatedText);
     }
 
     [Fact]
@@ -248,16 +247,16 @@ public sealed class MapperGeneratorTests
                 public class Product { }
             }
             """;
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new MapperGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var generatedCount = outputCompilation.SyntaxTrees.Count() - compilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.Equal(3, generatedCount);
+        Assert.Equal(expected: 3, actual: generatedCount);
     }
 
     [Fact]
@@ -265,24 +264,24 @@ public sealed class MapperGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation1 = CreateCompilation(source);
-        var compilation2 = CreateCompilation(source);
+        var compilation1 = CreateCompilation(source: source);
+        var compilation2 = CreateCompilation(source: source);
         
-        var generator1 = new VisionaryCoder.Tooling.Generators.MapperGenerator();
-        var generator2 = new VisionaryCoder.Tooling.Generators.MapperGenerator();
+        var generator1 = new MapperGenerator();
+        var generator2 = new MapperGenerator();
         
-        var driver1 = CSharpGeneratorDriver.Create(generator1);
-        var driver2 = CSharpGeneratorDriver.Create(generator2);
+        var driver1 = CSharpGeneratorDriver.Create(incrementalGenerators: generator1);
+        var driver2 = CSharpGeneratorDriver.Create(incrementalGenerators: generator2);
 
         // Act
-        driver1.RunGeneratorsAndUpdateCompilation(compilation1, out var outputCompilation1, out _);
-        driver2.RunGeneratorsAndUpdateCompilation(compilation2, out var outputCompilation2, out _);
+        driver1.RunGeneratorsAndUpdateCompilation(compilation: compilation1, outputCompilation: out var outputCompilation1, diagnostics: out _);
+        driver2.RunGeneratorsAndUpdateCompilation(compilation: compilation2, outputCompilation: out var outputCompilation2, diagnostics: out _);
         
-        var generatedText1 = GetGeneratedSourceText(outputCompilation1, compilation1.SyntaxTrees.Count());
-        var generatedText2 = GetGeneratedSourceText(outputCompilation2, compilation2.SyntaxTrees.Count());
+        var generatedText1 = GetGeneratedSourceText(outputCompilation: outputCompilation1, inputTreeCount: compilation1.SyntaxTrees.Count());
+        var generatedText2 = GetGeneratedSourceText(outputCompilation: outputCompilation2, inputTreeCount: compilation2.SyntaxTrees.Count());
 
         // Assert
-        Assert.Equal(generatedText1, generatedText2);
+        Assert.Equal(expected: generatedText1, actual: generatedText2);
     }
 
     private string CreateSourceWithAttribute()
@@ -304,28 +303,28 @@ public sealed class MapperGeneratorTests
 
     private Compilation CreateCompilation(string source)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(text: source);
         
-        var vcAbstractionsAssemblyPath = typeof(Vc.Generators.Abstractions.Data.VcMapperAttribute).Assembly.Location;
+        var vcAbstractionsAssemblyPath = typeof(vc.Generators.Abstractions.Attributes.VcMapperAttribute).Assembly.Location;
         
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
-            MetadataReference.CreateFromFile(vcAbstractionsAssemblyPath),
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Attribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: vcAbstractionsAssemblyPath),
         };
 
-        return CSharpCompilation.Create("TestCompilation")
-            .AddSyntaxTrees(syntaxTree)
-            .AddReferences(references)
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        return CSharpCompilation.Create(assemblyName: "TestCompilation")
+            .AddSyntaxTrees(trees: syntaxTree)
+            .AddReferences(references: references)
+            .WithOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
     }
 
     private string GetGeneratedSourceText(Compilation outputCompilation, int inputTreeCount)
     {
-        var generatedTrees = outputCompilation.SyntaxTrees.Skip(inputTreeCount);
+        var generatedTrees = outputCompilation.SyntaxTrees.Skip(count: inputTreeCount);
         return generatedTrees.FirstOrDefault()?.GetText().ToString() ?? "";
     }
 }

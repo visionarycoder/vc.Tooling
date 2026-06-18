@@ -1,38 +1,37 @@
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using VisionaryCoder.Generators.Domain;
 using Xunit;
 
-namespace VisionaryCoder.Tooling.Generators.Tests;
+namespace vc.Generators.Tests;
 
 public sealed class EventSourcingGeneratorTests
 {
     private static ImmutableArray<SyntaxTree> GetCompilation(string source, string attributeSource)
     {
-        return ImmutableArray.Create(
-            CSharpSyntaxTree.ParseText(attributeSource),
-            CSharpSyntaxTree.ParseText(source)
-        );
+        return
+        [
+            CSharpSyntaxTree.ParseText(text: attributeSource),
+            CSharpSyntaxTree.ParseText(text: source)
+        ];
     }
 
     private static Compilation CreateCompilation(ImmutableArray<SyntaxTree> trees)
     {
         var references = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && a.Location.Length > 0)
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
+            .Where(predicate: a => !a.IsDynamic && a.Location.Length > 0)
+            .Select(selector: a => MetadataReference.CreateFromFile(path: a.Location))
             .Distinct()
             .ToArray();
 
-        return CSharpCompilation.Create("GeneratorTest")
-            .AddReferences(references)
-            .AddSyntaxTrees(trees);
+        return CSharpCompilation.Create(assemblyName: "GeneratorTest")
+            .AddReferences(references: references)
+            .AddSyntaxTrees(trees: trees);
     }
 
     private static ImmutableArray<Diagnostic> GetGeneratorDiagnostics(Compilation compilation)
     {
         var generator = new EventSourcingGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var _, out var diagnostics);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var _, diagnostics: out var diagnostics);
         return diagnostics;
     }
 
@@ -44,17 +43,17 @@ public sealed class EventSourcingGeneratorTests
             public sealed class VcEventSourcingAttribute : Attribute {}
             """;
 
-        var attr = string.IsNullOrEmpty(attributeSource) ? defaultAttribute : attributeSource;
-        var trees = GetCompilation(source, attr);
-        var compilation = CreateCompilation(trees);
+        var attr = string.IsNullOrEmpty(value: attributeSource) ? defaultAttribute : attributeSource;
+        var trees = GetCompilation(source: source, attributeSource: attr);
+        var compilation = CreateCompilation(trees: trees);
 
         var generator = new EventSourcingGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out _);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var updatedCompilation, diagnostics: out _);
 
         var sources = updatedCompilation.SyntaxTrees
-            .Select(st => st.GetText().ToString())
-            .Where(s => s.Contains("EventSourcedAggregate"))
+            .Select(selector: st => st.GetText().ToString())
+            .Where(predicate: s => s.Contains(value: "EventSourcedAggregate"))
             .ToList();
 
         return (updatedCompilation, sources);
@@ -72,9 +71,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, _) = RunGenerator(source);
+        var (_, _) = RunGenerator(source: source);
         // No exception = pass
-        Assert.True(true);
+        Assert.True(condition: true);
     }
 
     [Fact]
@@ -89,8 +88,8 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
-        Assert.NotEmpty(sources);
+        var (_, sources) = RunGenerator(source: source);
+        Assert.NotEmpty(collection: sources);
     }
 
     [Fact]
@@ -105,9 +104,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public abstract partial class EventSourcedAggregate", output);
+        Assert.Contains(expectedSubstring: "public abstract partial class EventSourcedAggregate", actualString: output);
     }
 
     [Fact]
@@ -122,12 +121,12 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public Guid AggregateId { get; protected set; }", output);
-        Assert.Contains("public int Version { get; protected set; }", output);
-        Assert.Contains("public IReadOnlyList<object> UncommittedEvents", output);
-        Assert.Contains("public IReadOnlyList<object> CommittedEvents", output);
+        Assert.Contains(expectedSubstring: "public Guid AggregateId { get; protected set; }", actualString: output);
+        Assert.Contains(expectedSubstring: "public int Version { get; protected set; }", actualString: output);
+        Assert.Contains(expectedSubstring: "public IReadOnlyList<object> UncommittedEvents", actualString: output);
+        Assert.Contains(expectedSubstring: "public IReadOnlyList<object> CommittedEvents", actualString: output);
     }
 
     [Fact]
@@ -142,9 +141,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("protected abstract void ApplyEvent(object @event);", output);
+        Assert.Contains(expectedSubstring: "protected abstract void ApplyEvent(object @event);", actualString: output);
     }
 
     [Fact]
@@ -159,11 +158,11 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("protected void RaiseEvent(object @event)", output);
-        Assert.Contains("ApplyEvent(@event);", output);
-        Assert.Contains("_uncommittedEvents.Add(@event);", output);
+        Assert.Contains(expectedSubstring: "protected void RaiseEvent(object @event)", actualString: output);
+        Assert.Contains(expectedSubstring: "ApplyEvent(@event);", actualString: output);
+        Assert.Contains(expectedSubstring: "_uncommittedEvents.Add(@event);", actualString: output);
     }
 
     [Fact]
@@ -178,10 +177,10 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public void LoadFromHistory(IEnumerable<object> events)", output);
-        Assert.Contains("_committedEvents.AddRange(events);", output);
+        Assert.Contains(expectedSubstring: "public void LoadFromHistory(IEnumerable<object> events)", actualString: output);
+        Assert.Contains(expectedSubstring: "_committedEvents.AddRange(events);", actualString: output);
     }
 
     [Fact]
@@ -196,10 +195,10 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public void MarkEventsAsCommitted()", output);
-        Assert.Contains("_uncommittedEvents.Clear();", output);
+        Assert.Contains(expectedSubstring: "public void MarkEventsAsCommitted()", actualString: output);
+        Assert.Contains(expectedSubstring: "_uncommittedEvents.Clear();", actualString: output);
     }
 
     [Fact]
@@ -214,9 +213,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public sealed partial class OrderEventSourced : EventSourcedAggregate", output);
+        Assert.Contains(expectedSubstring: "public sealed partial class OrderEventSourced : EventSourcedAggregate", actualString: output);
     }
 
     [Fact]
@@ -231,11 +230,11 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public OrderEventSourced(Guid aggregateId)", output);
-        Assert.Contains("if (aggregateId == Guid.Empty)", output);
-        Assert.Contains("AggregateId = aggregateId;", output);
+        Assert.Contains(expectedSubstring: "public OrderEventSourced(Guid aggregateId)", actualString: output);
+        Assert.Contains(expectedSubstring: "if (aggregateId == Guid.Empty)", actualString: output);
+        Assert.Contains(expectedSubstring: "AggregateId = aggregateId;", actualString: output);
     }
 
     [Fact]
@@ -250,9 +249,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("protected override void ApplyEvent(object @event)", output);
+        Assert.Contains(expectedSubstring: "protected override void ApplyEvent(object @event)", actualString: output);
     }
 
     [Fact]
@@ -267,9 +266,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("namespace DomainModel.Aggregates;", output);
+        Assert.Contains(expectedSubstring: "namespace DomainModel.Aggregates;", actualString: output);
     }
 
     [Fact]
@@ -284,9 +283,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("// <auto-generated by VisionaryCoder.Tooling.Generators />", output);
+        Assert.Contains(expectedSubstring: "// <auto-generated by VisionaryCoder.Tooling.Generators />", actualString: output);
     }
 
     [Fact]
@@ -301,9 +300,9 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources1) = RunGenerator(source);
+        var (_, sources1) = RunGenerator(source: source);
         var output1 = sources1.First();
-        Assert.NotEmpty(output1);
+        Assert.NotEmpty(collection: output1);
     }
 
     [Fact]
@@ -318,11 +317,11 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources1) = RunGenerator(source);
+        var (_, sources1) = RunGenerator(source: source);
         var output1 = sources1.First();
-        var (_, sources2) = RunGenerator(source);
+        var (_, sources2) = RunGenerator(source: source);
         var output2 = sources2.First();
-        Assert.Equal(output1, output2);
+        Assert.Equal(expected: output1, actual: output2);
     }
 
     [Fact]
@@ -337,8 +336,8 @@ public sealed class EventSourcingGeneratorTests
             public partial class Order {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("#nullable enable", output);
+        Assert.Contains(expectedSubstring: "#nullable enable", actualString: output);
     }
 }

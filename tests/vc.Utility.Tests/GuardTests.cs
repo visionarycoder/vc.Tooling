@@ -1,11 +1,16 @@
-using System;
 using VisionaryCoder.Utility;
 using Xunit;
 
-namespace VisionaryCoder.Utility.Tests;
+namespace vc.Utility.Tests;
 
+/// <summary>
+/// Tests for <see cref="VisionaryCoder.Utility.Guard"/> helpers.
+/// </summary>
 public sealed class GuardTests
 {
+    /// <summary>
+    /// Verifies NotNull returns value for non-null input.
+    /// </summary>
     [Fact]
     public void NotNull_ShouldReturnValue_WhenValueIsNotNull()
     {
@@ -16,6 +21,9 @@ public sealed class GuardTests
         Assert.Same(value, result);
     }
 
+    /// <summary>
+    /// Verifies NotNull throws for null input.
+    /// </summary>
     [Fact]
     public void NotNull_ShouldThrowArgumentNullException_WhenValueIsNull()
     {
@@ -26,6 +34,9 @@ public sealed class GuardTests
         Assert.Equal(nameof(value), exception.ParamName);
     }
 
+    /// <summary>
+    /// Verifies NotNullOrWhiteSpace returns value for valid input.
+    /// </summary>
     [Fact]
     public void NotNullOrWhiteSpace_ShouldReturnValue_WhenValueIsValid()
     {
@@ -36,6 +47,10 @@ public sealed class GuardTests
         Assert.Equal(value, result);
     }
 
+    /// <summary>
+    /// Verifies NotNullOrWhiteSpace throws for empty or whitespace input.
+    /// </summary>
+    /// <param name="value">Input value under test.</param>
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -46,6 +61,9 @@ public sealed class GuardTests
         Assert.Equal(nameof(value), exception.ParamName);
     }
 
+    /// <summary>
+    /// Verifies NotNullOrWhiteSpace throws for null input.
+    /// </summary>
     [Fact]
     public void NotNullOrWhiteSpace_ShouldThrowArgumentException_WhenValueIsNull()
     {

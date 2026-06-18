@@ -1,7 +1,6 @@
-using System;
-namespace VisionaryCoder.Tooling.Shared.Attributes
+namespace VisionaryCoder.Tooling.Shared
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class GenerateValidatorAttribute : Attribute
     {
         public bool UseDataAnnotations { get; set; } = true;

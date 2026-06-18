@@ -1,9 +1,6 @@
 using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
-namespace VisionaryCoder.Tooling.Generators;
+namespace VisionaryCoder.Generators.Design;
 
 [Generator(LanguageNames.CSharp)]
 public sealed class OptionsPatternGenerator : IIncrementalGenerator
@@ -35,7 +32,7 @@ public sealed class OptionsPatternGenerator : IIncrementalGenerator
     private static void Execute(SourceProductionContext ctx, OptionsModel model)
     {
         var sectionName = model.TypeName.EndsWith("Options", StringComparison.Ordinal)
-            ? model.TypeName[..^"Options".Length]
+            ? model.TypeName.Substring(0, model.TypeName.Length - "Options".Length)
             : model.TypeName;
 
         var sb = new StringBuilder();

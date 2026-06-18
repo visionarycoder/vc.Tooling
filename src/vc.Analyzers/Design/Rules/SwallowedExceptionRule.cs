@@ -1,28 +1,22 @@
-using System;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Rules;
+namespace VisionaryCoder.Analyzers.Design.Rules;
 
 internal sealed class SwallowedExceptionRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.DesignExceptionSafetySwallowed,
-        "Exception is swallowed",
-        "Exception is caught but not logged, wrapped, or rethrown.",
-        "ExceptionSafety",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.DesignExceptionSafetySwallowed,
+        title: "Exception is swallowed",
+        messageFormat: "Exception is caught but not logged, wrapped, or rethrown.",
+        category: "ExceptionSafety",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeCatchClause, SyntaxKind.CatchClause);
+        context.RegisterSyntaxNodeAction(action: AnalyzeCatchClause, syntaxKinds: SyntaxKind.CatchClause);
     }
 
     private static void AnalyzeCatchClause(SyntaxNodeAnalysisContext context)
@@ -32,9 +26,9 @@ internal sealed class SwallowedExceptionRule : IAnalyzerRule
             return;
         }
 
-        if (!ContainsThrow(catchClause.Block) && !ContainsLogging(context.SemanticModel, catchClause.Block, context.CancellationToken))
+        if (!ContainsThrow(block: catchClause.Block) && !ContainsLogging(semanticModel: context.SemanticModel, block: catchClause.Block, cancellationToken: context.CancellationToken))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, catchClause.CatchKeyword.GetLocation()));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: catchClause.CatchKeyword.GetLocation()));
         }
     }
 
@@ -47,11 +41,11 @@ internal sealed class SwallowedExceptionRule : IAnalyzerRule
     {
         foreach (var invocation in block.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
-            var symbol = semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol as IMethodSymbol;
+            var symbol = semanticModel.GetSymbolInfo(expression: invocation, cancellationToken: cancellationToken).Symbol as IMethodSymbol;
             if (symbol is not null)
             {
                 var name = symbol.Name;
-                if (name.Contains("Log", StringComparison.OrdinalIgnoreCase) || name.Contains("Trace", StringComparison.OrdinalIgnoreCase) || name.Contains("Error", StringComparison.OrdinalIgnoreCase))
+                if (name.Contains(value: "Log", comparisonType: StringComparison.OrdinalIgnoreCase) || name.Contains(value: "Trace", comparisonType: StringComparison.OrdinalIgnoreCase) || name.Contains(value: "Error", comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }

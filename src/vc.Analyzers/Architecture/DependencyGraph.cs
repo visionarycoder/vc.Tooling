@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-
-namespace Vc.Analyzers.Architecture;
+namespace VisionaryCoder.Analyzers.Architecture;
 
 internal sealed class DependencyGraph
 {
@@ -9,13 +6,13 @@ internal sealed class DependencyGraph
 
     public void AddEdge(string from, string to, INamedTypeSymbol type)
     {
-        if (!edges.TryGetValue(from, out var list))
+        if (!edges.TryGetValue(key: from, value: out var list))
         {
-            list = new List<(string, INamedTypeSymbol)>();
-            edges[from] = list;
+            list = [];
+            edges[key: from] = list;
         }
 
-        list.Add((to, type));
+        list.Add(item: (to, type));
     }
 
     public IEnumerable<(string From, string To, INamedTypeSymbol Type)> FindCycles()
@@ -25,7 +22,7 @@ internal sealed class DependencyGraph
 
         foreach (var node in edges.Keys)
         {
-            foreach (var cycle in Dfs(node, visited, stack))
+            foreach (var cycle in Dfs(node: node, visited: visited, stack: stack))
             {
                 yield return cycle;
             }
@@ -37,29 +34,29 @@ internal sealed class DependencyGraph
         HashSet<string> visited,
         HashSet<string> stack)
     {
-        if (stack.Contains(node))
+        if (stack.Contains(item: node))
         {
             yield break;
         }
 
-        if (!visited.Add(node))
+        if (!visited.Add(item: node))
         {
             yield break;
         }
 
-        stack.Add(node);
+        stack.Add(item: node);
 
-        if (edges.TryGetValue(node, out var outgoing))
+        if (edges.TryGetValue(key: node, value: out var outgoing))
         {
             foreach (var (to, type) in outgoing)
             {
-                if (stack.Contains(to))
+                if (stack.Contains(item: to))
                 {
                     yield return (node, to, type);
                 }
                 else
                 {
-                    foreach (var cycle in Dfs(to, visited, stack))
+                    foreach (var cycle in Dfs(node: to, visited: visited, stack: stack))
                     {
                         yield return cycle;
                     }
@@ -67,6 +64,6 @@ internal sealed class DependencyGraph
             }
         }
 
-        stack.Remove(node);
+        stack.Remove(item: node);
     }
 }

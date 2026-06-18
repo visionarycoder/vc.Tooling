@@ -1,3 +1,9 @@
+---
+title: Code Fix Roadmap
+description: Project documentation for Code Fix Roadmap.
+status: active
+updated: 2026-06-18
+---
 # Code Fix Roadmap
 
 This roadmap defines the next code-fix work for the analyzer suite.

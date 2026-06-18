@@ -1,32 +1,28 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Core.Rules;
+namespace VisionaryCoder.Analyzers.Core.Rules;
 
 internal sealed class FireAndForgetRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.AsyncFireAndForget,
-        "Avoid fire-and-forget tasks",
-        "Task-returning call '{0}' is not awaited or observed.",
-        "AsyncCorrectness",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.AsyncFireAndForget,
+        title: "Avoid fire-and-forget tasks",
+        messageFormat: "Task-returning call '{0}' is not awaited or observed.",
+        category: "AsyncCorrectness",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(action: AnalyzeInvocation, syntaxKinds: SyntaxKind.InvocationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
     {
         var invocation = (InvocationExpressionSyntax)context.Node;
-        var methodSymbol = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
+        var methodSymbol = context.SemanticModel.GetSymbolInfo(expression: invocation, cancellationToken: context.CancellationToken).Symbol as IMethodSymbol;
         if (methodSymbol is null)
         {
             return;
@@ -43,6 +39,6 @@ internal sealed class FireAndForgetRule : IAnalyzerRule
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, invocation.GetLocation(), methodSymbol.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: invocation.GetLocation(), messageArgs: methodSymbol.Name));
     }
 }

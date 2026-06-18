@@ -1,34 +1,30 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Resilience.Rules;
+namespace VisionaryCoder.Analyzers.Resilience.Rules;
 
 internal sealed class ExcessiveTimeoutRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ResilienceTimeoutConfigurationIssue,
-        "Timeout value too high",
-        "Timeout '{0}' is set to {1} seconds, which exceeds recommended limits.",
-        "Resilience",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.ResilienceTimeoutConfigurationIssue,
+        title: "Timeout value too high",
+        messageFormat: "Timeout '{0}' is set to {1} seconds, which exceeds recommended limits",
+        category: "Resilience",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeTimeoutDeclaration, SymbolKind.Field, SymbolKind.Property);
+        context.RegisterSymbolAction(action: AnalyzeTimeoutDeclaration, symbolKinds: new[]{SymbolKind.Field, SymbolKind.Property});
     }
 
     private static void AnalyzeTimeoutDeclaration(SymbolAnalysisContext context)
     {
-        var seconds = GetTimeoutSeconds(context.Symbol);
+        var seconds = GetTimeoutSeconds(symbol: context.Symbol);
         if (seconds > 30)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, context.Symbol.Locations.FirstOrDefault(), context.Symbol.Name, seconds));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: context.Symbol.Locations.FirstOrDefault(), messageArgs: [context.Symbol.Name, seconds]));
         }
     }
 

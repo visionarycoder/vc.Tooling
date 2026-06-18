@@ -1,3 +1,9 @@
+---
+title: Union Generator
+description: Project documentation for Union Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a Union (discriminated union) source generator in VisionaryCoder.Tooling.
 
 Project:

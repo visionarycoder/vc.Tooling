@@ -1,19 +1,17 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Rules;
+namespace VisionaryCoder.Analyzers.Design.Rules;
 
 internal sealed class ConfigurationRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.LegacyConfiguration,
-        "Missing configuration",
-        "The {0} is missing required configuration.",
-        "Configuration",
-        DiagnosticSeverity.Error,
+        id: DiagnosticIds.LegacyConfiguration,
+        title: "Missing configuration",
+        messageFormat: "The {0} is missing required configuration.",
+        category: "Configuration",
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Certain types require specific configuration to function correctly. This diagnostic indicates that such configuration is missing.");
 

@@ -1,6 +1,9 @@
 ---
+title: VBD Access Vault Skill
 name: vbd-access-vault
 description: Build access vault components using Juval Lowy VBD and the shared VBD canonical rules.
+status: active
+updated: 2026-06-18
 ---
 
 # VBD Access Vault Skill

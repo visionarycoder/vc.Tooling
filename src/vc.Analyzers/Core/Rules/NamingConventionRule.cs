@@ -1,39 +1,34 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Core.Rules;
+namespace VisionaryCoder.Analyzers.Core.Rules;
 
 internal sealed class NamingConventionRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.NamingConventionViolation,
-        "Naming convention violation",
-        "{0} '{1}' does not follow {2} naming convention",
-        "Style",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.NamingConventionViolation,
+        title: "Naming convention violation",
+        messageFormat: "{0} '{1}' does not follow {2} naming convention",
+        category: "Style",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeField, SyntaxKind.FieldDeclaration);
-        context.RegisterSyntaxNodeAction(AnalyzeProperty, SyntaxKind.PropertyDeclaration);
+        context.RegisterSyntaxNodeAction(action: AnalyzeField, syntaxKinds: SyntaxKind.FieldDeclaration);
+        context.RegisterSyntaxNodeAction(action: AnalyzeProperty, syntaxKinds: SyntaxKind.PropertyDeclaration);
     }
 
     private static void AnalyzeField(SyntaxNodeAnalysisContext context)
     {
         var field = (FieldDeclarationSyntax)context.Node;
-        var isPrivate = field.Modifiers.Any(SyntaxKind.PrivateKeyword) || !field.Modifiers.Any();
+        var isPrivate = field.Modifiers.Any(kind: SyntaxKind.PrivateKeyword) || !field.Modifiers.Any();
         foreach (var variable in field.Declaration.Variables)
         {
-            if (isPrivate && !variable.Identifier.Text.StartsWith("_", System.StringComparison.Ordinal))
+            if (isPrivate && !variable.Identifier.Text.StartsWith(value: "_", comparisonType: System.StringComparison.Ordinal))
             {
-                context.ReportDiagnostic(Diagnostic.Create(descriptor, variable.GetLocation(), "Private field", variable.Identifier.Text, "_camelCase"));
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: variable.GetLocation(), messageArgs: ["Private field", variable.Identifier.Text, "_camelCase"]));
             }
         }
     }
@@ -42,9 +37,9 @@ internal sealed class NamingConventionRule : IAnalyzerRule
     {
         var property = (PropertyDeclarationSyntax)context.Node;
         var name = property.Identifier.Text;
-        if (char.IsLower(name[0]))
+        if (char.IsLower(c: name[index: 0]))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, property.Identifier.GetLocation(), "Property", name, "PascalCase"));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: property.Identifier.GetLocation(), messageArgs: ["Property", name, "PascalCase"]));
         }
     }
 }

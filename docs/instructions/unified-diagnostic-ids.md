@@ -1,3 +1,9 @@
+---
+title: Unified Diagnostic IDs Implementation Guide
+description: Project documentation for Unified Diagnostic IDs Implementation Guide.
+status: active
+updated: 2026-06-18
+---
 # Unified Diagnostic IDs Implementation Guide
 
 ## Overview

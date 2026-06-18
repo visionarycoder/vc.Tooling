@@ -1,37 +1,33 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Resilience.Rules;
+namespace VisionaryCoder.Analyzers.Resilience.Rules;
 
 internal sealed class UnusedCircuitBreakerRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ResilienceCircuitBreakerUnused,
-        "Circuit breaker declared but never used",
-        "Circuit breaker policy '{0}' is declared but never applied.",
-        "Resilience",
-        DiagnosticSeverity.Info,
+        id: DiagnosticIds.ResilienceCircuitBreakerUnused,
+        title: "Circuit breaker declared but never used",
+        messageFormat: "Circuit breaker policy '{0}' is declared but never applied.",
+        category: "Resilience",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeFieldOrProperty, SymbolKind.Field, SymbolKind.Property);
+        context.RegisterSymbolAction(action: AnalyzeFieldOrProperty, symbolKinds: new[]{SymbolKind.Field, SymbolKind.Property});
     }
 
     private static void AnalyzeFieldOrProperty(SymbolAnalysisContext context)
     {
         var symbol = context.Symbol;
-        if (!IsCircuitBreakerPolicy(symbol) || IsUsed(symbol))
+        if (!IsCircuitBreakerPolicy(symbol: symbol) || IsUsed(symbol: symbol))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, symbol.Locations.FirstOrDefault(), symbol.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: symbol.Locations.FirstOrDefault(), messageArgs: symbol.Name));
     }
 
     private static bool IsCircuitBreakerPolicy(ISymbol symbol)
@@ -43,7 +39,7 @@ internal sealed class UnusedCircuitBreakerRule : IAnalyzerRule
             _ => null
         };
 
-        return type is not null && (type.Name.Contains("CircuitBreaker", System.StringComparison.Ordinal) || type.Name.Contains("AsyncPolicy", System.StringComparison.Ordinal) || type.Name.Contains("Policy", System.StringComparison.Ordinal));
+        return type is not null && (type.Name.Contains(value: "CircuitBreaker", comparisonType: System.StringComparison.Ordinal) || type.Name.Contains(value: "AsyncPolicy", comparisonType: System.StringComparison.Ordinal) || type.Name.Contains(value: "Policy", comparisonType: System.StringComparison.Ordinal));
     }
 
     private static bool IsUsed(ISymbol symbol)

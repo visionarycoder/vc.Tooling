@@ -1,3 +1,9 @@
+---
+title: Configuration Generator
+description: Project documentation for Configuration Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a configuration source generator in VisionaryCoder.Tooling.
 
 Project:

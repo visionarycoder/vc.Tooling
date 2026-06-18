@@ -1,3 +1,9 @@
+---
+title: Query Handler Generator
+description: Project documentation for Query Handler Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a Query Handler source generator in VisionaryCoder.Tooling.
 
 Project:

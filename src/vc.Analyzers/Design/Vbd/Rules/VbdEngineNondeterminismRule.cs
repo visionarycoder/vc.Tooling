@@ -1,10 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdEngineNondeterminismRule : IAnalyzerRule
 {
@@ -20,7 +16,7 @@ internal sealed class VbdEngineNondeterminismRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeInvocation, Microsoft.CodeAnalysis.CSharp.SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(action: AnalyzeInvocation, syntaxKinds: Microsoft.CodeAnalysis.CSharp.SyntaxKind.InvocationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -37,21 +33,21 @@ internal sealed class VbdEngineNondeterminismRule : IAnalyzerRule
         }
 
         var containingType = context.ContainingSymbol?.ContainingType;
-        if (containingType == null || !containingType.Name.EndsWith("Engine"))
+        if (containingType == null || !containingType.Name.EndsWith(value: "Engine"))
         {
             return;
         }
 
-        var symbol = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
+        var symbol = context.SemanticModel.GetSymbolInfo(expression: invocation, cancellationToken: context.CancellationToken).Symbol as IMethodSymbol;
         if (symbol == null)
         {
             return;
         }
 
         var fullName = symbol.ToDisplayString();
-        if (fullName.Contains("System.Guid.NewGuid") || fullName.Contains("System.DateTime.Now") || fullName.Contains("System.Random.Next"))
+        if (fullName.Contains(value: "System.Guid.NewGuid") || fullName.Contains(value: "System.DateTime.Now") || fullName.Contains(value: "System.Random.Next"))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, invocation.GetLocation(), methodDecl.Identifier.ValueText, symbol.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: invocation.GetLocation(), messageArgs: [methodDecl.Identifier.ValueText, symbol.Name]));
         }
     }
 }

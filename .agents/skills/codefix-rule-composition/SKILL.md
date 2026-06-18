@@ -1,3 +1,9 @@
+---
+title: Code Fix Rule Composition Skill
+description: Project documentation for Code Fix Rule Composition Skill.
+status: active
+updated: 2026-06-18
+---
 # Code Fix Rule Composition Skill
 
 ## Overview

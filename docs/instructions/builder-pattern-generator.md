@@ -1,3 +1,9 @@
+---
+title: Builder Pattern Generator
+description: Project documentation for Builder Pattern Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a Builder Pattern source generator in VisionaryCoder.Tooling.
 
 Project:

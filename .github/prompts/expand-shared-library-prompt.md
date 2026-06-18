@@ -1,3 +1,9 @@
+---
+title: Expand Shared Libraries
+description: Project documentation for Expand Shared Libraries.
+status: active
+updated: 2026-06-18
+---
 # Expand Shared Libraries
 
 Expand the shared library `<LIBRARY>` in the solution suite.

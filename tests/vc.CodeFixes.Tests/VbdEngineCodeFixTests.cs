@@ -1,19 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Vc.Analyzers.Design.Vbd;
 using Vc.CodeFixes.Design.Vbd;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 using Xunit;
 
-namespace Vc.CodeFixes.Tests;
+namespace vc.CodeFixes.Tests;
 
 public sealed class VbdEngineCodeFixTests
 {
@@ -29,7 +21,7 @@ public sealed class VbdEngineCodeFixTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
+        var document = await CreateDocumentAsync(source: source);
         var root = await document.GetSyntaxRootAsync();
         var classNode = root!
             .DescendantNodes()
@@ -37,31 +29,29 @@ public sealed class VbdEngineCodeFixTests
             .Single();
 
         var diagnostic = Diagnostic.Create(
-            new DiagnosticDescriptor(
-                DiagnosticIds.VbdEngineVaultInfrastructureAccess,
-                "Engine accesses infrastructure",
-                "Engine component '{0}' references infrastructure namespace '{1}'.",
-                "VbdEngine",
-                DiagnosticSeverity.Warning,
+            descriptor: new DiagnosticDescriptor(
+                id: DiagnosticIds.VbdEngineVaultInfrastructureAccess,
+                title: "Engine accesses infrastructure",
+                messageFormat: "Engine component '{0}' references infrastructure namespace '{1}'.",
+                category: "VbdEngine",
+                defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true),
-            classNode.Identifier.GetLocation(),
-            classNode.Identifier.Text,
-            "System.Net.Http");
+            location: classNode.Identifier.GetLocation(), messageArgs: [classNode.Identifier.Text, "System.Net.Http"]);
 
         var provider = new VbdEngineCodeFix();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
-        Assert.Contains("SuppressMessage", updatedText.ToString());
-        Assert.Contains(DiagnosticIds.VbdEngineVaultInfrastructureAccess, updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.Diagnostics.CodeAnalysis;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "SuppressMessage", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: DiagnosticIds.VbdEngineVaultInfrastructureAccess, actualString: updatedText.ToString());
     }
 
     [Fact]
@@ -76,7 +66,7 @@ public sealed class VbdEngineCodeFixTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
+        var document = await CreateDocumentAsync(source: source);
         var root = await document.GetSyntaxRootAsync();
         var methodNode = root!
             .DescendantNodes()
@@ -84,31 +74,29 @@ public sealed class VbdEngineCodeFixTests
             .Single();
 
         var diagnostic = Diagnostic.Create(
-            new DiagnosticDescriptor(
-                DiagnosticIds.VbdEngineVaultNondeterminism,
-                "Engine contains nondeterministic operation",
-                "Engine method '{0}' uses nondeterministic API '{1}'.",
-                "VbdEngine",
-                DiagnosticSeverity.Warning,
+            descriptor: new DiagnosticDescriptor(
+                id: DiagnosticIds.VbdEngineVaultNondeterminism,
+                title: "Engine contains nondeterministic operation",
+                messageFormat: "Engine method '{0}' uses nondeterministic API '{1}'.",
+                category: "VbdEngine",
+                defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true),
-            methodNode.Identifier.GetLocation(),
-            methodNode.Identifier.Text,
-            "NewGuid");
+            location: methodNode.Identifier.GetLocation(), messageArgs: [methodNode.Identifier.Text, "NewGuid"]);
 
         var provider = new VbdEngineNondeterminismCodeFix();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
-        Assert.Contains("SuppressMessage", updatedText.ToString());
-        Assert.Contains(DiagnosticIds.VbdEngineVaultNondeterminism, updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.Diagnostics.CodeAnalysis;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "SuppressMessage", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: DiagnosticIds.VbdEngineVaultNondeterminism, actualString: updatedText.ToString());
     }
 
     [Fact]
@@ -123,7 +111,7 @@ public sealed class VbdEngineCodeFixTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
+        var document = await CreateDocumentAsync(source: source);
         var root = await document.GetSyntaxRootAsync();
         var fieldNode = root!
             .DescendantNodes()
@@ -131,45 +119,43 @@ public sealed class VbdEngineCodeFixTests
             .Single();
 
         var diagnostic = Diagnostic.Create(
-            new DiagnosticDescriptor(
-                DiagnosticIds.VbdEngineVaultStateViolation,
-                "Engine has mutable state",
-                "Engine type '{0}' contains mutable field '{1}'.",
-                "VbdEngine",
-                DiagnosticSeverity.Warning,
+            descriptor: new DiagnosticDescriptor(
+                id: DiagnosticIds.VbdEngineVaultStateViolation,
+                title: "Engine has mutable state",
+                messageFormat: "Engine type '{0}' contains mutable field '{1}'.",
+                category: "VbdEngine",
+                defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true),
-            fieldNode.Declaration.Variables[0].Identifier.GetLocation(),
-            "RiskEngine",
-            fieldNode.Declaration.Variables[0].Identifier.Text);
+            location: fieldNode.Declaration.Variables[index: 0].Identifier.GetLocation(), messageArgs: ["RiskEngine", fieldNode.Declaration.Variables[index: 0].Identifier.Text]);
 
         var provider = new VbdEngineStateCodeFix();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.Diagnostics.CodeAnalysis;", updatedText.ToString());
-        Assert.Contains("SuppressMessage", updatedText.ToString());
-        Assert.Contains(DiagnosticIds.VbdEngineVaultStateViolation, updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.Diagnostics.CodeAnalysis;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "SuppressMessage", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: DiagnosticIds.VbdEngineVaultStateViolation, actualString: updatedText.ToString());
     }
 
     private static async Task<Document> CreateDocumentAsync(string source)
     {
         var workspace = new AdhocWorkspace();
-        var project = workspace.AddProject("CodeFixTests", LanguageNames.CSharp)
-            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var project = workspace.AddProject(name: "CodeFixTests", language: LanguageNames.CSharp)
+            .WithCompilationOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Net.Http.HttpClient).Assembly.Location));
 
-        return workspace.AddDocument(project.Id, "RiskEngine.cs", SourceText.From(source));
+        return workspace.AddDocument(projectId: project.Id, name: "RiskEngine.cs", text: SourceText.From(text: source));
     }
 
 }

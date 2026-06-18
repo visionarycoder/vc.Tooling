@@ -1,43 +1,38 @@
-using System;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Core.Rules;
+namespace VisionaryCoder.Analyzers.Core.Rules;
 
 internal sealed class BlockingCallRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.AsyncBlockingCall,
-        "Avoid blocking calls in async methods",
-        "Avoid blocking call '{0}' inside an async method; use await instead.",
-        "AsyncCorrectness",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.AsyncBlockingCall,
+        title: "Avoid blocking calls in async methods",
+        messageFormat: "Avoid blocking call '{0}' inside an async method; use await instead.",
+        category: "AsyncCorrectness",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(action: AnalyzeInvocation, syntaxKinds: SyntaxKind.InvocationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
     {
         var invocation = (InvocationExpressionSyntax)context.Node;
-        var methodSymbol = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
+        var methodSymbol = context.SemanticModel.GetSymbolInfo(expression: invocation, cancellationToken: context.CancellationToken).Symbol as IMethodSymbol;
         var containingMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-        if (methodSymbol is null || containingMethod is null || !containingMethod.Modifiers.Any(SyntaxKind.AsyncKeyword))
+        if (methodSymbol is null || containingMethod is null || !containingMethod.Modifiers.Any(kind: SyntaxKind.AsyncKeyword))
         {
             return;
         }
 
         if (methodSymbol.Name is "Wait" or "GetResult" ||
-            (methodSymbol.Name == "get_Result" && methodSymbol.ContainingType.Name.Contains("Task", StringComparison.Ordinal)))
+            (methodSymbol.Name == "get_Result" && methodSymbol.ContainingType.Name.Contains(value: "Task", comparisonType: StringComparison.Ordinal)))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, invocation.GetLocation(), methodSymbol.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: invocation.GetLocation(), messageArgs: methodSymbol.Name));
         }
     }
 }

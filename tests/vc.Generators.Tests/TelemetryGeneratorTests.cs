@@ -1,9 +1,7 @@
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using VisionaryCoder.Generators.Observability;
 using Xunit;
 
-namespace VisionaryCoder.Tooling.Generators.Tests;
+namespace vc.Generators.Tests;
 
 public sealed class TelemetryGeneratorTests
 {
@@ -12,11 +10,11 @@ public sealed class TelemetryGeneratorTests
     {
         var attr = "namespace Vc.Generators.Abstractions.Observability; [AttributeUsage(AttributeTargets.Class)] public sealed class VcTelemetryAttribute : Attribute {}";
         var src = "using Vc.Generators.Abstractions.Observability; namespace Observability; [VcTelemetry] public partial class UserTelemetry {}";
-        var trees = ImmutableArray.Create(CSharpSyntaxTree.ParseText(attr), CSharpSyntaxTree.ParseText(src));
-        var refs = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic && a.Location.Length > 0).Select(a => MetadataReference.CreateFromFile(a.Location)).Distinct().ToArray();
-        var comp = CSharpCompilation.Create("Test").AddReferences(refs).AddSyntaxTrees(trees);
-        var driver = CSharpGeneratorDriver.Create(new TelemetryGenerator());
-        driver.RunGeneratorsAndUpdateCompilation(comp, out _, out _);
-        Assert.True(true);
+        var trees = ImmutableArray.Create(item1: CSharpSyntaxTree.ParseText(text: attr), item2: CSharpSyntaxTree.ParseText(text: src));
+        var refs = AppDomain.CurrentDomain.GetAssemblies().Where(predicate: a => !a.IsDynamic && a.Location.Length > 0).Select(selector: a => MetadataReference.CreateFromFile(path: a.Location)).Distinct().ToArray();
+        var comp = CSharpCompilation.Create(assemblyName: "Test").AddReferences(references: refs).AddSyntaxTrees(trees: trees);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: new TelemetryGenerator());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: comp, outputCompilation: out _, diagnostics: out _);
+        Assert.True(condition: true);
     }
 }

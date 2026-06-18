@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using VisionaryCoder.Tooling.Core.Behaviors;
 
 namespace VisionaryCoder.Tooling.Core
 {
@@ -20,22 +21,22 @@ namespace VisionaryCoder.Tooling.Core
             Func<object?, bool>? validator = null)
         {
             if (log is null)
-                throw new ArgumentNullException(nameof(log));
+                throw new ArgumentNullException(paramName: nameof(log));
 
             if (logException is null)
-                throw new ArgumentNullException(nameof(logException));
+                throw new ArgumentNullException(paramName: nameof(logException));
 
             var behaviors = new List<IProxyBehavior>
             {
-                new ExceptionBehavior(logException),
-                new LoggingBehavior(log),
-                new TimingBehavior(log)
+                new ExceptionBehavior(log: logException),
+                new LoggingBehavior(log: log),
+                new TimingBehavior(log: log)
             };
 
             if (validator is not null)
-                behaviors.Add(new ValidationBehavior(validator));
+                behaviors.Add(item: new ValidationBehavior(validator: validator));
 
-            return new ToolingOperationInvoker(behaviors);
+            return new ToolingOperationInvoker(behaviors: behaviors);
         }
     }
 }

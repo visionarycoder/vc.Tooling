@@ -1,3 +1,9 @@
+---
+title: Implementation Slices Checklist
+description: Project documentation for Implementation Slices Checklist.
+status: active
+updated: 2026-06-18
+---
 # Implementation Slices Checklist
 
 Use this checklist to execute roadmap work in low-token increments.

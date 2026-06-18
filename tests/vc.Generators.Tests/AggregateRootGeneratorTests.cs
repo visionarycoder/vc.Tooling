@@ -1,8 +1,8 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using vc.Generators.Abstractions.Attributes;
+using VisionaryCoder.Generators.Domain;
 using Xunit;
 
-namespace Vc.Generators.Tests;
+namespace vc.Generators.Tests;
 
 /// <summary>
 /// Tests for AggregateRootGenerator Phase 4 Bundle 20.
@@ -15,14 +15,14 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
 
         // Act & Assert
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out _, diagnostics: out var diagnostics);
         
-        Assert.NotNull(diagnostics);
+        Assert.False(condition: diagnostics.IsDefault);
     }
 
     [Fact]
@@ -30,18 +30,18 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var inputTreeCount = compilation.SyntaxTrees.Count();
         var outputTreeCount = outputCompilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.True(outputTreeCount >= inputTreeCount, 
-            $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
+        Assert.True(condition: outputTreeCount >= inputTreeCount, 
+            userMessage: $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
     }
 
     [Fact]
@@ -49,17 +49,17 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.True(generatedText.Length > 0, "Generator should produce output");
-        Assert.Contains("public abstract partial class AggregateRoot", generatedText);
+        Assert.True(condition: generatedText.Length > 0, userMessage: "Generator should produce output");
+        Assert.Contains(expectedSubstring: "public abstract partial class AggregateRoot", actualString: generatedText);
     }
 
     [Fact]
@@ -67,16 +67,16 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public sealed partial class Order : AggregateRoot", generatedText);
+        Assert.Contains(expectedSubstring: "public sealed partial class Order : AggregateRoot", actualString: generatedText);
     }
 
     [Fact]
@@ -84,16 +84,16 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("private readonly List<object> _domainEvents = new();", generatedText);
+        Assert.Contains(expectedSubstring: "private readonly List<object> _domainEvents = new();", actualString: generatedText);
     }
 
     [Fact]
@@ -101,16 +101,16 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public Guid Id { get; protected set; }", generatedText);
+        Assert.Contains(expectedSubstring: "public Guid Id { get; protected set; }", actualString: generatedText);
     }
 
     [Fact]
@@ -118,16 +118,16 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public int Version { get; protected set; }", generatedText);
+        Assert.Contains(expectedSubstring: "public int Version { get; protected set; }", actualString: generatedText);
     }
 
     [Fact]
@@ -135,17 +135,17 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public IReadOnlyList<object> DomainEvents", generatedText);
-        Assert.Contains("_domainEvents.AsReadOnly();", generatedText);
+        Assert.Contains(expectedSubstring: "public IReadOnlyList<object> DomainEvents", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_domainEvents.AsReadOnly();", actualString: generatedText);
     }
 
     [Fact]
@@ -153,18 +153,18 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("protected void RaiseDomainEvent(object domainEvent)", generatedText);
-        Assert.Contains("Domain event cannot be null", generatedText);
-        Assert.Contains("_domainEvents.Add(domainEvent);", generatedText);
+        Assert.Contains(expectedSubstring: "protected void RaiseDomainEvent(object domainEvent)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Domain event cannot be null", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_domainEvents.Add(domainEvent);", actualString: generatedText);
     }
 
     [Fact]
@@ -172,17 +172,17 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public void ClearDomainEvents()", generatedText);
-        Assert.Contains("_domainEvents.Clear();", generatedText);
+        Assert.Contains(expectedSubstring: "public void ClearDomainEvents()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_domainEvents.Clear();", actualString: generatedText);
     }
 
     [Fact]
@@ -190,17 +190,17 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("protected void IncrementVersion()", generatedText);
-        Assert.Contains("Version++;", generatedText);
+        Assert.Contains(expectedSubstring: "protected void IncrementVersion()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Version++;", actualString: generatedText);
     }
 
     [Fact]
@@ -208,18 +208,18 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public Order(Guid id)", generatedText);
-        Assert.Contains("Aggregate ID cannot be empty", generatedText);
-        Assert.Contains("Version = 0;", generatedText);
+        Assert.Contains(expectedSubstring: "public Order(Guid id)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Aggregate ID cannot be empty", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Version = 0;", actualString: generatedText);
     }
 
     [Fact]
@@ -227,17 +227,17 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public override bool Equals(object? obj)", generatedText);
-        Assert.Contains("obj is Order other && Id == other.Id;", generatedText);
+        Assert.Contains(expectedSubstring: "public override bool Equals(object? obj)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "obj is Order other && Id == other.Id;", actualString: generatedText);
     }
 
     [Fact]
@@ -245,17 +245,17 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public override int GetHashCode()", generatedText);
-        Assert.Contains("Id.GetHashCode();", generatedText);
+        Assert.Contains(expectedSubstring: "public override int GetHashCode()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Id.GetHashCode();", actualString: generatedText);
     }
 
     [Fact]
@@ -263,16 +263,16 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new AggregateRootGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("namespace Sample.Domain.Orders;", generatedText);
+        Assert.Contains(expectedSubstring: "namespace Sample.Domain.Orders;", actualString: generatedText);
     }
 
     [Fact]
@@ -280,24 +280,24 @@ public sealed class AggregateRootGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation1 = CreateCompilation(source);
-        var compilation2 = CreateCompilation(source);
+        var compilation1 = CreateCompilation(source: source);
+        var compilation2 = CreateCompilation(source: source);
         
-        var generator1 = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
-        var generator2 = new VisionaryCoder.Tooling.Generators.AggregateRootGenerator();
+        var generator1 = new AggregateRootGenerator();
+        var generator2 = new AggregateRootGenerator();
         
-        var driver1 = CSharpGeneratorDriver.Create(generator1);
-        var driver2 = CSharpGeneratorDriver.Create(generator2);
+        var driver1 = CSharpGeneratorDriver.Create(incrementalGenerators: generator1);
+        var driver2 = CSharpGeneratorDriver.Create(incrementalGenerators: generator2);
 
         // Act
-        driver1.RunGeneratorsAndUpdateCompilation(compilation1, out var outputCompilation1, out _);
-        driver2.RunGeneratorsAndUpdateCompilation(compilation2, out var outputCompilation2, out _);
+        driver1.RunGeneratorsAndUpdateCompilation(compilation: compilation1, outputCompilation: out var outputCompilation1, diagnostics: out _);
+        driver2.RunGeneratorsAndUpdateCompilation(compilation: compilation2, outputCompilation: out var outputCompilation2, diagnostics: out _);
         
-        var generatedText1 = GetGeneratedSourceText(outputCompilation1, compilation1.SyntaxTrees.Count());
-        var generatedText2 = GetGeneratedSourceText(outputCompilation2, compilation2.SyntaxTrees.Count());
+        var generatedText1 = GetGeneratedSourceText(outputCompilation: outputCompilation1, inputTreeCount: compilation1.SyntaxTrees.Count());
+        var generatedText2 = GetGeneratedSourceText(outputCompilation: outputCompilation2, inputTreeCount: compilation2.SyntaxTrees.Count());
 
         // Assert
-        Assert.Equal(generatedText1, generatedText2);
+        Assert.Equal(expected: generatedText1, actual: generatedText2);
     }
 
     private string CreateSourceWithAttribute()
@@ -319,28 +319,28 @@ public sealed class AggregateRootGeneratorTests
 
     private Compilation CreateCompilation(string source)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(text: source);
         
-        var vcAbstractionsAssemblyPath = typeof(Vc.Generators.Abstractions.Domain.VcAggregateRootAttribute).Assembly.Location;
+        var vcAbstractionsAssemblyPath = typeof(VcAggregateRootAttribute).Assembly.Location;
         
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
-            MetadataReference.CreateFromFile(vcAbstractionsAssemblyPath),
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Attribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: vcAbstractionsAssemblyPath),
         };
 
-        return CSharpCompilation.Create("TestCompilation")
-            .AddSyntaxTrees(syntaxTree)
-            .AddReferences(references)
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        return CSharpCompilation.Create(assemblyName: "TestCompilation")
+            .AddSyntaxTrees(trees: syntaxTree)
+            .AddReferences(references: references)
+            .WithOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
     }
 
     private string GetGeneratedSourceText(Compilation outputCompilation, int inputTreeCount)
     {
-        var generatedTrees = outputCompilation.SyntaxTrees.Skip(inputTreeCount);
+        var generatedTrees = outputCompilation.SyntaxTrees.Skip(count: inputTreeCount);
         return generatedTrees.FirstOrDefault()?.GetText().ToString() ?? "";
     }
 }

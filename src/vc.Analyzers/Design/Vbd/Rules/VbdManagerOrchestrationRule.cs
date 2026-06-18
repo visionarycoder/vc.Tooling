@@ -1,10 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdManagerOrchestrationRule : IAnalyzerRule
 {
@@ -20,7 +16,7 @@ internal sealed class VbdManagerOrchestrationRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeType, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeType(SymbolAnalysisContext context)
@@ -30,13 +26,13 @@ internal sealed class VbdManagerOrchestrationRule : IAnalyzerRule
             return;
         }
 
-        if (!type.Name.EndsWith("Manager"))
+        if (!type.Name.EndsWith(value: "Manager"))
         {
             return;
         }
 
         var methods = type.GetMembers().OfType<IMethodSymbol>()
-            .Where(m => m.MethodKind == MethodKind.Ordinary && m.DeclaringSyntaxReferences.Length > 0)
+            .Where(predicate: m => m.MethodKind == MethodKind.Ordinary && m.DeclaringSyntaxReferences.Length > 0)
             .ToList();
 
         if (!methods.Any())
@@ -47,7 +43,7 @@ internal sealed class VbdManagerOrchestrationRule : IAnalyzerRule
         var hasOrchestrationCall = false;
         foreach (var method in methods)
         {
-            var syntax = method.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
+            var syntax = method.DeclaringSyntaxReferences[index: 0].GetSyntax() as MethodDeclarationSyntax;
             if (syntax == null)
             {
                 continue;
@@ -62,7 +58,7 @@ internal sealed class VbdManagerOrchestrationRule : IAnalyzerRule
 
         if (!hasOrchestrationCall)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, type.Locations.FirstOrDefault(), type.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: type.Locations.FirstOrDefault(), messageArgs: type.Name));
         }
     }
 }

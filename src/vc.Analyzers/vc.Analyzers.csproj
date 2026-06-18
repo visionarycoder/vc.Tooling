@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <RootNamespace>VisionaryCoder.Analyzers</RootNamespace>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+    <NoWarn>$(NoWarn);RS2008;RS1032;RS1037</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +16,10 @@
 
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)../../GlobalUsings.cs" Link="GlobalUsings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\vc.Analyzers.Abstractions\vc.Analyzers.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

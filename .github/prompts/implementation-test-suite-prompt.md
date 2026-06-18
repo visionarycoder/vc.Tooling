@@ -1,3 +1,9 @@
+---
+title: Implementation Test Suite Prompt
+description: Project documentation for Implementation Test Suite Prompt.
+status: active
+updated: 2026-06-18
+---
 Generate a complete test suite for <CATEGORY> in the VisionaryCoder.Tooling solution.
 
 Requirements:

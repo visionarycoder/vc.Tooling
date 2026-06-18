@@ -1,28 +1,24 @@
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using VisionaryCoder.Generators_Design_Vbd;
+using VisionaryCoder.Generators.Design.Vbd;
 using Xunit;
 
-namespace VisionaryCoder.Tooling.Generators.Tests;
+namespace vc.Generators.Tests;
 
 public sealed class VbdEngineGeneratorTests
 {
     private static (Compilation, IEnumerable<string>) RunGenerator(string source)
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
+        var tree = CSharpSyntaxTree.ParseText(text: source);
         var refs = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && a.Location.Length > 0)
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
+            .Where(predicate: a => !a.IsDynamic && a.Location.Length > 0)
+            .Select(selector: a => MetadataReference.CreateFromFile(path: a.Location))
             .Distinct()
             .ToArray();
-        var comp = CSharpCompilation.Create("Test", [tree], refs,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        var driver = CSharpGeneratorDriver.Create(new VbdEngineGenerator());
-        driver.RunGeneratorsAndUpdateCompilation(comp, out var outComp, out _);
-        var generated = outComp.SyntaxTrees.Skip(comp.SyntaxTrees.Count())
-            .Select(st => st.GetText().ToString())
+        var comp = CSharpCompilation.Create(assemblyName: "Test", syntaxTrees: [tree], references: refs,
+            options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: new VbdEngineGenerator());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: comp, outputCompilation: out var outComp, diagnostics: out _);
+        var generated = outComp.SyntaxTrees.Skip(count: comp.SyntaxTrees.Count())
+            .Select(selector: st => st.GetText().ToString())
             .ToList();
         return (outComp, generated);
     }
@@ -30,71 +26,71 @@ public sealed class VbdEngineGeneratorTests
     [Fact]
     public void GeneratesInterface_ForEngineClass()
     {
-        var (_, sources) = RunGenerator("""
-            namespace Domain;
-            public class RiskEngine
-            {
-                public decimal ComputeScore(int age, decimal income) => 0m;
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace Domain;
+                                                public class RiskEngine
+                                                {
+                                                    public decimal ComputeScore(int age, decimal income) => 0m;
+                                                }
+                                                """);
 
-        Assert.NotEmpty(sources);
-        Assert.Contains(sources, s => s.Contains("interface IRiskEngine"));
+        Assert.NotEmpty(collection: sources);
+        Assert.Contains(collection: sources, filter: s => s.Contains(value: "interface IRiskEngine"));
     }
 
     [Fact]
     public void GeneratedInterface_ContainsCapabilityComment()
     {
-        var (_, sources) = RunGenerator("""
-            namespace Algo;
-            public class PricingEngine
-            {
-                public decimal Calculate(decimal basePrice) => basePrice;
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace Algo;
+                                                public class PricingEngine
+                                                {
+                                                    public decimal Calculate(decimal basePrice) => basePrice;
+                                                }
+                                                """);
 
-        Assert.NotEmpty(sources);
-        var source = sources.First(s => s.Contains("IPricingEngine"));
-        Assert.Contains("VBD0006", source);
-        Assert.Contains("capability contract", source);
+        Assert.NotEmpty(collection: sources);
+        var source = sources.First(predicate: s => s.Contains(value: "IPricingEngine"));
+        Assert.Contains(expectedSubstring: "VBD0006", actualString: source);
+        Assert.Contains(expectedSubstring: "capability contract", actualString: source);
     }
 
     [Fact]
     public void GeneratedInterface_ContainsPublicMethods()
     {
-        var (_, sources) = RunGenerator("""
-            namespace Core;
-            public class ValidationEngine
-            {
-                public bool Validate(string input) => true;
-                private void Log(string msg) { }
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace Core;
+                                                public class ValidationEngine
+                                                {
+                                                    public bool Validate(string input) => true;
+                                                    private void Log(string msg) { }
+                                                }
+                                                """);
 
-        Assert.NotEmpty(sources);
-        var source = sources.First(s => s.Contains("IValidationEngine"));
-        Assert.Contains("Validate", source);
-        Assert.DoesNotContain("Log(", source);
+        Assert.NotEmpty(collection: sources);
+        var source = sources.First(predicate: s => s.Contains(value: "IValidationEngine"));
+        Assert.Contains(expectedSubstring: "Validate", actualString: source);
+        Assert.DoesNotContain(expectedSubstring: "Log(", actualString: source);
     }
 
     [Fact]
     public void NonEngineClass_ProducesNoOutput()
     {
-        var (_, sources) = RunGenerator("""
-            namespace App;
-            public class OrderService
-            {
-                public void Process() { }
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace App;
+                                                public class OrderService
+                                                {
+                                                    public void Process() { }
+                                                }
+                                                """);
 
-        Assert.Empty(sources);
+        Assert.Empty(collection: sources);
     }
 
     [Fact]
     public void GeneratorRuns_WithoutException()
     {
-        var (_, _) = RunGenerator("namespace App; public class Sample {}");
-        Assert.True(true);
+        var (_, _) = RunGenerator(source: "namespace App; public class Sample {}");
+        Assert.True(condition: true);
     }
 }

@@ -1,28 +1,26 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Api.Rules;
+namespace VisionaryCoder.Analyzers.Api.Rules;
 
 internal sealed class NonRestfulNameRule : IAnalyzerRule
 {
-    private static readonly string[] HttpAttributes = { "HttpGet", "HttpPost", "HttpPut", "HttpPatch", "HttpDelete" };
-    private static readonly string[] AllowedPrefixes = { "Get", "Post", "Put", "Patch", "Delete", "List", "Create", "Update", "Remove" };
+    private static readonly string[] HttpAttributes = ["HttpGet", "HttpPost", "HttpPut", "HttpPatch", "HttpDelete"];
+    private static readonly string[] AllowedPrefixes = ["Get", "Post", "Put", "Patch", "Delete", "List", "Create", "Update", "Remove"
+    ];
 
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
         id: DiagnosticIds.ApiDesignNaming,
         title: "Non-RESTful action name",
-        messageFormat: "Action '{0}' may not follow RESTful naming conventions.",
+        messageFormat: "Action '{0}' may not follow RESTful naming conventions",
         category: "ApiDesign",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+        context.RegisterSymbolAction(action: AnalyzeMethod, symbolKinds: SymbolKind.Method);
     }
 
     private static void AnalyzeMethod(SymbolAnalysisContext context)
@@ -32,25 +30,25 @@ internal sealed class NonRestfulNameRule : IAnalyzerRule
             return;
         }
 
-        if (!HasAnyAttribute(method, HttpAttributes))
+        if (!HasAnyAttribute(symbol: method, names: HttpAttributes))
         {
             return;
         }
 
-        if (AllowedPrefixes.Any(prefix => method.Name.StartsWith(prefix, System.StringComparison.Ordinal)))
+        if (AllowedPrefixes.Any(predicate: prefix => method.Name.StartsWith(value: prefix, comparisonType: System.StringComparison.Ordinal)))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, method.Locations.FirstOrDefault(), method.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: method.Locations.FirstOrDefault(), messageArgs: method.Name));
     }
 
     private static bool HasAnyAttribute(ISymbol symbol, string[] names)
     {
-        return symbol.GetAttributes().Any(attribute =>
+        return symbol.GetAttributes().Any(predicate: attribute =>
         {
-            var name = attribute.AttributeClass?.Name?.Replace("Attribute", string.Empty) ?? string.Empty;
-            return names.Contains(name);
+            var name = attribute.AttributeClass?.Name?.Replace(oldValue: "Attribute", newValue: string.Empty) ?? string.Empty;
+            return names.Contains(value: name);
         });
     }
 }

@@ -1,3 +1,9 @@
+---
+title: Repository Generator
+description: Project documentation for Repository Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a repository source generator in VisionaryCoder.Tooling.
 
 Project:

@@ -1,3 +1,9 @@
+---
+title: Token-Efficient Implementation Skill
+description: Project documentation for Token-Efficient Implementation Skill.
+status: active
+updated: 2026-06-18
+---
 # Token-Efficient Implementation Skill
 
 ## Overview

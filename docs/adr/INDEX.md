@@ -1,3 +1,9 @@
+---
+title: ADR Index
+description: Project documentation for ADR Index.
+status: active
+updated: 2026-06-18
+---
 # ADR Index
 
 Complete list of Architecture Decision Records, organized by status and date.

@@ -1,6 +1,6 @@
-﻿namespace Vc.Generators.Domain;
+﻿namespace VisionaryCoder.Analyzers.Domain;
 
-[Generator(LanguageNames.CSharp)]
+[Generator(firstLanguage: LanguageNames.CSharp)]
 public sealed class DomainModelGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)

@@ -1,8 +1,8 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using vc.Generators.Abstractions.Attributes;
+using VisionaryCoder.Generators.Design;
 using Xunit;
 
-namespace Vc.Generators.Tests;
+namespace vc.Generators.Tests;
 
 /// <summary>
 /// Tests for PolymorphicGenerator Phase 4 Bundle 16.
@@ -15,14 +15,14 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
 
         // Act & Assert
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out _, diagnostics: out var diagnostics);
         
-        Assert.NotNull(diagnostics);
+        Assert.False(condition: diagnostics.IsDefault);
     }
 
     [Fact]
@@ -30,18 +30,18 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
         var inputTreeCount = compilation.SyntaxTrees.Count();
         var outputTreeCount = outputCompilation.SyntaxTrees.Count();
 
         // Assert
-        Assert.True(outputTreeCount >= inputTreeCount, 
-            $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
+        Assert.True(condition: outputTreeCount >= inputTreeCount, 
+            userMessage: $"Generator should produce at least one output. Input: {inputTreeCount}, Output: {outputTreeCount}");
     }
 
     [Fact]
@@ -49,17 +49,17 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.True(generatedText.Length > 0, "Generator should produce output");
-        Assert.Contains("public sealed partial class PaymentDispatcher", generatedText);
+        Assert.True(condition: generatedText.Length > 0, userMessage: "Generator should produce output");
+        Assert.Contains(expectedSubstring: "public sealed partial class PaymentDispatcher", actualString: generatedText);
     }
 
     [Fact]
@@ -67,16 +67,16 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("private readonly Dictionary<Type, Func<object, object?>> _handlers = new();", generatedText);
+        Assert.Contains(expectedSubstring: "private readonly Dictionary<Type, Func<object, object?>> _handlers = new();", actualString: generatedText);
     }
 
     [Fact]
@@ -84,19 +84,19 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public PaymentDispatcher RegisterHandler<TDerived>(Func<TDerived, object?> handler)", generatedText);
-        Assert.Contains("where TDerived : Payment", generatedText);
-        Assert.Contains("Handler cannot be null", generatedText);
-        Assert.Contains("_handlers[typeof(TDerived)] = obj => handler((TDerived)obj);", generatedText);
+        Assert.Contains(expectedSubstring: "public PaymentDispatcher RegisterHandler<TDerived>(Func<TDerived, object?> handler)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "where TDerived : Payment", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Handler cannot be null", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_handlers[typeof(TDerived)] = obj => handler((TDerived)obj);", actualString: generatedText);
     }
 
     [Fact]
@@ -104,19 +104,19 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public object? Dispatch(Payment instance)", generatedText);
-        Assert.Contains("Instance cannot be null", generatedText);
-        Assert.Contains("var instanceType = instance.GetType();", generatedText);
-        Assert.Contains("_handlers.TryGetValue(instanceType, out var handler)", generatedText);
+        Assert.Contains(expectedSubstring: "public object? Dispatch(Payment instance)", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "Instance cannot be null", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "var instanceType = instance.GetType();", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_handlers.TryGetValue(instanceType, out var handler)", actualString: generatedText);
     }
 
     [Fact]
@@ -124,17 +124,17 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public bool HasHandler<TDerived>() where TDerived : Payment", generatedText);
-        Assert.Contains("_handlers.ContainsKey(typeof(TDerived));", generatedText);
+        Assert.Contains(expectedSubstring: "public bool HasHandler<TDerived>() where TDerived : Payment", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_handlers.ContainsKey(typeof(TDerived));", actualString: generatedText);
     }
 
     [Fact]
@@ -142,17 +142,17 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("public void ClearHandlers()", generatedText);
-        Assert.Contains("_handlers.Clear();", generatedText);
+        Assert.Contains(expectedSubstring: "public void ClearHandlers()", actualString: generatedText);
+        Assert.Contains(expectedSubstring: "_handlers.Clear();", actualString: generatedText);
     }
 
     [Fact]
@@ -160,16 +160,16 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("namespace Sample.Domain.Payments;", generatedText);
+        Assert.Contains(expectedSubstring: "namespace Sample.Domain.Payments;", actualString: generatedText);
     }
 
     [Fact]
@@ -177,16 +177,16 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("// <auto-generated by VisionaryCoder.Tooling.Generators />", generatedText);
+        Assert.Contains(expectedSubstring: "// <auto-generated by VisionaryCoder.Tooling.Generators />", actualString: generatedText);
     }
 
     [Fact]
@@ -194,16 +194,16 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation = CreateCompilation(source);
-        var generator = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        var compilation = CreateCompilation(source: source);
+        var generator = new PolymorphicGenerator();
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
 
         // Act
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        var generatedText = GetGeneratedSourceText(outputCompilation, compilation.SyntaxTrees.Count());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var outputCompilation, diagnostics: out _);
+        var generatedText = GetGeneratedSourceText(outputCompilation: outputCompilation, inputTreeCount: compilation.SyntaxTrees.Count());
 
         // Assert
-        Assert.Contains("#nullable enable", generatedText);
+        Assert.Contains(expectedSubstring: "#nullable enable", actualString: generatedText);
     }
 
     [Fact]
@@ -211,24 +211,24 @@ public sealed class PolymorphicGeneratorTests
     {
         // Arrange
         var source = CreateSourceWithAttribute();
-        var compilation1 = CreateCompilation(source);
-        var compilation2 = CreateCompilation(source);
+        var compilation1 = CreateCompilation(source: source);
+        var compilation2 = CreateCompilation(source: source);
         
-        var generator1 = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
-        var generator2 = new VisionaryCoder.Tooling.Generators.PolymorphicGenerator();
+        var generator1 = new PolymorphicGenerator();
+        var generator2 = new PolymorphicGenerator();
         
-        var driver1 = CSharpGeneratorDriver.Create(generator1);
-        var driver2 = CSharpGeneratorDriver.Create(generator2);
+        var driver1 = CSharpGeneratorDriver.Create(incrementalGenerators: generator1);
+        var driver2 = CSharpGeneratorDriver.Create(incrementalGenerators: generator2);
 
         // Act
-        driver1.RunGeneratorsAndUpdateCompilation(compilation1, out var outputCompilation1, out _);
-        driver2.RunGeneratorsAndUpdateCompilation(compilation2, out var outputCompilation2, out _);
+        driver1.RunGeneratorsAndUpdateCompilation(compilation: compilation1, outputCompilation: out var outputCompilation1, diagnostics: out _);
+        driver2.RunGeneratorsAndUpdateCompilation(compilation: compilation2, outputCompilation: out var outputCompilation2, diagnostics: out _);
         
-        var generatedText1 = GetGeneratedSourceText(outputCompilation1, compilation1.SyntaxTrees.Count());
-        var generatedText2 = GetGeneratedSourceText(outputCompilation2, compilation2.SyntaxTrees.Count());
+        var generatedText1 = GetGeneratedSourceText(outputCompilation: outputCompilation1, inputTreeCount: compilation1.SyntaxTrees.Count());
+        var generatedText2 = GetGeneratedSourceText(outputCompilation: outputCompilation2, inputTreeCount: compilation2.SyntaxTrees.Count());
 
         // Assert
-        Assert.Equal(generatedText1, generatedText2);
+        Assert.Equal(expected: generatedText1, actual: generatedText2);
     }
 
     private string CreateSourceWithAttribute()
@@ -250,28 +250,28 @@ public sealed class PolymorphicGeneratorTests
 
     private Compilation CreateCompilation(string source)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(text: source);
         
-        var vcAbstractionsAssemblyPath = typeof(Vc.Generators.Abstractions.Design.VcPolymorphicAttribute).Assembly.Location;
+        var vcAbstractionsAssemblyPath = typeof(VcPolymorphicAttribute).Assembly.Location;
         
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
-            MetadataReference.CreateFromFile(vcAbstractionsAssemblyPath),
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Attribute).Assembly.Location),
+            MetadataReference.CreateFromFile(path: vcAbstractionsAssemblyPath),
         };
 
-        return CSharpCompilation.Create("TestCompilation")
-            .AddSyntaxTrees(syntaxTree)
-            .AddReferences(references)
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        return CSharpCompilation.Create(assemblyName: "TestCompilation")
+            .AddSyntaxTrees(trees: syntaxTree)
+            .AddReferences(references: references)
+            .WithOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
     }
 
     private string GetGeneratedSourceText(Compilation outputCompilation, int inputTreeCount)
     {
-        var generatedTrees = outputCompilation.SyntaxTrees.Skip(inputTreeCount);
+        var generatedTrees = outputCompilation.SyntaxTrees.Skip(count: inputTreeCount);
         return generatedTrees.FirstOrDefault()?.GetText().ToString() ?? "";
     }
 }

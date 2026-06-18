@@ -1,6 +1,54 @@
 <Solution>
+  <Folder Name="/docs/adr/">
+    <File Path="docs/adr/0001-use-volatility-based-decomposition.md" />
+    <File Path="docs/adr/0002-dependency-injection-best-practices.md" />
+    <File Path="docs/adr/0003-incremental-generators-only.md" />
+    <File Path="docs/adr/INDEX.md" />
+    <File Path="docs/adr/README.md" />
+    <File Path="docs/adr/TEMPLATE.md" />
+    <File Path="docs/adr/TOC.md" />
+  </Folder>
+  <Folder Name="/docs/instructions/">
+    <File Path="docs/instructions/analyzer-rule-composition.md" />
+    <File Path="docs/instructions/api-client-generator.md" />
+    <File Path="docs/instructions/builder-pattern-generator.md" />
+    <File Path="docs/instructions/codefix-rule-composition.md" />
+    <File Path="docs/instructions/command-handler-generator.md" />
+    <File Path="docs/instructions/configuration-generator.md" />
+    <File Path="docs/instructions/dto-generator.md" />
+    <File Path="docs/instructions/event-generator.md" />
+    <File Path="docs/instructions/feature-flag-generator.md" />
+    <File Path="docs/instructions/graphql-type-generator.md" />
+    <File Path="docs/instructions/http-endpoint-generator.md" />
+    <File Path="docs/instructions/mapping-generator.md" />
+    <File Path="docs/instructions/message-contract-generator.md" />
+    <File Path="docs/instructions/openapi-generator.md" />
+    <File Path="docs/instructions/permissions-generator.md" />
+    <File Path="docs/instructions/query-handler-generator.md" />
+    <File Path="docs/instructions/repository-generator.md" />
+    <File Path="docs/instructions/state-machine-generator.md" />
+    <File Path="docs/instructions/strong-id-generator.md" />
+    <File Path="docs/instructions/telemetry-generator.md" />
+    <File Path="docs/instructions/token-efficient-implementation.md" />
+    <File Path="docs/instructions/unified-diagnostic-ids.md" />
+    <File Path="docs/instructions/union-generator.md" />
+    <File Path="docs/instructions/validation-generator.md" />
+  </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/FullImplementation/FullImplementation.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="CHANGELOG.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="files1.csv" />
+    <File Path="files2.csv" />
+    <File Path="GlobalUsings.cs" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="vc.Tooling.code-workspace" />
+    <File Path="workload-install.ps1" />
   </Folder>
   <!-- Source Projects -->
   <Folder Name="/src/">
@@ -22,7 +70,12 @@
     <Folder Name="Utilities">
       <Project Path="src/vc.Utility/vc.Utility.csproj" />
     </Folder>
+    <Project Path="src/vc.Analyzers.Abstractions/vc.Analyzers.Abstractions.csproj" Id="ebfc229a-8804-48ce-852b-e71fad8303f7" />
+    <Project Path="src/vc.Analyzers/vc.Analyzers.csproj" />
     <Project Path="src/vc.Architecture/vc.Architecture.csproj" />
+    <Project Path="src/vc.Generators.Abstractions/vc.Generators.Abstractions.csproj" />
+    <Project Path="src/vc.Generators.Common/vc.Generators.Common.csproj" Id="dfa88b39-bced-4623-a585-01308bfb6ea0" />
+    <Project Path="src/vc.Generators/vc.Generators.csproj" />
     <Project Path="src/vc.Ifx/vc.Ifx.csproj" />
     <Project Path="src/vc.Runtime/vc.Runtime.csproj" />
     <Project Path="src/vc.Tooling/vc.Tooling.csproj" />
@@ -39,9 +92,26 @@
     <Project Path="tests/vc.Runtime.Tests/vc.Runtime.Tests.csproj" />
     <Project Path="tests/vc.Utility.Tests/vc.Utility.Tests.csproj" />
   </Folder>
+  <Folder Name="/.github/issue_template/" />
+  <Folder Name="/.github/prompts/">
+    <File Path=".github/prompts/analyzer-prompt.md" />
+    <File Path=".github/prompts/architecture-validation-prompt.md" />
+    <File Path=".github/prompts/codefix-prompt.md" />
+    <File Path=".github/prompts/expand-shared-library-prompt.md" />
+    <File Path=".github/prompts/generator-prompt.md" />
+    <File Path=".github/prompts/implementation-test-suite-prompt.md" />
+    <File Path=".github/prompts/integrate-all-components.md" />
+    <File Path=".github/prompts/token-efficient-implementation-prompt.md" />
+  </Folder>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
 
   <!-- Documentation -->
   <Folder Name="/docs/">
+    <File Path="docs/codefixes-plan.md" />
+    <File Path="docs/generators-plan.md" />
+    <File Path="docs/implementation-slices.md" />
     <File Path="docs/roadmap.md" />
     <File Path="docs/architecture.md" />
     <File Path="docs/arch.md" />
@@ -81,6 +151,42 @@
       <File Path="docs/instructions/unified-diagnostic-ids.md" />
       <File Path="docs/instructions/analyzer-rule-composition.md" />
     </Folder>
+    <File Path="docs/sample-full-implementation.md" />
+    <File Path="docs/test-coverage-plan.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/" />
+  <Folder Name="/.agents/skills/adr/">
+    <File Path=".agents/skills/adr/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/analyzer-rule-composition/">
+    <File Path=".agents/skills/analyzer-rule-composition/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/class-file-conventions/">
+    <File Path=".agents/skills/class-file-conventions/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/code-fix-composition/">
+    <File Path=".agents/skills/codefix-rule-composition/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/dependency-injection/">
+    <File Path=".agents/skills/dependency-injection/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/token-efficient-implementation/">
+    <File Path=".agents/skills/token-efficient-implementation/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/unified-diagnostic-ids/">
+    <File Path=".agents/skills/unified-diagnostic-ids/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/vbd-access-vault/">
+    <File Path=".agents/skills/vbd-access-vault/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/vbd-engine-vault/">
+    <File Path=".agents/skills/vbd-engine-vault/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/vbd-manager-vault/">
+    <File Path=".agents/skills/vbd-manager-vault/SKILL.md" />
+  </Folder>
+  <Folder Name="/.agents/skills/vbd-rules/">
+    <File Path=".agents/skills/vbd-rules/SKILL.md" />
   </Folder>
 
   <!-- Configuration &amp; Workspace -->

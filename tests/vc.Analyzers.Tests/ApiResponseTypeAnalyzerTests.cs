@@ -1,13 +1,8 @@
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Vc.Analyzers.Api;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Api;
 using Xunit;
 
-namespace Vc.Analyzers.Tests;
+namespace vc.Analyzers.Tests;
 
 public sealed class ApiResponseTypeAnalyzerTests
 {
@@ -32,9 +27,9 @@ public sealed class ApiResponseTypeAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.ApiResponseSerializationIssue);
+        Assert.Contains(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.ApiResponseSerializationIssue);
     }
 
     [Fact]
@@ -63,24 +58,25 @@ public sealed class ApiResponseTypeAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.ApiResponseSerializationIssue);
+        Assert.DoesNotContain(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.ApiResponseSerializationIssue);
     }
 
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
+        var tree = CSharpSyntaxTree.ParseText(text: source);
         var compilation = CSharpCompilation.Create(
-            "AnalyzerTests",
-            [tree],
+            assemblyName: "AnalyzerTests",
+            syntaxTrees: [tree],
+            references:
             [
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
+                MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
             ],
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
-        return await compilation.WithAnalyzers([new ApiResponseTypeAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+        return await compilation.WithAnalyzers(analyzers: [new ApiResponseTypeAnalyzer()]).GetAnalyzerDiagnosticsAsync();
     }
 }

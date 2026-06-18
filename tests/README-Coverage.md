@@ -1,3 +1,9 @@
+---
+title: Test Coverage Execution Checklist
+description: Project documentation for Test Coverage Execution Checklist.
+status: active
+updated: 2026-06-18
+---
 # Test Coverage Execution Checklist
 
 Use this checklist with [docs/test-coverage-plan.md](docs/test-coverage-plan.md).

@@ -1,3 +1,9 @@
+---
+title: Construct CodeFix Prompt
+description: Project documentation for Construct CodeFix Prompt.
+status: active
+updated: 2026-06-18
+---
 # Construct CodeFix Prompt
 
 Implement the full CodeFixProvider for category `<CATEGORY>` in the solution.

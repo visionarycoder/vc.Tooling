@@ -1,3 +1,9 @@
+---
+title: Http Endpoint Generator
+description: Project documentation for Http Endpoint Generator.
+status: active
+updated: 2026-06-18
+---
 Implement an HTTP Endpoint source generator in VisionaryCoder.Tooling.
 
 Project:

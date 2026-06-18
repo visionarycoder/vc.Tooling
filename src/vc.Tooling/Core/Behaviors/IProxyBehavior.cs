@@ -1,4 +1,4 @@
-namespace VisionaryCoder.Tooling.Core
+namespace VisionaryCoder.Tooling.Core.Behaviors
 {
     public interface IProxyBehavior
     {

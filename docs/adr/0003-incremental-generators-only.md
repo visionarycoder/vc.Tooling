@@ -1,3 +1,9 @@
+---
+title: ADR-0003: Use Incremental Generators Only
+description: Project documentation for ADR-0003: Use Incremental Generators Only.
+status: active
+updated: 2026-06-18
+---
 # ADR-0003: Use Incremental Generators Only
 
 **Status:** Accepted

@@ -1,29 +1,25 @@
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
-using Vc.Analyzers.Architecture.Rules;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Architecture.Rules;
 
-namespace Vc.Analyzers.Architecture;
+namespace VisionaryCoder.Analyzers.Architecture;
 
-[DiagnosticAnalyzer(LanguageNames.CSharp)]
+[DiagnosticAnalyzer(firstLanguage: LanguageNames.CSharp)]
 public sealed class ProjectReferenceAnalyzer : DiagnosticAnalyzer
 {
     private static readonly ImmutableArray<IAnalyzerRule> Rules =
-        ImmutableArray.Create<IAnalyzerRule>(new ProjectReferenceViolationRule());
+        [new ProjectReferenceViolationRule()];
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        Rules.Select(rule => rule.Descriptor).ToImmutableArray();
+        [..Rules.Select(selector: rule => rule.Descriptor)];
 
     public override void Initialize(AnalysisContext context)
     {
-        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+        context.ConfigureGeneratedCodeAnalysis(analysisMode: GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
         foreach (var rule in Rules)
         {
-            rule.Register(context);
+            rule.Register(context: context);
         }
     }
 }

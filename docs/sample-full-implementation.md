@@ -1,3 +1,9 @@
+---
+title: Full Sample Implementation Blueprint
+description: Project documentation for Full Sample Implementation Blueprint.
+status: active
+updated: 2026-06-18
+---
 # Full Sample Implementation Blueprint
 
 This document defines the full end-to-end sample implementation required by the roadmap.

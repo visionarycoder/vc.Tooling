@@ -1,37 +1,33 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Resilience.Rules;
+namespace VisionaryCoder.Analyzers.Resilience.Rules;
 
 internal sealed class UnusedRetryPolicyRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ResilienceRetryPolicyExcessive,
-        "Retry policy declared but never used",
-        "Retry policy '{0}' is declared but never applied.",
-        "Resilience",
-        DiagnosticSeverity.Info,
+        id: DiagnosticIds.ResilienceRetryPolicyExcessive,
+        title: "Retry policy declared but never used",
+        messageFormat: "Retry policy '{0}' is declared but never applied.",
+        category: "Resilience",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzePolicyDeclaration, SymbolKind.Field, SymbolKind.Property);
+        context.RegisterSymbolAction(action: AnalyzePolicyDeclaration, symbolKinds: new[]{SymbolKind.Field, SymbolKind.Property});
     }
 
     private static void AnalyzePolicyDeclaration(SymbolAnalysisContext context)
     {
         var symbol = context.Symbol;
-        if (!IsRetryPolicy(symbol) || IsUsed(symbol))
+        if (!IsRetryPolicy(symbol: symbol) || IsUsed(symbol: symbol))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, symbol.Locations.FirstOrDefault(), symbol.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: symbol.Locations.FirstOrDefault(), messageArgs: symbol.Name));
     }
 
     private static bool IsRetryPolicy(ISymbol symbol)
@@ -43,7 +39,7 @@ internal sealed class UnusedRetryPolicyRule : IAnalyzerRule
             _ => null
         };
 
-        return type is not null && (type.Name.Contains("Retry", System.StringComparison.Ordinal) || type.Name.Contains("AsyncPolicy", System.StringComparison.Ordinal) || type.Name.Contains("Policy", System.StringComparison.Ordinal));
+        return type is not null && (type.Name.Contains(value: "Retry", comparisonType: System.StringComparison.Ordinal) || type.Name.Contains(value: "AsyncPolicy", comparisonType: System.StringComparison.Ordinal) || type.Name.Contains(value: "Policy", comparisonType: System.StringComparison.Ordinal));
     }
 
     private static bool IsUsed(ISymbol symbol)

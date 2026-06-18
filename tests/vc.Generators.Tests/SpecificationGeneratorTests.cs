@@ -1,31 +1,30 @@
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using VisionaryCoder.Generators.Design;
 using Xunit;
 
-namespace VisionaryCoder.Tooling.Generators.Tests;
+namespace vc.Generators.Tests;
 
 public sealed class SpecificationGeneratorTests
 {
     private static ImmutableArray<SyntaxTree> GetCompilation(string source, string attributeSource)
     {
-        return ImmutableArray.Create(
-            CSharpSyntaxTree.ParseText(attributeSource),
-            CSharpSyntaxTree.ParseText(source)
-        );
+        return
+        [
+            CSharpSyntaxTree.ParseText(text: attributeSource),
+            CSharpSyntaxTree.ParseText(text: source)
+        ];
     }
 
     private static Compilation CreateCompilation(ImmutableArray<SyntaxTree> trees)
     {
         var references = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && a.Location.Length > 0)
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
+            .Where(predicate: a => !a.IsDynamic && a.Location.Length > 0)
+            .Select(selector: a => MetadataReference.CreateFromFile(path: a.Location))
             .Distinct()
             .ToArray();
 
-        return CSharpCompilation.Create("GeneratorTest")
-            .AddReferences(references)
-            .AddSyntaxTrees(trees);
+        return CSharpCompilation.Create(assemblyName: "GeneratorTest")
+            .AddReferences(references: references)
+            .AddSyntaxTrees(trees: trees);
     }
 
     private static (Compilation, IEnumerable<string>) RunGenerator(string source, string attributeSource = "")
@@ -36,17 +35,17 @@ public sealed class SpecificationGeneratorTests
             public sealed class VcSpecificationAttribute : Attribute {}
             """;
 
-        var attr = string.IsNullOrEmpty(attributeSource) ? defaultAttribute : attributeSource;
-        var trees = GetCompilation(source, attr);
-        var compilation = CreateCompilation(trees);
+        var attr = string.IsNullOrEmpty(value: attributeSource) ? defaultAttribute : attributeSource;
+        var trees = GetCompilation(source: source, attributeSource: attr);
+        var compilation = CreateCompilation(trees: trees);
 
         var generator = new SpecificationGenerator();
-        var driver = CSharpGeneratorDriver.Create(generator);
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out _);
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: generator);
+        driver.RunGeneratorsAndUpdateCompilation(compilation: compilation, outputCompilation: out var updatedCompilation, diagnostics: out _);
 
         var sources = updatedCompilation.SyntaxTrees
-            .Select(st => st.GetText().ToString())
-            .Where(s => s.Contains("Specification<"))
+            .Select(selector: st => st.GetText().ToString())
+            .Where(predicate: s => s.Contains(value: "Specification<"))
             .ToList();
 
         return (updatedCompilation, sources);
@@ -64,8 +63,8 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, _) = RunGenerator(source);
-        Assert.True(true);
+        var (_, _) = RunGenerator(source: source);
+        Assert.True(condition: true);
     }
 
     [Fact]
@@ -80,8 +79,8 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
-        Assert.NotEmpty(sources);
+        var (_, sources) = RunGenerator(source: source);
+        Assert.NotEmpty(collection: sources);
     }
 
     [Fact]
@@ -96,9 +95,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public abstract class Specification<T>", output);
+        Assert.Contains(expectedSubstring: "public abstract class Specification<T>", actualString: output);
     }
 
     [Fact]
@@ -113,9 +112,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("Criteria", output);
+        Assert.Contains(expectedSubstring: "Criteria", actualString: output);
     }
 
     [Fact]
@@ -130,9 +129,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("Includes", output);
+        Assert.Contains(expectedSubstring: "Includes", actualString: output);
     }
 
     [Fact]
@@ -147,9 +146,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("OrderBy", output);
+        Assert.Contains(expectedSubstring: "OrderBy", actualString: output);
     }
 
     [Fact]
@@ -164,10 +163,10 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("PageNumber", output);
-        Assert.Contains("PageSize", output);
+        Assert.Contains(expectedSubstring: "PageNumber", actualString: output);
+        Assert.Contains(expectedSubstring: "PageSize", actualString: output);
     }
 
     [Fact]
@@ -182,9 +181,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public sealed partial class ProductSpecification : Specification<Product>", output);
+        Assert.Contains(expectedSubstring: "public sealed partial class ProductSpecification : Specification<Product>", actualString: output);
     }
 
     [Fact]
@@ -199,9 +198,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("public ProductSpecification()", output);
+        Assert.Contains(expectedSubstring: "public ProductSpecification()", actualString: output);
     }
 
     [Fact]
@@ -216,9 +215,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("AddInclude", output);
+        Assert.Contains(expectedSubstring: "AddInclude", actualString: output);
     }
 
     [Fact]
@@ -233,9 +232,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("namespace DomainModel.Queries;", output);
+        Assert.Contains(expectedSubstring: "namespace DomainModel.Queries;", actualString: output);
     }
 
     [Fact]
@@ -250,9 +249,9 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("// <auto-generated by VisionaryCoder.Tooling.Generators />", output);
+        Assert.Contains(expectedSubstring: "// <auto-generated by VisionaryCoder.Tooling.Generators />", actualString: output);
     }
 
     [Fact]
@@ -267,11 +266,11 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources1) = RunGenerator(source);
+        var (_, sources1) = RunGenerator(source: source);
         var output1 = sources1.First();
-        var (_, sources2) = RunGenerator(source);
+        var (_, sources2) = RunGenerator(source: source);
         var output2 = sources2.First();
-        Assert.Equal(output1, output2);
+        Assert.Equal(expected: output1, actual: output2);
     }
 
     [Fact]
@@ -286,8 +285,8 @@ public sealed class SpecificationGeneratorTests
             public partial class Product {}
             """;
 
-        var (_, sources) = RunGenerator(source);
+        var (_, sources) = RunGenerator(source: source);
         var output = sources.First();
-        Assert.Contains("#nullable enable", output);
+        Assert.Contains(expectedSubstring: "#nullable enable", actualString: output);
     }
 }

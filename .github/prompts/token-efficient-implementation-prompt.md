@@ -1,3 +1,9 @@
+---
+title: Token Efficient Implementation Prompt
+description: Project documentation for Token Efficient Implementation Prompt.
+status: active
+updated: 2026-06-18
+---
 Implement one roadmap slice with minimal token usage and full quality.
 
 Requirements:

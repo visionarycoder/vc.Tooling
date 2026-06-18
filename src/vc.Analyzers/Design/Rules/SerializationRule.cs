@@ -1,19 +1,17 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Rules;
+namespace VisionaryCoder.Analyzers.Design.Rules;
 
 internal sealed class SerializationRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.LegacySerialization,
-        "Missing serialization configuration",
-        "The {0} is missing required serialization configuration.",
-        "Serialization",
-        DiagnosticSeverity.Error,
+        id: DiagnosticIds.LegacySerialization,
+        title: "Missing serialization configuration",
+        messageFormat: "The {0} is missing required serialization configuration.",
+        category: "Serialization",
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Certain types require specific serialization configuration to function correctly. This diagnostic indicates that such configuration is missing.");
 

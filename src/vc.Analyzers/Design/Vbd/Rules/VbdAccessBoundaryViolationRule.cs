@@ -1,9 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdAccessBoundaryViolationRule : IAnalyzerRule
 {
@@ -19,7 +16,7 @@ internal sealed class VbdAccessBoundaryViolationRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeType, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeType(SymbolAnalysisContext context)
@@ -30,13 +27,13 @@ internal sealed class VbdAccessBoundaryViolationRule : IAnalyzerRule
         }
 
         var badDependency = type.GetMembers().OfType<IFieldSymbol>()
-            .Select(f => f.Type.Name)
-            .Concat(type.GetMembers().OfType<IPropertySymbol>().Select(p => p.Type.Name))
-            .FirstOrDefault(n => n.EndsWith("Manager") || n.EndsWith("Engine"));
+            .Select(selector: f => f.Type.Name)
+            .Concat(second: type.GetMembers().OfType<IPropertySymbol>().Select(selector: p => p.Type.Name))
+            .FirstOrDefault(predicate: n => n.EndsWith(value: "Manager") || n.EndsWith(value: "Engine"));
 
         if (badDependency != null)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, type.Locations.FirstOrDefault(), type.Name, badDependency));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: type.Locations.FirstOrDefault(), messageArgs: [type.Name, badDependency]));
         }
     }
 }

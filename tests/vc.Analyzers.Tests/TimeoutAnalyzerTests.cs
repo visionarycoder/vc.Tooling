@@ -1,13 +1,8 @@
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Vc.Analyzers.Resilience;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Resilience;
 using Xunit;
 
-namespace Vc.Analyzers.Tests;
+namespace vc.Analyzers.Tests;
 
 public sealed class TimeoutAnalyzerTests
 {
@@ -15,27 +10,27 @@ public sealed class TimeoutAnalyzerTests
     public void SupportedDiagnostics_ShouldContainTimeoutRule()
     {
         var analyzer = new TimeoutAnalyzer();
-        Assert.Contains(analyzer.SupportedDiagnostics, d => d.Id == DiagnosticIds.ResilienceTimeoutMissing);
+        Assert.Contains(collection: analyzer.SupportedDiagnostics, filter: d => d.Id == DiagnosticIds.ResilienceTimeoutMissing);
     }
 
     [Fact]
     public async Task AnalyzerRuns_WithoutException()
     {
-        var diagnostics = await GetDiagnosticsAsync("namespace SampleApp; public class Sample {}");
-        Assert.NotNull(diagnostics);
+        var diagnostics = await GetDiagnosticsAsync(source: "namespace SampleApp; public class Sample {}");
+        Assert.False(condition: diagnostics.IsDefault);
     }
 
     private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source)
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
+        var tree = CSharpSyntaxTree.ParseText(text: source);
         var references = new[]
         {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
+            MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location),
+            MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
         };
-        var compilation = CSharpCompilation.Create("AnalyzerTests", [tree], references,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        return await compilation.WithAnalyzers([new TimeoutAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+        var compilation = CSharpCompilation.Create(assemblyName: "AnalyzerTests", syntaxTrees: [tree], references: references,
+            options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
+        return await compilation.WithAnalyzers(analyzers: [new TimeoutAnalyzer()]).GetAnalyzerDiagnosticsAsync();
     }
 }

@@ -1,31 +1,27 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Core.Rules;
+namespace VisionaryCoder.Analyzers.Core.Rules;
 
 internal sealed class MissingXmlDocRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.DocumentationMissingXmlDoc,
-        "Public API missing XML documentation",
-        "Public member '{0}' does not have XML documentation. Add a <summary> comment.",
-        "Documentation",
-        DiagnosticSeverity.Info,
+        id: DiagnosticIds.DocumentationMissingXmlDoc,
+        title: "Public API missing XML documentation",
+        messageFormat: "Public member '{0}' does not have XML documentation. Add a <summary> comment.",
+        category: "Documentation",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.MethodDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.ClassDeclaration);
+        context.RegisterSyntaxNodeAction(action: Analyze, syntaxKinds: new[]{SyntaxKind.MethodDeclaration, SyntaxKind.PropertyDeclaration, SyntaxKind.ClassDeclaration});
     }
 
     private static void Analyze(SyntaxNodeAnalysisContext context)
     {
-        var symbol = context.SemanticModel.GetDeclaredSymbol(context.Node);
+        var symbol = context.SemanticModel.GetDeclaredSymbol(declaration: context.Node);
         if (symbol is null || symbol.DeclaredAccessibility != Accessibility.Public || symbol.GetDocumentationCommentXml() is { Length: > 0 })
         {
             return;
@@ -39,6 +35,6 @@ internal sealed class MissingXmlDocRule : IAnalyzerRule
             _ => context.Node.GetLocation()
         };
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, location, symbol.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: location, messageArgs: symbol.Name));
     }
 }

@@ -1,19 +1,17 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Performance.Rules;
+namespace VisionaryCoder.Analyzers.Performance.Rules;
 
 internal sealed class LargeStructInHotPathRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        "VCPERF004",
-        "Avoid large structs in hot paths",
-        "Consider avoiding use of large struct '{0}' in performance-critical code.",
-        "Performance",
-        DiagnosticSeverity.Info,
+        id: "VCPERF004",
+        title: "Avoid large structs in hot paths",
+        messageFormat: "Consider avoiding use of large struct '{0}' in performance-critical code.",
+        category: "Performance",
+        defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)

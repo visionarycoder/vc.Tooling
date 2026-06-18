@@ -1,8 +1,6 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdManagerUnstableContractRule : IAnalyzerRule
 {
@@ -18,7 +16,7 @@ internal sealed class VbdManagerUnstableContractRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+        context.RegisterSymbolAction(action: AnalyzeMethod, symbolKinds: SymbolKind.Method);
     }
 
     private static void AnalyzeMethod(SymbolAnalysisContext context)
@@ -28,15 +26,15 @@ internal sealed class VbdManagerUnstableContractRule : IAnalyzerRule
             return;
         }
 
-        if (!method.ContainingType.Name.EndsWith("Manager"))
+        if (!method.ContainingType.Name.EndsWith(value: "Manager"))
         {
             return;
         }
 
         var returnName = method.ReturnType.Name;
-        if (returnName is "Object" or "Dynamic" || returnName.EndsWith("Dto") || returnName.EndsWith("Model"))
+        if (returnName is "Object" or "Dynamic" || returnName.EndsWith(value: "Dto") || returnName.EndsWith(value: "Model"))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, method.Locations.FirstOrDefault(), method.Name, returnName));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: method.Locations.FirstOrDefault(), messageArgs: [method.Name, returnName]));
         }
     }
 }

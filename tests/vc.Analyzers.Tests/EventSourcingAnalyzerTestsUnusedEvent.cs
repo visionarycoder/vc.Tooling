@@ -1,12 +1,7 @@
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Vc.Analyzers.Distributed;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 using Xunit;
 
-namespace Vc.Analyzers.Tests;
+namespace vc.Analyzers.Tests;
 
 public sealed partial class EventSourcingAnalyzerTests
 {
@@ -30,9 +25,9 @@ public sealed partial class EventSourcingAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.Contains(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedEventSourcingUnusedEvent);
+        Assert.Contains(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.DistributedEventSourcingUnusedEvent);
     }
 
     [Fact]
@@ -59,8 +54,8 @@ public sealed partial class EventSourcingAnalyzerTests
             }
             """;
 
-        var diagnostics = await GetDiagnosticsAsync(source);
+        var diagnostics = await GetDiagnosticsAsync(source: source);
 
-        Assert.DoesNotContain(diagnostics, diagnostic => diagnostic.Id == DiagnosticIds.DistributedEventSourcingUnusedEvent);
+        Assert.DoesNotContain(collection: diagnostics, filter: diagnostic => diagnostic.Id == DiagnosticIds.DistributedEventSourcingUnusedEvent);
     }
 }

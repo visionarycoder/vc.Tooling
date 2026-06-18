@@ -1,28 +1,24 @@
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using VisionaryCoder.Generators_Design_Vbd;
+using VisionaryCoder.Generators.Design.Vbd;
 using Xunit;
 
-namespace VisionaryCoder.Tooling.Generators.Tests;
+namespace vc.Generators.Tests;
 
 public sealed class VbdAccessGeneratorTests
 {
     private static (Compilation, IEnumerable<string>) RunGenerator(string source)
     {
-        var tree = CSharpSyntaxTree.ParseText(source);
+        var tree = CSharpSyntaxTree.ParseText(text: source);
         var refs = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && a.Location.Length > 0)
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
+            .Where(predicate: a => !a.IsDynamic && a.Location.Length > 0)
+            .Select(selector: a => MetadataReference.CreateFromFile(path: a.Location))
             .Distinct()
             .ToArray();
-        var comp = CSharpCompilation.Create("Test", [tree], refs,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        var driver = CSharpGeneratorDriver.Create(new VbdAccessGenerator());
-        driver.RunGeneratorsAndUpdateCompilation(comp, out var outComp, out _);
-        var generated = outComp.SyntaxTrees.Skip(comp.SyntaxTrees.Count())
-            .Select(st => st.GetText().ToString())
+        var comp = CSharpCompilation.Create(assemblyName: "Test", syntaxTrees: [tree], references: refs,
+            options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: new VbdAccessGenerator());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: comp, outputCompilation: out var outComp, diagnostics: out _);
+        var generated = outComp.SyntaxTrees.Skip(count: comp.SyntaxTrees.Count())
+            .Select(selector: st => st.GetText().ToString())
             .ToList();
         return (outComp, generated);
     }
@@ -30,73 +26,73 @@ public sealed class VbdAccessGeneratorTests
     [Fact]
     public void GeneratesInterface_ForRepositoryClass()
     {
-        var (_, sources) = RunGenerator("""
-            namespace Orders;
-            public class OrderRepository
-            {
-                public Order? GetById(int id) => null;
-                public void Save(Order order) { }
-            }
-            public class Order { }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace Orders;
+                                                public class OrderRepository
+                                                {
+                                                    public Order? GetById(int id) => null;
+                                                    public void Save(Order order) { }
+                                                }
+                                                public class Order { }
+                                                """);
 
-        Assert.NotEmpty(sources);
-        Assert.Contains(sources, s => s.Contains("interface IOrderRepository"));
+        Assert.NotEmpty(collection: sources);
+        Assert.Contains(collection: sources, filter: s => s.Contains(value: "interface IOrderRepository"));
     }
 
     [Fact]
     public void GeneratedInterface_ContainsBoundaryComment()
     {
-        var (_, sources) = RunGenerator("""
-            namespace Data;
-            public class UserStore
-            {
-                public void Add(string name) { }
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace Data;
+                                                public class UserStore
+                                                {
+                                                    public void Add(string name) { }
+                                                }
+                                                """);
 
-        Assert.NotEmpty(sources);
-        var source = sources.First(s => s.Contains("IUserStore"));
-        Assert.Contains("VBD0006", source);
-        Assert.Contains("auto-generated", source);
+        Assert.NotEmpty(collection: sources);
+        var source = sources.First(predicate: s => s.Contains(value: "IUserStore"));
+        Assert.Contains(expectedSubstring: "VBD0006", actualString: source);
+        Assert.Contains(expectedSubstring: "auto-generated", actualString: source);
     }
 
     [Fact]
     public void GeneratedInterface_ContainsPublicMethods()
     {
-        var (_, sources) = RunGenerator("""
-            namespace Infra;
-            public class PaymentGateway
-            {
-                public bool ProcessPayment(decimal amount) => true;
-                private void Log(string msg) { }
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace Infra;
+                                                public class PaymentGateway
+                                                {
+                                                    public bool ProcessPayment(decimal amount) => true;
+                                                    private void Log(string msg) { }
+                                                }
+                                                """);
 
-        Assert.NotEmpty(sources);
-        var source = sources.First(s => s.Contains("IPaymentGateway"));
-        Assert.Contains("ProcessPayment", source);
-        Assert.DoesNotContain("Log(", source);
+        Assert.NotEmpty(collection: sources);
+        var source = sources.First(predicate: s => s.Contains(value: "IPaymentGateway"));
+        Assert.Contains(expectedSubstring: "ProcessPayment", actualString: source);
+        Assert.DoesNotContain(expectedSubstring: "Log(", actualString: source);
     }
 
     [Fact]
     public void NonAccessClass_ProducesNoOutput()
     {
-        var (_, sources) = RunGenerator("""
-            namespace App;
-            public class UserService
-            {
-                public void DoWork() { }
-            }
-            """);
+        var (_, sources) = RunGenerator(source: """
+                                                namespace App;
+                                                public class UserService
+                                                {
+                                                    public void DoWork() { }
+                                                }
+                                                """);
 
-        Assert.Empty(sources);
+        Assert.Empty(collection: sources);
     }
 
     [Fact]
     public void GeneratorRuns_WithoutException()
     {
-        var (_, _) = RunGenerator("namespace App; public class Sample {}");
-        Assert.True(true);
+        var (_, _) = RunGenerator(source: "namespace App; public class Sample {}");
+        Assert.True(condition: true);
     }
 }

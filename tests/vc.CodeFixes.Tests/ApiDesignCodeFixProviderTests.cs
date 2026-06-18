@@ -1,22 +1,11 @@
-using System;
-using System.Collections.Immutable;
-using System.Composition.Hosting;
-using System.Composition.Hosting.Core;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.Workspaces;
 using Vc.CodeFixes.Api;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 using Xunit;
 
-namespace Vc.CodeFixes.Tests;
+namespace vc.CodeFixes.Tests;
 
 public sealed class ApiDesignCodeFixProviderTests
 {
@@ -32,47 +21,47 @@ public sealed class ApiDesignCodeFixProviderTests
             """;
 
         var workspace = new AdhocWorkspace();
-        var project = workspace.AddProject("CodeFixTests", LanguageNames.CSharp)
-            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var project = workspace.AddProject(name: "CodeFixTests", language: LanguageNames.CSharp)
+            .WithCompilationOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
 
-        var document = workspace.AddDocument(project.Id, "WeatherController.cs", SourceText.From(source));
+        var document = workspace.AddDocument(projectId: project.Id, name: "WeatherController.cs", text: SourceText.From(text: source));
         var root = await document.GetSyntaxRootAsync();
         var classNode = root!.DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax>().Single();
 
         var diagnostic = Diagnostic.Create(
-            new DiagnosticDescriptor(
-                DiagnosticIds.ApiDesignControllerMissing,
-                "title",
-                "message",
-                "ApiDesign",
-                DiagnosticSeverity.Info,
-                true),
-            classNode.Identifier.GetLocation(),
-            classNode.Identifier.Text);
+            descriptor: new DiagnosticDescriptor(
+                id: DiagnosticIds.ApiDesignControllerMissing,
+                title: "title",
+                messageFormat: "message",
+                category: "ApiDesign",
+                defaultSeverity: DiagnosticSeverity.Info,
+                isEnabledByDefault: true),
+            location: classNode.Identifier.GetLocation(),
+            messageArgs: classNode.Identifier.Text);
 
         var provider = new ApiDesignCodeFixProvider();
         CodeAction? codeAction = null;
 
         var context = new CodeFixContext(
-            document,
-            diagnostic,
-            (action, _) => codeAction = action,
-            CancellationToken.None);
+            document: document,
+            diagnostic: diagnostic,
+            registerCodeFix: (action, _) => codeAction = action,
+            cancellationToken: CancellationToken.None);
 
-        await provider.RegisterCodeFixesAsync(context);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        Assert.NotNull(codeAction);
+        Assert.NotNull(@object: codeAction);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using Microsoft.AspNetCore.Mvc;", updatedText.ToString());
-        Assert.Contains("[ApiController]", updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using Microsoft.AspNetCore.Mvc;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "[ApiController]", actualString: updatedText.ToString());
     }
 }

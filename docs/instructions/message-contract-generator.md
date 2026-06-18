@@ -1,3 +1,9 @@
+---
+title: Message Contract Generator
+description: Project documentation for Message Contract Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a Message Contract source generator in VisionaryCoder.Tooling.
 
 Project:

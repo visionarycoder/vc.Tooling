@@ -1,45 +1,49 @@
 <Project>
-  <PropertyGroup Label="Global Build Defaults">
-    <LangVersion>preview</LangVersion>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Deterministic>true</Deterministic>
-    <DebugType>portable</DebugType>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <ContinuousIntegrationBuild Condition="'$(CI)' != ''">true</ContinuousIntegrationBuild>
-  </PropertyGroup>
+    <PropertyGroup Label="Global Build Defaults">
+        <LangVersion>preview</LangVersion>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Deterministic>true</Deterministic>
+        <DebugType>portable</DebugType>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <ContinuousIntegrationBuild Condition="'$(CI)' != ''">true</ContinuousIntegrationBuild>
+    </PropertyGroup>
 
-  <PropertyGroup Label="Project Type Filters">
-    <_IsAnalyzersProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.Analyzers.'))</_IsAnalyzersProject>
-    <_IsArchitectureProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.Architecture.'))</_IsArchitectureProject>
-    <_IsArchitectureRootProject Condition="'$(MSBuildProjectName)' == 'vc.Architecture'">True</_IsArchitectureRootProject>
-    <_IsCodeFixesProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.CodeFixes.'))</_IsCodeFixesProject>
-    <_IsGeneratorsProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.Generators.'))</_IsGeneratorsProject>
-    <_IsTestProjectByName>$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests'))</_IsTestProjectByName>
+    <PropertyGroup Label="Project Type Filters">
+        <_IsAnalyzersProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.Analyzers.'))</_IsAnalyzersProject>
+        <_IsArchitectureProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.Architecture.'))</_IsArchitectureProject>
+        <_IsArchitectureRootProject Condition="'$(MSBuildProjectName)' == 'vc.Architecture'">True</_IsArchitectureRootProject>
+        <_IsCodeFixesProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.CodeFixes.'))</_IsCodeFixesProject>
+        <_IsGeneratorsProject>$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('vc.Generators.'))</_IsGeneratorsProject>
+        <_IsTestProjectByName>$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests'))</_IsTestProjectByName>
 
-    <IsRoslynProject Condition="'$(IsRoslynProject)' == '' and ('$(_IsAnalyzersProject)' == 'True' or '$(_IsArchitectureProject)' == 'True' or '$(_IsArchitectureRootProject)' == 'True' or '$(_IsCodeFixesProject)' == 'True' or '$(_IsGeneratorsProject)' == 'True')">true</IsRoslynProject>
-    <IsTestProject Condition="'$(IsTestProject)' == '' and '$(_IsTestProjectByName)' == 'True'">true</IsTestProject>
-    <IsOtherProject Condition="'$(IsOtherProject)' == '' and '$(IsRoslynProject)' != 'true' and '$(IsTestProject)' != 'true'">true</IsOtherProject>
-  </PropertyGroup>
+        <IsRoslynProject Condition="'$(IsRoslynProject)' == '' and ('$(_IsAnalyzersProject)' == 'True' or '$(_IsArchitectureProject)' == 'True' or '$(_IsArchitectureRootProject)' == 'True' or '$(_IsCodeFixesProject)' == 'True' or '$(_IsGeneratorsProject)' == 'True')">true</IsRoslynProject>
+        <IsTestProject Condition="'$(IsTestProject)' == '' and '$(_IsTestProjectByName)' == 'True'">true</IsTestProject>
+        <IsOtherProject Condition="'$(IsOtherProject)' == '' and '$(IsRoslynProject)' != 'true' and '$(IsTestProject)' != 'true'">true</IsOtherProject>
+    </PropertyGroup>
 
-  <PropertyGroup Label="Roslyn Defaults" Condition="'$(IsRoslynProject)' == 'true'">
-    <TargetFramework Condition="'$(TargetFramework)' == '' and '$(TargetFrameworks)' == ''">netstandard2.0</TargetFramework>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-  </PropertyGroup>
+    <PropertyGroup Label="Roslyn Defaults" Condition="'$(IsRoslynProject)' == 'true'">
+        <TargetFramework Condition="'$(TargetFramework)' == '' and '$(TargetFrameworks)' == ''">netstandard2.0</TargetFramework>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
 
-  <PropertyGroup Label="Test Defaults" Condition="'$(IsTestProject)' == 'true'">
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+    <PropertyGroup Label="Test Defaults" Condition="'$(IsTestProject)' == 'true'">
+        <IsTestProject>true</IsTestProject>
+        <NoWarn>$NoWarn;CS1591;</NoWarn>
+    </PropertyGroup>
 
-  <PropertyGroup Label="Other Defaults" Condition="'$(IsOtherProject)' == 'true'">
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-  </PropertyGroup>
+    <PropertyGroup Label="Other Defaults" Condition="'$(IsOtherProject)' == 'true'">
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
 
-  <ItemGroup Condition="'$(IsRoslynProject)' == 'true'">
-    <Compile Include="$(MSBuildThisFileDirectory)GlobalUsings.cs" Link="GlobalUsings.cs" Condition="Exists('$(MSBuildThisFileDirectory)GlobalUsings.cs')" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(IsRoslynProject)' == 'true'">
+        <Compile Include="$(MSBuildThisFileDirectory)GlobalUsings.cs" Link="GlobalUsings.cs" Condition="Exists('$(MSBuildThisFileDirectory)GlobalUsings.cs')" />
+    </ItemGroup>
 
 </Project>

@@ -1,9 +1,6 @@
 using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
-namespace VisionaryCoder.Tooling.Generators;
+namespace VisionaryCoder.Generators.Data;
 
 /// <summary>
 /// Generates auditable aggregate root classes for change tracking and auditing.

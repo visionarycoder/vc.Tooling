@@ -1,3 +1,9 @@
+---
+title: Full Implementation Sample Package
+description: Project documentation for Full Implementation Sample Package.
+status: active
+updated: 2026-06-18
+---
 # Full Implementation Sample Package
 
 This folder is reserved for the full end-to-end sample implementation.

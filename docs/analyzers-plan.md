@@ -1,3 +1,9 @@
+---
+title: Analyzer Roadmap
+description: Project documentation for Analyzer Roadmap.
+status: active
+updated: 2026-06-18
+---
 # Analyzer Roadmap
 
 This roadmap captures the next analyzer additions that best fit the current suite and avoid overlap with the existing rules.

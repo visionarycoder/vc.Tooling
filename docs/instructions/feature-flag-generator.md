@@ -1,3 +1,9 @@
+---
+title: Feature Flag Generator
+description: Project documentation for Feature Flag Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a Feature Flag source generator in VisionaryCoder.Tooling.
 
 Project:

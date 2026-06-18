@@ -1,68 +1,65 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Architecture.Rules;
+namespace VisionaryCoder.Analyzers.Architecture.Rules;
 
 internal sealed class ProjectReferenceViolationRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ArchProjectReferenceViolation,
-        "Project reference violation",
-        "Project '{0}' must not reference project '{1}'.",
-        "Architecture",
-        DiagnosticSeverity.Error,
+        id: DiagnosticIds.ArchProjectReferenceViolation,
+        title: "Project reference violation",
+        messageFormat: "Project '{0}' must not reference project '{1}'.",
+        category: "Architecture",
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterCompilationStartAction(Start);
+        context.RegisterCompilationStartAction(action: Start);
     }
 
     private static void Start(CompilationStartAnalysisContext context)
     {
         var currentAssembly = context.Compilation.Assembly;
-        var currentLayer = GetLayer(currentAssembly.Name);
+        var currentLayer = GetLayer(assemblyName: currentAssembly.Name);
 
-        context.RegisterSymbolAction(symbolContext =>
+        context.RegisterSymbolAction(action: symbolContext =>
         {
             if (symbolContext.Symbol is not INamedTypeSymbol typeSymbol)
             {
                 return;
             }
 
-            foreach (var referencedAssembly in typeSymbol.ContainingAssembly.Modules.SelectMany(module => module.ReferencedAssemblySymbols))
+            foreach (var referencedAssembly in typeSymbol.ContainingAssembly.Modules.SelectMany(selector: module => module.ReferencedAssemblySymbols))
             {
-                var referencedLayer = GetLayer(referencedAssembly.Name);
-                if (referencedLayer != Layer.Unknown && !IsAllowedReference(currentLayer, referencedLayer))
+                var referencedLayer = GetLayer(assemblyName: referencedAssembly.Name);
+                if (referencedLayer != Layer.Unknown && !IsAllowedReference(from: currentLayer, to: referencedLayer))
                 {
-                    symbolContext.ReportDiagnostic(Diagnostic.Create(descriptor, typeSymbol.Locations.FirstOrDefault(), currentAssembly.Name, referencedAssembly.Name));
+                    symbolContext.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: typeSymbol.Locations.FirstOrDefault(), messageArgs: [currentAssembly.Name, referencedAssembly.Name]));
                 }
             }
-        }, SymbolKind.NamedType);
+        }, symbolKinds: SymbolKind.NamedType);
     }
 
     private static Layer GetLayer(string assemblyName)
     {
-        if (assemblyName.EndsWith(".Api", System.StringComparison.Ordinal))
+        if (assemblyName.EndsWith(value: ".Api", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Api;
         }
 
-        if (assemblyName.EndsWith(".Application", System.StringComparison.Ordinal))
+        if (assemblyName.EndsWith(value: ".Application", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Application;
         }
 
-        if (assemblyName.EndsWith(".Domain", System.StringComparison.Ordinal))
+        if (assemblyName.EndsWith(value: ".Domain", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Domain;
         }
 
-        if (assemblyName.EndsWith(".Infrastructure", System.StringComparison.Ordinal))
+        if (assemblyName.EndsWith(value: ".Infrastructure", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Infrastructure;
         }

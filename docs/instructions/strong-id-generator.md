@@ -1,3 +1,9 @@
+---
+title: Strong Id Generator
+description: Project documentation for Strong Id Generator.
+status: active
+updated: 2026-06-18
+---
 Implement the Strong ID source generator in VisionaryCoder.Tooling.
 
 Project:

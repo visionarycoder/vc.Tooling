@@ -1,7 +1,6 @@
-using System;
-namespace VisionaryCoder.Tooling.Shared.Attributes
+namespace VisionaryCoder.Tooling.Shared
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(validOn: AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public sealed class SecureEndpointAttribute : Attribute
     {
         public string? Policy { get; set; }

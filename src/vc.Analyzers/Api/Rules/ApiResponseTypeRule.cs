@@ -1,20 +1,17 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Api.Rules;
+namespace VisionaryCoder.Analyzers.Api.Rules;
 
 internal sealed class ApiResponseTypeRule : IAnalyzerRule
 {
-    private static readonly string[] HttpAttributes = { "HttpGet", "HttpPost", "HttpPut", "HttpPatch", "HttpDelete" };
+    private static readonly string[] HttpAttributes = ["HttpGet", "HttpPost", "HttpPut", "HttpPatch", "HttpDelete"];
 
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
         id: DiagnosticIds.ApiResponseSerializationIssue,
         title: "API action missing response metadata",
-        messageFormat: "Action '{0}' returns '{1}' but has no Produces/ProducesResponseType metadata.",
+        messageFormat: "Action '{0}' returns '{1}' but has no Produces/ProducesResponseType metadata",
         category: "ApiDesign",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);
@@ -36,7 +33,7 @@ internal sealed class ApiResponseTypeRule : IAnalyzerRule
             return;
         }
 
-        if (HasAnyAttribute(method, new[] { "Produces", "ProducesResponseType" }))
+        if (HasAnyAttribute(method, ["Produces", "ProducesResponseType"]))
         {
             return;
         }

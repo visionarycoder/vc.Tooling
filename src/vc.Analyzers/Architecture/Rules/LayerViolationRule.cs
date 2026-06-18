@@ -1,26 +1,24 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Architecture.Rules;
+namespace VisionaryCoder.Analyzers.Architecture.Rules;
 
 internal sealed class LayerViolationRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ArchLayeringViolation,
-        "Layering rule violation",
-        "Type '{0}' references '{1}', violating layering rules.",
-        "Architecture",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.ArchLayeringViolation,
+        title: "Layering rule violation",
+        messageFormat: "Type '{0}' references '{1}', violating layering rules.",
+        category: "Architecture",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterCompilationStartAction(startContext =>
+        context.RegisterCompilationStartAction(action: startContext =>
         {
-            startContext.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
+            startContext.RegisterSymbolAction(action: AnalyzeNamedType, symbolKinds: SymbolKind.NamedType);
         });
     }
 
@@ -31,7 +29,7 @@ internal sealed class LayerViolationRule : IAnalyzerRule
             return;
         }
 
-        var fromLayer = GetLayer(typeSymbol.ContainingNamespace?.ToDisplayString());
+        var fromLayer = GetLayer(namespaceName: typeSymbol.ContainingNamespace?.ToDisplayString());
         if (fromLayer == Layer.Unknown)
         {
             return;
@@ -42,17 +40,17 @@ internal sealed class LayerViolationRule : IAnalyzerRule
             switch (member)
             {
                 case IMethodSymbol method:
-                    AnalyzeTypeDependency(context, typeSymbol, method.ReturnType, fromLayer);
+                    AnalyzeTypeDependency(context: context, fromType: typeSymbol, toType: method.ReturnType, fromLayer: fromLayer);
                     foreach (var parameter in method.Parameters)
                     {
-                        AnalyzeTypeDependency(context, typeSymbol, parameter.Type, fromLayer);
+                        AnalyzeTypeDependency(context: context, fromType: typeSymbol, toType: parameter.Type, fromLayer: fromLayer);
                     }
                     break;
                 case IPropertySymbol property:
-                    AnalyzeTypeDependency(context, typeSymbol, property.Type, fromLayer);
+                    AnalyzeTypeDependency(context: context, fromType: typeSymbol, toType: property.Type, fromLayer: fromLayer);
                     break;
                 case IFieldSymbol field:
-                    AnalyzeTypeDependency(context, typeSymbol, field.Type, fromLayer);
+                    AnalyzeTypeDependency(context: context, fromType: typeSymbol, toType: field.Type, fromLayer: fromLayer);
                     break;
             }
         }
@@ -66,38 +64,38 @@ internal sealed class LayerViolationRule : IAnalyzerRule
             return;
         }
 
-        var toLayer = GetLayer(namedToType.ContainingNamespace?.ToDisplayString());
-        if (toLayer == Layer.Unknown || IsAllowedDependency(fromLayer, toLayer))
+        var toLayer = GetLayer(namespaceName: namedToType.ContainingNamespace?.ToDisplayString());
+        if (toLayer == Layer.Unknown || IsAllowedDependency(from: fromLayer, to: toLayer))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, fromType.Locations.FirstOrDefault(), fromType.Name, namedToType.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: fromType.Locations.FirstOrDefault(), messageArgs: [fromType.Name, namedToType.Name]));
     }
 
     private static Layer GetLayer(string? namespaceName)
     {
-        if (string.IsNullOrEmpty(namespaceName))
+        if (string.IsNullOrEmpty(value: namespaceName))
         {
             return Layer.Unknown;
         }
 
-        if (namespaceName.Contains(".Api", System.StringComparison.Ordinal))
+        if (namespaceName.Contains(value: ".Api", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Api;
         }
 
-        if (namespaceName.Contains(".Application", System.StringComparison.Ordinal))
+        if (namespaceName.Contains(value: ".Application", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Application;
         }
 
-        if (namespaceName.Contains(".Domain", System.StringComparison.Ordinal))
+        if (namespaceName.Contains(value: ".Domain", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Domain;
         }
 
-        if (namespaceName.Contains(".Infrastructure", System.StringComparison.Ordinal))
+        if (namespaceName.Contains(value: ".Infrastructure", comparisonType: System.StringComparison.Ordinal))
         {
             return Layer.Infrastructure;
         }

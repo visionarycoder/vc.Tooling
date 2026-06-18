@@ -1,17 +1,12 @@
-using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Security.Rules;
+namespace VisionaryCoder.Analyzers.Security.Rules;
 
 internal sealed class HardcodedSecretRule : IAnalyzerRule
 {
     private static readonly string[] SuspiciousPrefixes =
-    {
+    [
         "AKIA",
         "ASIA",
         "SK",
@@ -24,10 +19,10 @@ internal sealed class HardcodedSecretRule : IAnalyzerRule
         "EAAC",
         "ssh-rsa",
         "ssh-ed25519"
-    };
+    ];
 
     private static readonly string[] SuspiciousSubstrings =
-    {
+    [
         "token",
         "secret",
         "password",
@@ -39,10 +34,9 @@ internal sealed class HardcodedSecretRule : IAnalyzerRule
         "clientsecret",
         "jwt",
         "bearer"
-    };
+    ];
 
-    private static readonly Regex SecretPattern = new(
-        @"(password|secret|apikey|api_key|token|connectionstring|conn_str)",
+    private static readonly Regex SecretPattern = new(@"(password|secret|apikey|api_key|token|connectionstring|conn_str)",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public DiagnosticDescriptor Descriptor => descriptor;

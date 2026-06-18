@@ -1,3 +1,9 @@
+---
+title: Analyzer Rule Composition Implementation Guide
+description: Project documentation for Analyzer Rule Composition Implementation Guide.
+status: active
+updated: 2026-06-18
+---
 # Analyzer Rule Composition Implementation Guide
 
 ## Purpose

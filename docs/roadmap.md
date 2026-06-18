@@ -1,3 +1,9 @@
+---
+title: VisionaryCoder.Tooling Token-Efficient Implementation Roadmap
+description: Project documentation for VisionaryCoder.Tooling Token-Efficient Implementation Roadmap.
+status: active
+updated: 2026-06-18
+---
 # VisionaryCoder.Tooling Token-Efficient Implementation Roadmap
 
 This roadmap is optimized to reduce implementation token usage while still delivering complete functionality.

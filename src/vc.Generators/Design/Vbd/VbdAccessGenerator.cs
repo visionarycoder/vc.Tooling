@@ -1,12 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
+﻿using System.Text;
 
-namespace VisionaryCoder.Generators_Design_Vbd;
+namespace VisionaryCoder.Generators.Design.Vbd;
 
 [Generator(LanguageNames.CSharp)]
 public sealed class VbdAccessGenerator : IIncrementalGenerator

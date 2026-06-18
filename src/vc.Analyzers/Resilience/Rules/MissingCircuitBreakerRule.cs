@@ -1,26 +1,22 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Resilience.Rules;
+namespace VisionaryCoder.Analyzers.Resilience.Rules;
 
 internal sealed class MissingCircuitBreakerRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ResilienceCircuitBreakerMissing,
-        "Missing circuit breaker",
-        "External call '{0}' is not wrapped in a circuit breaker policy.",
-        "Resilience",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.ResilienceCircuitBreakerMissing,
+        title: "Missing circuit breaker",
+        messageFormat: "External call '{0}' is not wrapped in a circuit breaker policy.",
+        category: "Resilience",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(action: AnalyzeInvocation, syntaxKinds: SyntaxKind.InvocationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -30,24 +26,24 @@ internal sealed class MissingCircuitBreakerRule : IAnalyzerRule
             return;
         }
 
-        var symbol = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
-        if (symbol is null || !IsExternalCall(symbol) || IsInsideCircuitBreaker(invocation))
+        var symbol = context.SemanticModel.GetSymbolInfo(expression: invocation, cancellationToken: context.CancellationToken).Symbol as IMethodSymbol;
+        if (symbol is null || !IsExternalCall(methodSymbol: symbol) || IsInsideCircuitBreaker(node: invocation))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, invocation.GetLocation(), symbol.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: invocation.GetLocation(), messageArgs: symbol.Name));
     }
 
     private static bool IsExternalCall(IMethodSymbol methodSymbol)
     {
         var ns = methodSymbol.ContainingNamespace?.ToDisplayString();
         return ns is not null &&
-               (ns.StartsWith("System.Net.Http", System.StringComparison.Ordinal) ||
-                ns.Contains("SqlClient", System.StringComparison.Ordinal) ||
-                ns.Contains("Redis", System.StringComparison.Ordinal) ||
-                ns.Contains("Mongo", System.StringComparison.Ordinal) ||
-                ns.Contains("Cosmos", System.StringComparison.Ordinal));
+               (ns.StartsWith(value: "System.Net.Http", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "SqlClient", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "Redis", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "Mongo", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "Cosmos", comparisonType: System.StringComparison.Ordinal));
     }
 
     private static bool IsInsideCircuitBreaker(SyntaxNode node)
@@ -58,10 +54,10 @@ internal sealed class MissingCircuitBreakerRule : IAnalyzerRule
             if (current is InvocationExpressionSyntax invocation && invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 var name = memberAccess.Name.Identifier.Text;
-                if (name.Contains("ExecuteAsync", System.StringComparison.Ordinal) ||
-                    name.Contains("Execute", System.StringComparison.Ordinal) ||
-                    name.Contains("WrapAsync", System.StringComparison.Ordinal) ||
-                    name.Contains("Wrap", System.StringComparison.Ordinal))
+                if (name.Contains(value: "ExecuteAsync", comparisonType: System.StringComparison.Ordinal) ||
+                    name.Contains(value: "Execute", comparisonType: System.StringComparison.Ordinal) ||
+                    name.Contains(value: "WrapAsync", comparisonType: System.StringComparison.Ordinal) ||
+                    name.Contains(value: "Wrap", comparisonType: System.StringComparison.Ordinal))
                 {
                     return true;
                 }

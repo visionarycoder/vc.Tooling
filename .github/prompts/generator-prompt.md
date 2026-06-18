@@ -1,3 +1,9 @@
+---
+title: Generator Prompts
+description: Project documentation for Generator Prompts.
+status: active
+updated: 2026-06-18
+---
 
 # Generator Prompts
 

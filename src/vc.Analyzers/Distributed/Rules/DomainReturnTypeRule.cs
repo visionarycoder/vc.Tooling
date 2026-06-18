@@ -1,30 +1,27 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Distributed.Rules;
+namespace VisionaryCoder.Analyzers.Distributed.Rules;
 
 internal sealed class DomainReturnTypeRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.DistributedRepositoryContractViolation,
-        "Repository should not return domain entities directly",
-        "Repository method '{0}' returns domain type '{1}'. Repositories should return aggregates or DTOs.",
-        "Distributed",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.DistributedRepositoryContractViolation,
+        title: "Repository should not return domain entities directly",
+        messageFormat: "Repository method '{0}' returns domain type '{1}'. Repositories should return aggregates or DTOs.",
+        category: "Distributed",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeRepository, SymbolKind.NamedType);
+        context.RegisterSymbolAction(action: AnalyzeRepository, symbolKinds: SymbolKind.NamedType);
     }
 
     private static void AnalyzeRepository(SymbolAnalysisContext context)
     {
-        if (context.Symbol is not INamedTypeSymbol typeSymbol || !LooksLikeRepository(typeSymbol))
+        if (context.Symbol is not INamedTypeSymbol typeSymbol || !LooksLikeRepository(typeSymbol: typeSymbol))
         {
             return;
         }
@@ -41,18 +38,18 @@ internal sealed class DomainReturnTypeRule : IAnalyzerRule
                 continue;
             }
 
-            if (returnType.Name.EndsWith("Entity", System.StringComparison.Ordinal) ||
-                returnType.Name.EndsWith("Model", System.StringComparison.Ordinal) ||
-                returnType.Name.EndsWith("Domain", System.StringComparison.Ordinal))
+            if (returnType.Name.EndsWith(value: "Entity", comparisonType: System.StringComparison.Ordinal) ||
+                returnType.Name.EndsWith(value: "Model", comparisonType: System.StringComparison.Ordinal) ||
+                returnType.Name.EndsWith(value: "Domain", comparisonType: System.StringComparison.Ordinal))
             {
-                context.ReportDiagnostic(Diagnostic.Create(descriptor, method.Locations.FirstOrDefault(), method.Name, returnType.Name));
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: method.Locations.FirstOrDefault(), messageArgs: [method.Name, returnType.Name]));
             }
         }
     }
 
     private static bool LooksLikeRepository(INamedTypeSymbol typeSymbol)
     {
-        return typeSymbol.Name.EndsWith("Repository", System.StringComparison.Ordinal) ||
-               typeSymbol.Interfaces.Any(interfaceSymbol => interfaceSymbol.Name == "IRepository");
+        return typeSymbol.Name.EndsWith(value: "Repository", comparisonType: System.StringComparison.Ordinal) ||
+               typeSymbol.Interfaces.Any(predicate: interfaceSymbol => interfaceSymbol.Name == "IRepository");
     }
 }

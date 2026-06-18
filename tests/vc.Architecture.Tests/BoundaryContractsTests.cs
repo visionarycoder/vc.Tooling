@@ -1,13 +1,18 @@
-using System;
-using System.Linq;
 using VisionaryCoder.Architecture;
 using VisionaryCoder.Architecture.Vbd;
 using Xunit;
 
-namespace VisionaryCoder.Architecture.Tests;
+namespace vc.Architecture.Tests;
 
+/// <summary>
+/// Verifies architecture boundary contract attributes and enums.
+/// </summary>
 public sealed class BoundaryContractsTests
 {
+    /// <summary>
+    /// Verifies <see cref="BoundaryAttribute"/> stores all boundary enum values.
+    /// </summary>
+    /// <param name="boundaryType">Boundary type under test.</param>
     [Theory]
     [InlineData(BoundaryType.Unknown)]
     [InlineData(BoundaryType.Architecture)]
@@ -22,6 +27,10 @@ public sealed class BoundaryContractsTests
         Assert.Equal(boundaryType, attribute.BoundaryType);
     }
 
+    /// <summary>
+    /// Verifies <see cref="ComponentAttribute"/> stores all component roles.
+    /// </summary>
+    /// <param name="role">Component role under test.</param>
     [Theory]
     [InlineData(ComponentRole.Unknown)]
     [InlineData(ComponentRole.Manager)]
@@ -36,6 +45,10 @@ public sealed class BoundaryContractsTests
         Assert.Equal(role, attribute.Role);
     }
 
+    /// <summary>
+    /// Verifies <see cref="VbdBoundaryAttribute"/> stores all boundary enum values.
+    /// </summary>
+    /// <param name="boundaryType">Boundary type under test.</param>
     [Theory]
     [InlineData(BoundaryType.Unknown)]
     [InlineData(BoundaryType.Architecture)]
@@ -50,6 +63,10 @@ public sealed class BoundaryContractsTests
         Assert.Equal(boundaryType, attribute.BoundaryType);
     }
 
+    /// <summary>
+    /// Verifies <see cref="VbdComponentAttribute"/> stores all component roles.
+    /// </summary>
+    /// <param name="role">Component role under test.</param>
     [Theory]
     [InlineData(ComponentRole.Unknown)]
     [InlineData(ComponentRole.Manager)]
@@ -64,6 +81,10 @@ public sealed class BoundaryContractsTests
         Assert.Equal(role, attribute.Role);
     }
 
+    /// <summary>
+    /// Verifies all VBD volatility enum values are usable.
+    /// </summary>
+    /// <param name="volatility">Volatility value under test.</param>
     [Theory]
     [InlineData(VbdVolatility.Unknown)]
     [InlineData(VbdVolatility.PolicyOrchestration)]
@@ -75,6 +96,9 @@ public sealed class BoundaryContractsTests
         Assert.NotEqual(0, (int)volatility | 1);
     }
 
+    /// <summary>
+    /// Verifies boundary attribute supports expected target types.
+    /// </summary>
     [Fact]
     public void BoundaryAttribute_ShouldSupportMultipleTargets()
     {

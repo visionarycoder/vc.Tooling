@@ -1,6 +1,9 @@
 ---
+title: Dependency Injection Best Practices
 name: dependency-injection
 description: Apply industry best practices for dependency injection, service registration, lifetimes, composition roots, and testable dependency boundaries.
+status: active
+updated: 2026-06-18
 ---
 
 # Dependency Injection Best Practices

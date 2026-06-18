@@ -1,69 +1,66 @@
-using System.Collections.Immutable;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using VisionaryCoder.Generators.Design;
 using Xunit;
 
-namespace VisionaryCoder.Tooling.Generators.Tests;
+namespace vc.Generators.Tests;
 
 public sealed class OptionsPatternGeneratorTests
 {
     private static (Compilation, IEnumerable<string>) RunGenerator(string source)
     {
         const string attr = "namespace Vc.Generators.Abstractions.Dx; [System.AttributeUsage(System.AttributeTargets.Class)] public sealed class VcOptionsAttribute : System.Attribute {}";
-        var trees = ImmutableArray.Create(CSharpSyntaxTree.ParseText(attr), CSharpSyntaxTree.ParseText(source));
-        var refs = AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic && a.Location.Length > 0).Select(a => MetadataReference.CreateFromFile(a.Location)).Distinct().ToArray();
-        var comp = CSharpCompilation.Create("Test", trees, refs, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        var driver = CSharpGeneratorDriver.Create(new OptionsPatternGenerator());
-        driver.RunGeneratorsAndUpdateCompilation(comp, out var outComp, out _);
-        return (outComp, outComp.SyntaxTrees.Skip(2).Select(st => st.GetText().ToString()));
+        var trees = ImmutableArray.Create(item1: CSharpSyntaxTree.ParseText(text: attr), item2: CSharpSyntaxTree.ParseText(text: source));
+        var refs = AppDomain.CurrentDomain.GetAssemblies().Where(predicate: a => !a.IsDynamic && a.Location.Length > 0).Select(selector: a => MetadataReference.CreateFromFile(path: a.Location)).Distinct().ToArray();
+        var comp = CSharpCompilation.Create(assemblyName: "Test", syntaxTrees: trees, references: refs, options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
+        var driver = CSharpGeneratorDriver.Create(incrementalGenerators: new OptionsPatternGenerator());
+        driver.RunGeneratorsAndUpdateCompilation(compilation: comp, outputCompilation: out var outComp, diagnostics: out _);
+        return (outComp, outComp.SyntaxTrees.Skip(count: 2).Select(selector: st => st.GetText().ToString()));
     }
 
     [Fact]
     public void GeneratesExtensions_ForDecoratedClass()
     {
-        var (_, sources) = RunGenerator("using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
-        Assert.NotEmpty(sources);
-        Assert.Contains(sources, s => s.Contains("DatabaseOptionsExtensions"));
+        var (_, sources) = RunGenerator(source: "using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
+        Assert.NotEmpty(collection: sources);
+        Assert.Contains(collection: sources, filter: s => s.Contains(value: "DatabaseOptionsExtensions"));
     }
 
     [Fact]
     public void GeneratedExtensions_ContainsDiRegistration()
     {
-        var (_, sources) = RunGenerator("using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
-        var src = sources.First(s => s.Contains("DatabaseOptionsExtensions"));
-        Assert.Contains("AddDatabaseOptions", src);
-        Assert.Contains("IServiceCollection", src);
+        var (_, sources) = RunGenerator(source: "using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
+        var src = sources.First(predicate: s => s.Contains(value: "DatabaseOptionsExtensions"));
+        Assert.Contains(expectedSubstring: "AddDatabaseOptions", actualString: src);
+        Assert.Contains(expectedSubstring: "IServiceCollection", actualString: src);
     }
 
     [Fact]
     public void GeneratedExtensions_ContainsValidator()
     {
-        var (_, sources) = RunGenerator("using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
-        var src = sources.First(s => s.Contains("DatabaseOptionsExtensions"));
-        Assert.Contains("DatabaseOptionsValidator", src);
-        Assert.Contains("IValidateOptions", src);
+        var (_, sources) = RunGenerator(source: "using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
+        var src = sources.First(predicate: s => s.Contains(value: "DatabaseOptionsExtensions"));
+        Assert.Contains(expectedSubstring: "DatabaseOptionsValidator", actualString: src);
+        Assert.Contains(expectedSubstring: "IValidateOptions", actualString: src);
     }
 
     [Fact]
     public void GeneratedOutput_StripsSuffixForSectionName()
     {
-        var (_, sources) = RunGenerator("using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
-        var src = sources.First(s => s.Contains("DatabaseOptionsExtensions"));
-        Assert.Contains("\"Database\"", src);
+        var (_, sources) = RunGenerator(source: "using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
+        var src = sources.First(predicate: s => s.Contains(value: "DatabaseOptionsExtensions"));
+        Assert.Contains(expectedSubstring: "\"Database\"", actualString: src);
     }
 
     [Fact]
     public void GeneratedOutput_ContainsAutoGenHeader()
     {
-        var (_, sources) = RunGenerator("using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
-        Assert.Contains(sources, s => s.Contains("auto-generated"));
+        var (_, sources) = RunGenerator(source: "using Vc.Generators.Abstractions.Dx; namespace Config; [VcOptions] public class DatabaseOptions {}");
+        Assert.Contains(collection: sources, filter: s => s.Contains(value: "auto-generated"));
     }
 
     [Fact]
     public void NonDecoratedClass_ProducesNoOutput()
     {
-        var (_, sources) = RunGenerator("namespace Config; public class DatabaseOptions {}");
-        Assert.Empty(sources);
+        var (_, sources) = RunGenerator(source: "namespace Config; public class DatabaseOptions {}");
+        Assert.Empty(collection: sources);
     }
 }

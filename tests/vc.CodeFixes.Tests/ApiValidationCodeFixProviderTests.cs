@@ -1,18 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Vc.Analyzers.Api;
 using Vc.CodeFixes.Api;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
+using VisionaryCoder.Analyzers.Api;
 using Xunit;
 
-namespace Vc.CodeFixes.Tests;
+namespace vc.CodeFixes.Tests;
 
 public sealed class ApiValidationCodeFixProviderTests
 {
@@ -39,43 +33,43 @@ public sealed class ApiValidationCodeFixProviderTests
             }
             """;
 
-        var document = await CreateDocumentAsync(source);
-        var diagnostics = await GetAnalyzerDiagnosticsAsync(document);
-        var diagnostic = Assert.Single(diagnostics.Where(d => d.Id == DiagnosticIds.ApiValidationMissing));
+        var document = await CreateDocumentAsync(source: source);
+        var diagnostics = await GetAnalyzerDiagnosticsAsync(document: document);
+        var diagnostic = Assert.Single(collection: diagnostics.Where(predicate: d => d.Id == DiagnosticIds.ApiValidationMissing));
 
         var provider = new ApiValidationCodeFixProvider();
         CodeAction? codeAction = null;
 
-        var context = new CodeFixContext(document, diagnostic, (action, _) => codeAction = action, CancellationToken.None);
-        await provider.RegisterCodeFixesAsync(context);
+        var context = new CodeFixContext(document: document, diagnostic: diagnostic, registerCodeFix: (action, _) => codeAction = action, cancellationToken: CancellationToken.None);
+        await provider.RegisterCodeFixesAsync(context: context);
 
-        var operations = await codeAction!.GetOperationsAsync(CancellationToken.None);
-        var applyOperation = Assert.IsType<ApplyChangesOperation>(operations.Single());
-        var updatedDocument = applyOperation.ChangedSolution.GetDocument(document.Id)!;
+        var operations = await codeAction!.GetOperationsAsync(cancellationToken: CancellationToken.None);
+        var applyOperation = Assert.IsType<ApplyChangesOperation>(@object: operations.Single());
+        var updatedDocument = applyOperation.ChangedSolution.GetDocument(documentId: document.Id)!;
         var updatedText = await updatedDocument.GetTextAsync();
 
-        Assert.Contains("using System.ComponentModel.DataAnnotations;", updatedText.ToString());
-        Assert.Contains("[Required]", updatedText.ToString());
-        Assert.Contains("OrderRequest request", updatedText.ToString());
+        Assert.Contains(expectedSubstring: "using System.ComponentModel.DataAnnotations;", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "[Required]", actualString: updatedText.ToString());
+        Assert.Contains(expectedSubstring: "OrderRequest request", actualString: updatedText.ToString());
     }
 
     private static async Task<Document> CreateDocumentAsync(string source)
     {
         var workspace = new AdhocWorkspace();
-        var project = workspace.AddProject("CodeFixTests", LanguageNames.CSharp)
-            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var project = workspace.AddProject(name: "CodeFixTests", language: LanguageNames.CSharp)
+            .WithCompilationOptions(options: new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary));
 
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location));
-        project = project.AddMetadataReference(MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(object).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Linq.Enumerable).Assembly.Location));
+        project = project.AddMetadataReference(metadataReference: MetadataReference.CreateFromFile(path: typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
 
-        return workspace.AddDocument(project.Id, "WeatherController.cs", SourceText.From(source));
+        return workspace.AddDocument(projectId: project.Id, name: "WeatherController.cs", text: SourceText.From(text: source));
     }
 
     private static async Task<IReadOnlyList<Diagnostic>> GetAnalyzerDiagnosticsAsync(Document document)
     {
         var compilation = await document.Project.GetCompilationAsync();
-        var analyzerDiagnostics = await compilation!.WithAnalyzers([new ApiValidationAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+        var analyzerDiagnostics = await compilation!.WithAnalyzers(analyzers: [new ApiValidationAnalyzer()]).GetAnalyzerDiagnosticsAsync();
         return analyzerDiagnostics;
     }
 }

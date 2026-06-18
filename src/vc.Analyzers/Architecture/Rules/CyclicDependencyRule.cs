@@ -1,33 +1,29 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Architecture.Rules;
+namespace VisionaryCoder.Analyzers.Architecture.Rules;
 
 internal sealed class CyclicDependencyRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ArchCyclicDependency,
-        "Cyclic namespace dependency detected",
-        "Namespace '{0}' depends on '{1}', forming a cyclic dependency.",
-        "Architecture",
-        DiagnosticSeverity.Error,
+        id: DiagnosticIds.ArchCyclicDependency,
+        title: "Cyclic namespace dependency detected",
+        messageFormat: "Namespace '{0}' depends on '{1}', forming a cyclic dependency.",
+        category: "Architecture",
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterCompilationStartAction(Start);
+        context.RegisterCompilationStartAction(action: Start);
     }
 
     private static void Start(CompilationStartAnalysisContext context)
     {
         var graph = new DependencyGraph();
 
-        context.RegisterSymbolAction(symbolContext =>
+        context.RegisterSymbolAction(action: symbolContext =>
         {
             if (symbolContext.Symbol is not INamedTypeSymbol typeSymbol)
             {
@@ -35,26 +31,27 @@ internal sealed class CyclicDependencyRule : IAnalyzerRule
             }
 
             var fromNamespace = typeSymbol.ContainingNamespace?.ToDisplayString();
-            if (string.IsNullOrEmpty(fromNamespace))
+            if (fromNamespace is null || fromNamespace.Length == 0)
             {
                 return;
             }
 
-            foreach (var referenced in GetReferencedNamespaces(typeSymbol))
+            var sourceNamespace = fromNamespace;
+            foreach (var referenced in GetReferencedNamespaces(typeSymbol: typeSymbol))
             {
-                if (referenced != fromNamespace)
+                if (referenced != sourceNamespace)
                 {
-                    graph.AddEdge(fromNamespace, referenced, typeSymbol);
+                    graph.AddEdge(from: sourceNamespace, to: referenced, type: typeSymbol);
                 }
             }
-        }, SymbolKind.NamedType);
+        }, symbolKinds: SymbolKind.NamedType);
 
-        context.RegisterCompilationEndAction(endContext =>
+        context.RegisterCompilationEndAction(action: endContext =>
         {
             foreach (var cycle in graph.FindCycles())
             {
                 var (from, to, typeSymbol) = cycle;
-                endContext.ReportDiagnostic(Diagnostic.Create(descriptor, typeSymbol.Locations.FirstOrDefault(), from, to));
+                endContext.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: typeSymbol.Locations.FirstOrDefault(), messageArgs: [from, to]));
             }
         });
     }

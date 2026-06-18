@@ -1,8 +1,6 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdManagerFeatureSpecificLogicRule : IAnalyzerRule
 {
@@ -18,7 +16,7 @@ internal sealed class VbdManagerFeatureSpecificLogicRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+        context.RegisterSymbolAction(action: AnalyzeMethod, symbolKinds: SymbolKind.Method);
     }
 
     private static void AnalyzeMethod(SymbolAnalysisContext context)
@@ -28,15 +26,15 @@ internal sealed class VbdManagerFeatureSpecificLogicRule : IAnalyzerRule
             return;
         }
 
-        if (!method.ContainingType.Name.EndsWith("Manager"))
+        if (!method.ContainingType.Name.EndsWith(value: "Manager"))
         {
             return;
         }
 
         var name = method.Name;
-        if (name.Contains("Feature") || name.Contains("Experiment") || name.EndsWith("V1") || name.EndsWith("V2"))
+        if (name.Contains(value: "Feature") || name.Contains(value: "Experiment") || name.EndsWith(value: "V1") || name.EndsWith(value: "V2"))
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, method.Locations.FirstOrDefault(), method.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: method.Locations.FirstOrDefault(), messageArgs: method.Name));
         }
     }
 }

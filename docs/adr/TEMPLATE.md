@@ -1,3 +1,9 @@
+---
+title: ADR Template
+description: Project documentation for ADR Template.
+status: active
+updated: 2026-06-18
+---
 # ADR Template
 
 Use this file as a template for new Architecture Decision Records.

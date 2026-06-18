@@ -1,9 +1,6 @@
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Design.Vbd.Rules;
+namespace VisionaryCoder.Analyzers.Design.Vbd.Rules;
 
 internal sealed class VbdEngineStateMutationRule : IAnalyzerRule
 {
@@ -19,7 +16,7 @@ internal sealed class VbdEngineStateMutationRule : IAnalyzerRule
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSymbolAction(AnalyzeField, SymbolKind.Field);
+        context.RegisterSymbolAction(action: AnalyzeField, symbolKinds: SymbolKind.Field);
     }
 
     private static void AnalyzeField(SymbolAnalysisContext context)
@@ -30,14 +27,14 @@ internal sealed class VbdEngineStateMutationRule : IAnalyzerRule
         }
 
         var containingType = field.ContainingType;
-        if (containingType == null || !containingType.Name.EndsWith("Engine"))
+        if (containingType == null || !containingType.Name.EndsWith(value: "Engine"))
         {
             return;
         }
 
         if (!field.IsReadOnly && !field.IsConst)
         {
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, field.Locations.FirstOrDefault(), containingType.Name, field.Name));
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: field.Locations.FirstOrDefault(), messageArgs: [containingType.Name, field.Name]));
         }
     }
 }

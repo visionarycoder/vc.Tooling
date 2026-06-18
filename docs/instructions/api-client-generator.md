@@ -1,3 +1,9 @@
+---
+title: Api Client Generator
+description: Project documentation for Api Client Generator.
+status: active
+updated: 2026-06-18
+---
 Implement an API client source generator in VisionaryCoder.Tooling.
 
 Project:

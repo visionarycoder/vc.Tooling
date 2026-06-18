@@ -1,3 +1,9 @@
+---
+title: Code Generator Expansion Roadmap
+description: Project documentation for Code Generator Expansion Roadmap.
+status: active
+updated: 2026-06-18
+---
 # Code Generator Expansion Roadmap
 
 This roadmap defines a large-scale plan for expanding code generation across VisionaryCoder.Tooling.

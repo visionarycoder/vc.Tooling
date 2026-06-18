@@ -1,3 +1,9 @@
+---
+title: Analyzer Rule Composition Skill
+description: Project documentation for Analyzer Rule Composition Skill.
+status: active
+updated: 2026-06-18
+---
 # Analyzer Rule Composition Skill
 
 ## Overview

@@ -1,3 +1,9 @@
+---
+title: Construct Analyzer Prompt
+description: Project documentation for Construct Analyzer Prompt.
+status: active
+updated: 2026-06-18
+---
 # Construct Analyzer Prompt
 
 Implement the full Roslyn analyzer for category `<CATEGORY>` in the VisionaryCoder.Tooling suite.

@@ -1,6 +1,9 @@
 ---
+title: VBD Manager Vault Skill
 name: vbd-manager-vault
 description: Build manager vault components using Juval Lowy VBD and the shared VBD canonical rules.
+status: active
+updated: 2026-06-18
 ---
 
 # VBD Manager Vault Skill

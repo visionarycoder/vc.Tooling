@@ -1,3 +1,9 @@
+---
+title: Validation Generator
+description: Project documentation for Validation Generator.
+status: active
+updated: 2026-06-18
+---
 Implement a validation source generator in VisionaryCoder.Tooling.
 
 Project:

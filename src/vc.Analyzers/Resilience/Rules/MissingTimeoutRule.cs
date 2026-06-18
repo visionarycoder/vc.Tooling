@@ -1,26 +1,22 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using VisionaryCoder.Tooling.Analyzers.Common;
+using VisionaryCoder.Analyzers.Abstractions;
 
-namespace Vc.Analyzers.Resilience.Rules;
+namespace VisionaryCoder.Analyzers.Resilience.Rules;
 
 internal sealed class MissingTimeoutRule : IAnalyzerRule
 {
     public DiagnosticDescriptor Descriptor => descriptor;
 
     private static readonly DiagnosticDescriptor descriptor = new(
-        DiagnosticIds.ResilienceTimeoutMissing,
-        "Missing timeout",
-        "External call '{0}' is not wrapped in a timeout or does not use a cancellation token.",
-        "Resilience",
-        DiagnosticSeverity.Warning,
+        id: DiagnosticIds.ResilienceTimeoutMissing,
+        title: "Missing timeout",
+        messageFormat: "External call '{0}' is not wrapped in a timeout or does not use a cancellation token.",
+        category: "Resilience",
+        defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
     public void Register(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+        context.RegisterSyntaxNodeAction(action: AnalyzeInvocation, syntaxKinds: SyntaxKind.InvocationExpression);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -30,24 +26,24 @@ internal sealed class MissingTimeoutRule : IAnalyzerRule
             return;
         }
 
-        var symbol = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
-        if (symbol is null || !IsExternalCall(symbol) || IsInsideTimeout(invocation) || HasCancellationToken(symbol))
+        var symbol = context.SemanticModel.GetSymbolInfo(expression: invocation, cancellationToken: context.CancellationToken).Symbol as IMethodSymbol;
+        if (symbol is null || !IsExternalCall(methodSymbol: symbol) || IsInsideTimeout(node: invocation) || HasCancellationToken(methodSymbol: symbol))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, invocation.GetLocation(), symbol.Name));
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(descriptor: descriptor, location: invocation.GetLocation(), messageArgs: symbol.Name));
     }
 
     private static bool IsExternalCall(IMethodSymbol methodSymbol)
     {
         var ns = methodSymbol.ContainingNamespace?.ToDisplayString();
         return ns is not null &&
-               (ns.StartsWith("System.Net.Http", System.StringComparison.Ordinal) ||
-                ns.Contains("SqlClient", System.StringComparison.Ordinal) ||
-                ns.Contains("Redis", System.StringComparison.Ordinal) ||
-                ns.Contains("Mongo", System.StringComparison.Ordinal) ||
-                ns.Contains("Cosmos", System.StringComparison.Ordinal));
+               (ns.StartsWith(value: "System.Net.Http", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "SqlClient", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "Redis", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "Mongo", comparisonType: System.StringComparison.Ordinal) ||
+                ns.Contains(value: "Cosmos", comparisonType: System.StringComparison.Ordinal));
     }
 
     private static bool IsInsideTimeout(SyntaxNode node)
@@ -58,7 +54,7 @@ internal sealed class MissingTimeoutRule : IAnalyzerRule
             if (current is InvocationExpressionSyntax invocation && invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 var name = memberAccess.Name.Identifier.Text;
-                if (name.Contains("Timeout", System.StringComparison.Ordinal) || name.Contains("WithTimeout", System.StringComparison.Ordinal) || name.Contains("TimeoutAfter", System.StringComparison.Ordinal))
+                if (name.Contains(value: "Timeout", comparisonType: System.StringComparison.Ordinal) || name.Contains(value: "WithTimeout", comparisonType: System.StringComparison.Ordinal) || name.Contains(value: "TimeoutAfter", comparisonType: System.StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -72,6 +68,6 @@ internal sealed class MissingTimeoutRule : IAnalyzerRule
 
     private static bool HasCancellationToken(IMethodSymbol methodSymbol)
     {
-        return methodSymbol.Parameters.Any(parameter => parameter.Type.Name == "CancellationToken");
+        return methodSymbol.Parameters.Any(predicate: parameter => parameter.Type.Name == "CancellationToken");
     }
 }

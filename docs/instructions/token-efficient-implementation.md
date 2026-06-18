@@ -1,3 +1,9 @@
+---
+title: Token-Efficient Implementation Guide
+description: Project documentation for Token-Efficient Implementation Guide.
+status: active
+updated: 2026-06-18
+---
 # Token-Efficient Implementation Guide
 
 Use this guide when implementing roadmap items with minimal token usage.

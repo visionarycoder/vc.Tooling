@@ -1,6 +1,9 @@
 ---
+title: VBD Engine Vault Skill
 name: vbd-engine-vault
 description: Build engine vault components using Juval Lowy VBD and the shared VBD canonical rules.
+status: active
+updated: 2026-06-18
 ---
 
 # VBD Engine Vault Skill

@@ -1,6 +1,9 @@
 ---
+title: Architecture Decision Records (ADRs)
 name: adr
 description: Document architecture decisions and trade-offs using Architecture Decision Records (ADRs).
+status: active
+updated: 2026-06-18
 ---
 
 # Architecture Decision Records (ADRs)

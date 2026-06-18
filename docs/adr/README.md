@@ -1,3 +1,9 @@
+---
+title: Architecture Decision Records (ADRs)
+description: Project documentation for Architecture Decision Records (ADRs).
+status: active
+updated: 2026-06-18
+---
 # Architecture Decision Records (ADRs)
 
 This directory contains all Architecture Decision Records for VisionaryCoder.Tooling.
